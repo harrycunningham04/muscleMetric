@@ -111,3 +111,21 @@
 ::-webkit-scrollbar-thumb {
   @apply bg-urban-purple/50 rounded-full hover:bg-urban-purple;
 }
+
+.hero-image-wrapper {
+  perspective: 800px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  overflow: visible;
+}
+
+.hero-image {
+  transform: rotateX(15deg) scale(1);
+  transition: transform 0.5s ease-out;
+  will-change: transform;
+}
+
+.hero-image.scrolled {
+  transform: rotateX(0deg) scale(1) translateY(40px);
+}

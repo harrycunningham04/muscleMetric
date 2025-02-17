@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
@@ -38,13 +38,40 @@ const Index = () => {
   const parallaxY2 = useTransform(scrollYProgress, [0, 1], [0, -50]);
   const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [1, 0.8, 0.6]);
 
+  const ref = useRef(null);
+
+  const { scrollXProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"],
+  });
+
+  const [scrolled, setScrolled] = useState(false);
+
+  const handleScroll = () => {
+    if (window.scrollY > 150) {
+      // Adjust the scroll threshold as needed
+      setScrolled(true);
+    } else {
+      setScrolled(false);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  const perspectiveY = useTransform(scrollXProgress, [0, 1], [0, -100]);
+
   const features = [
     {
       icon: <Calendar className="w-8 h-8" />,
       title: "Workout Plans",
       description:
         "Access custom workout plans tailored to your fitness level and goals.",
-      image: "/public/WorkoutPlans.jpg",
+      image: "/WorkoutPlans.jpg",
       graph: <ExerciseProgressGraph exercise="Overhead Press" />,
       type: "dialog",
     },
@@ -53,7 +80,7 @@ const Index = () => {
       title: "Goal Setting",
       description:
         "Set personalized fitness goals and get guided support to achieve them.",
-      image: "/public/Goals.jpg",
+      image: "/Goals.jpg",
       graph: <ExerciseProgressGraph exercise="Deadlift" />,
       type: "popover-right",
     },
@@ -62,7 +89,7 @@ const Index = () => {
       title: "Easy to Use",
       description:
         "Intuitive interface designed for both beginners and experienced athletes.",
-      image: "/public/Welcome.jpg",
+      image: "/Welcome.jpg",
       graph: <ExerciseProgressGraph exercise="Squats" />,
       type: "popover-left",
     },
@@ -72,7 +99,7 @@ const Index = () => {
       title: "Progress Tracking",
       description:
         "Track your workouts and monitor your progress with detailed analytics and charts.",
-
+      image: "/ProgressTracking.png",
       graph: <ExerciseProgressGraph exercise="Bench Press" />,
       type: "dialog",
     },
@@ -81,6 +108,7 @@ const Index = () => {
       title: "Performance Metrics",
       description:
         "Get detailed insights into your performance and areas for improvement.",
+      image: "/PerformanceMetrics.png",
       graph: <ExerciseProgressGraph exercise="Pull-ups" />,
       type: "popover-bottom",
     },
@@ -89,6 +117,7 @@ const Index = () => {
       title: "Community",
       description:
         "Join a community of fitness enthusiasts and share your journey.",
+      image: "/Community.png",
       graph: <ExerciseProgressGraph exercise="Bicep Curls" />,
       type: "popover-right",
     },
@@ -141,7 +170,7 @@ const Index = () => {
         <Popover>
           <PopoverTrigger asChild>{cardContent}</PopoverTrigger>
           <PopoverContent
-            className="w-[400px] p-4"
+            className="w-[450px] min-h-[450px] p-4"
             side={
               feature.type.replace("popover-", "") as
                 | "top"
@@ -182,41 +211,46 @@ const Index = () => {
       </motion.div>
 
       {/* Hero Section */}
-      <section className="min-h-screen relative overflow-hidden flex items-center justify-center">
+      <section
+        ref={ref}
+        className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center px-4"
+      >
+        {/* Background effect */}
         <motion.div
           className="absolute inset-0 opacity-20"
-          style={{ y: parallaxY1, opacity }}
+          style={{ y: perspectiveY }}
         ></motion.div>
 
-        <div className="container mx-auto px-4 text-center z-10">
+        {/* Container */}
+        <div className="container mx-auto text-center z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="mb-8 space-y-8"
+            className="mb-8 flex flex-col items-center"
           >
-            <motion.div
-              className="w-full aspect-square max-w-4xl max-h-[400px] mx-auto relative"
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 300 }}
-            >
-              <img
-                src="/public/MuscleMetricIcon.png"
+            {/* Logo & Title Row */}
+            <div className="flex items-center justify-center gap-4 mt-20 mb-5">
+              <motion.img
+                src="/MuscleMetricIcon.png"
                 alt="MuscleMetric Logo"
-                className="w-full h-full object-contain"
-                loading="eager"
+                className="size-12 object-contain"
+                whileHover={{ scale: 1.15 }}
+                transition={{ type: "spring", stiffness: 300 }}
               />
-            </motion.div>
-            <motion.h1
-              className="text-5xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-teal-400 leading-tight"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              Welcome to MuscleMetric
-            </motion.h1>
+              <motion.h1
+                className="text-5xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-teal-400 leading-tight"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                Welcome to MuscleMetric
+              </motion.h1>
+            </div>
+
+            {/* Subtitle */}
             <motion.p
-              className="text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed"
+              className="text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed mt-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}
@@ -226,11 +260,12 @@ const Index = () => {
             </motion.p>
           </motion.div>
 
+          {/* CTA Buttons */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-20"
           >
             <Button
               onClick={() => navigate("/dashboard")}
@@ -247,6 +282,17 @@ const Index = () => {
             </Button>
           </motion.div>
         </div>
+
+        {/* Perspective Scrolling Image */}
+        <div className="hero-image-wrapper">
+          <div className={`hero-image ${scrolled ? "scrolled" : ""}`}>
+            <img
+              src="/FitnessDashboard.png"
+              alt="Fitness Dashboard"
+              className="w-full max-w-[900px] h-auto rounded-lg shadow-2xl mx-auto"
+            />
+          </div>
+        </div>
       </section>
 
       {/* Features Section */}
@@ -255,7 +301,7 @@ const Index = () => {
           className="absolute inset-0 opacity-10"
           style={{ y: parallaxY2 }}
         >
-          <div className="absolute inset-0 bg-[url('/public/MuscleMetricLogo.png')] bg-center bg-no-repeat bg-contain" />
+          <div className="absolute inset-0 bg-[url('/MuscleMetricLogo.png')] bg-center bg-no-repeat bg-contain" />
         </motion.div>
 
         <div className="container mx-auto px-4">
@@ -269,14 +315,14 @@ const Index = () => {
 
       {/* Feature Dialog */}
       <Dialog open={showFeatureDialog} onOpenChange={setShowFeatureDialog}>
-        <DialogContent className="sm:max-w-[900px]">
+        <DialogContent className="sm:max-w-[900px] bg-white/90 text-black shadow-2xl rounded-lg p-6 border border-gray-200">
           <DialogHeader>
             <DialogTitle>{features[currentFeature]?.title}</DialogTitle>
             <DialogDescription>
               {features[currentFeature]?.description}
             </DialogDescription>
           </DialogHeader>
-          <div className="mt-4 h-[400px]">
+          <div className="mt-4 min-h-[550px]">
             {features[currentFeature]?.graph}
           </div>
         </DialogContent>
