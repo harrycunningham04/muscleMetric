@@ -1,28 +1,29 @@
-import {
-  ChartContainer,
-  ChartTooltip,
-} from "@/components/ui/chart";
-import {
-  Line,
-  LineChart,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Legend,
-} from "recharts";
+import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
+import { Line, LineChart, XAxis, YAxis, CartesianGrid, Legend } from "recharts";
 import { addDays, format } from "date-fns";
 
 interface ExerciseProgressGraphProps {
   exercise: string;
 }
 
-export const ExerciseProgressGraph = ({ exercise }: ExerciseProgressGraphProps) => {
-  // Mock data - replace with actual API data
-  const data = Array.from({ length: 10 }, (_, i) => ({
-    date: format(addDays(new Date(), i * 3), "MMM dd"),
-    actual: Math.floor(100 + Math.random() * 50),
-    goal: 100 + (i * 5),
-  }));
+export const ExampleExerciseProgressGraph = ({
+  exercise,
+}: ExerciseProgressGraphProps) => {
+  const startWeight = 75; // Starting weight
+  const goalWeight = 110; // Target weight
+
+  const data = Array.from({ length: 10 }, (_, i) => {
+    const progress = i / 9; 
+    const goal = parseFloat((startWeight + (goalWeight - startWeight) * progress).toFixed(2));
+
+    const actual = parseFloat((goal + (Math.random() * 10 - 5)).toFixed(2));
+
+    return {
+      date: format(addDays(new Date(), i * 3), "MMM dd"),
+      actual: Math.min(actual, goalWeight), // Ensure it doesn't exceed the goal
+      goal,
+    };
+  });
 
   const config = {
     actual: {
@@ -52,7 +53,7 @@ export const ExerciseProgressGraph = ({ exercise }: ExerciseProgressGraphProps) 
                 style={{ backgroundColor: entry.color }}
               />
               <span className="text-muted-foreground">{entry.name}:</span>
-              <span className="font-medium">{entry.value} lbs</span>
+              <span className="font-medium">{entry.value} kgs</span>
             </div>
           ))}
         </div>
@@ -65,9 +66,9 @@ export const ExerciseProgressGraph = ({ exercise }: ExerciseProgressGraphProps) 
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="space-y-1">
-          <p className="text-sm font-medium">Current Progress</p>
+          <p className="text-sm font-medium">{exercise} Progress</p>
           <p className="text-2xl font-bold">
-            {data[data.length - 1].actual} lbs
+            {data[data.length - 1].actual} kgs
           </p>
         </div>
         <div
@@ -83,7 +84,10 @@ export const ExerciseProgressGraph = ({ exercise }: ExerciseProgressGraphProps) 
 
       <div className="h-[300px] mt-4">
         <ChartContainer config={config}>
-          <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+          <LineChart
+            data={data}
+            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+          >
             <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
             <XAxis
               dataKey="date"

@@ -40,7 +40,7 @@ const Footer = () => {
 
           {/* Social Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-white">Connect With Me</h3>
+            <h3 className="text-lg font-semibold mb-4 text-white">Connect With Us</h3>
             <div className="flex space-x-4">
               <a
                 href="https://github.com/harrycunningham04"
