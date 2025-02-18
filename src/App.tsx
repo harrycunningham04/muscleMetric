@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "tailwindcss/tailwind.css";
 import Index from "./pages/index";
+import Main from "./pages/main";
 import Footer from "./components/Footer";
 
 const queryClient = new QueryClient();
@@ -20,6 +21,7 @@ const App = () => (
           <div className="flex-grow">
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/dashboard" element={<Main />} />
             </Routes>
           </div>
           <Footer />
