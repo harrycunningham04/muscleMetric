@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { Moon, Sun } from 'lucide-react';
 import { UserProfile } from '@/components/UserProfile';
 import { toast } from 'sonner';
-import { muscleGroups, findMatchingWorkouts } from '@/data/preMadeWorkouts';
+import { muscleGroups, findMatchingWorkouts } from '@/data/premadeWorkout';
 
 const PreMadePlans = () => {
   const navigate = useNavigate();

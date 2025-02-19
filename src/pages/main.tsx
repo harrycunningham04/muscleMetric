@@ -44,7 +44,7 @@ const Main = () => {
             </Button>
             <Button
               variant="ghost"
-              onClick={() => navigate("/plans")}
+              onClick={() => navigate("/pre-made-plans")}
               className="text-foreground hover:text-foreground/80 hover:text-white"
             >
               Pre-Made Plans

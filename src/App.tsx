@@ -7,6 +7,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "tailwindcss/tailwind.css";
 import Index from "./pages/index";
 import Main from "./pages/main";
+import Plans from "./pages/plans";
+import PreMadePlans from "./pages/premadePlans";
+import Contact from "./pages/contact";
+import Verify from "./pages/verify";
 import Footer from "./components/Footer";
 
 const queryClient = new QueryClient();
@@ -22,6 +26,10 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/dashboard" element={<Main />} />
+              <Route path="/plans" element={<Plans />} />
+              <Route path="/pre-made-plans" element={<PreMadePlans />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/verify" element={<Verify />} />
             </Routes>
           </div>
           <Footer />
