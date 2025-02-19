@@ -150,7 +150,7 @@ export const features = [
         </div>
       </div>
     ),
-    type: "popover-top",
+    type: "popover-left",
   },
   {
     icon: <Award className="w-8 h-8" />,

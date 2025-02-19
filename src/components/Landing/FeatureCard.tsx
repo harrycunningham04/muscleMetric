@@ -50,7 +50,7 @@ export const FeatureCard = ({ feature, index, onClick, type }: FeatureCardProps)
         {cardContent}
       </PopoverTrigger>
       <PopoverContent 
-        className="w-[420px] p-5 bg-white/10 backdrop-blur-xl border border-white/20 shadow-xl rounded-xl"
+        className="w-[420px] p-5 bg-white backdrop-blur-xl border border-white/20 shadow-xl rounded-xl"
         side={type.replace('popover-', '') as "top" | "right" | "bottom" | "left"}
         align="center"
         sideOffset={12} 

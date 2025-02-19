@@ -98,7 +98,7 @@ export const OneRepModal = ({ isOpen, onClose }: OneRepMaxModalProps) => {
           </div>
           
           <div className="grid gap-2">
-            <Label htmlFor="weight">Weight (lbs/kg)</Label>
+            <Label htmlFor="weight">Weight (kgs)</Label>
             <Input
               id="weight"
               type="number"
@@ -131,13 +131,13 @@ export const OneRepModal = ({ isOpen, onClose }: OneRepMaxModalProps) => {
             <div className="mt-4 space-y-3 p-4 rounded-lg bg-muted">
               <div className="pb-3 mb-3 border-b">
                 <h3 className="font-semibold text-sm text-muted-foreground">Average 1RM Estimate:</h3>
-                <p className="text-xl font-bold">{Math.round(calculateAverage(results))} lbs</p>
+                <p className="text-xl font-bold">{Math.round(calculateAverage(results))} kgs</p>
               </div>
               <h3 className="font-semibold text-sm text-muted-foreground mb-2">Individual Formulas:</h3>
               {Object.entries(results).map(([formula, value]) => (
                 <div key={formula} className="flex justify-between items-center">
                   <span className="capitalize text-sm">{formula}:</span>
-                  <span className="font-mono">{Math.round(value)} lbs</span>
+                  <span className="font-mono">{Math.round(value)} kgs</span>
                 </div>
               ))}
             </div>

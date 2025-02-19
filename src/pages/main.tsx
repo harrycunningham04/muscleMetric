@@ -2,16 +2,25 @@ import { useState } from "react";
 import { Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { DashboardView } from "@/components/DashboardView";
 import { ProgressSummary } from "@/components/ProgressSummary";
 import { ExerciseProgressGraph } from "@/components/ExerciseProgressGraph";
 import { getExercisesList } from "@/components/ExerciseSelector";
+import { UserProfile } from "@/components/UserProfile";
+import { useNavigate } from "react-router-dom";
 
 const Main = () => {
   const [selectedExercise, setSelectedExercise] = useState<string | null>(null);
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const exercises = getExercisesList();
+  const navigate = useNavigate();
 
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
@@ -24,18 +33,46 @@ const Main = () => {
     <div className="container py-8 bg-background text-foreground min-h-screen">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Dashboard</h1>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleTheme}
-          className="rounded-full"
-        >
-          {theme === "light" ? (
-            <Moon className="h-5 w-5" />
-          ) : (
-            <Sun className="h-5 w-5" />
-          )}
-        </Button>
+        <div className="flex items-center gap-2">
+          <nav className="hidden md:flex items-center gap-4">
+            <Button
+              variant="ghost"
+              onClick={() => navigate("/plans")}
+              className="text-foreground hover:text-foreground/80 hover:text-white"
+            >
+              Plans
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => navigate("/plans")}
+              className="text-foreground hover:text-foreground/80 hover:text-white"
+            >
+              Pre-Made Plans
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => navigate("/contact")}
+              className="text-foreground hover:text-foreground/80 hover:text-white"
+            >
+              Contact
+            </Button>
+          </nav>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+              className="rounded-full"
+            >
+              {theme === "light" ? (
+                <Moon className="h-5 w-5" />
+              ) : (
+                <Sun className="h-5 w-5" />
+              )}
+            </Button>
+            <UserProfile />
+          </div>
+        </div>
       </div>
 
       <div className="space-y-8">

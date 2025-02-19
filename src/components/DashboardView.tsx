@@ -22,9 +22,9 @@ export const DashboardView = () => {
 
   return (
     <Card className="w-full hover:shadow-lg transition-all">
-      <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10">
+      <CardHeader className="bg-primary rounded-xl">
         <div 
-          className="flex items-center cursor-pointer hover:text-primary transition-colors group"
+          className="flex items-center cursor-pointer text-white hover:text-black transition-colors group"
           onClick={() => navigate('/workout')}
         >
           <CardTitle className="text-3xl group-hover:scale-105 transition-transform">
@@ -33,7 +33,7 @@ export const DashboardView = () => {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="rounded-lg overflow-hidden border bg-gradient-to-br from-background to-primary/5 p-4">
+        <div className="rounded-lg overflow-hidden border bg-gradient-to-br from-background to-primary/5 p-4 mt-4">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {/* Workout Streak */}
             <div className="p-4 rounded-lg bg-gradient-to-br from-orange-500/10 to-red-500/10 hover:from-orange-500/20 hover:to-red-500/20 transition-all flex flex-col items-center justify-center text-center space-y-2 hover:scale-105 cursor-default">
@@ -46,7 +46,7 @@ export const DashboardView = () => {
             <div className="p-4 rounded-lg bg-gradient-to-br from-blue-500/10 to-cyan-500/10 hover:from-blue-500/20 hover:to-cyan-500/20 transition-all flex flex-col items-center justify-center text-center space-y-2 hover:scale-105 cursor-default">
               <Dumbbell className="w-8 h-8 text-blue-600" />
               <div className="text-2xl font-bold">{stats.totalVolume.toLocaleString()}</div>
-              <div className="text-sm text-muted-foreground">Total lbs Lifted</div>
+              <div className="text-sm text-muted-foreground">Total kgs Lifted</div>
             </div>
 
             {/* Workouts Completed */}
