@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import Lanyard from "../components/Lanyard/Lanyard";
 
 const About = () => {
@@ -28,7 +27,7 @@ const About = () => {
       </section>
 
       {/* Mission Section */}
-      <section className="py-16 md:py-24">
+      <section className="py-16 md:py-12 mt-[-175px]">
         <div className="container px-4">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <motion.div
@@ -37,7 +36,7 @@ const About = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              <Lanyard />
+              <Lanyard position={[0, 0, 30]} />
             </motion.div>
             <motion.div
               initial={{ opacity: 0, x: 20 }}
@@ -47,19 +46,53 @@ const About = () => {
               className="space-y-6"
             >
               <h2 className="text-3xl md:text-4xl font-bold">Our Mission</h2>
-              <p className="text-lg text-muted-foreground">
-                We're dedicated to transforming the fitness industry by making
-                professional workout planning accessible to everyone. Our
-                platform combines cutting-edge technology with personalized
-                guidance to help you achieve your fitness goals.
-              </p>
+
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">
+                  Empowering Your Fitness Journey
+                </h3>
+                <p className="text-lg text-muted-foreground">
+                  Our goal is to transform the fitness industry by providing a
+                  comprehensive platform where you can create tailored workout
+                  plans, set achievable goals, and track your progress
+                  effectively. We believe fitness should be accessible,
+                  structured, and motivating for everyone, whether you're a
+                  beginner or an advanced athlete.
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">
+                  Why We Built This Platform
+                </h3>
+                <p className="text-lg text-muted-foreground">
+                  We saw a gap in the market for a truly user-friendly and
+                  professional workout planning tool. Many existing solutions
+                  lacked the personalization and guidance needed to help
+                  individuals make consistent progress. By combining technology
+                  with expert insights, our platform offers a streamlined
+                  experience that adapts to your evolving fitness needs.
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">The Future</h3>
+                <p className="text-lg text-muted-foreground">
+                  We want to allow brands, people, everyone to collaborate. We
+                  know the best thing about the fitness world is the community
+                  it brings together, so our next goal is to allow for the
+                  community to come together on this app and share experiences,
+                  knowledge and new prs together. We hope you are just as
+                  excited as we are about the future of Muscle Metric's!
+                </p>
+              </div>
             </motion.div>
           </div>
         </div>
       </section>
 
       {/* Values Section */}
-      <section className="py-16 relative overflow-hidden">
+      <section className="py-20 relative overflow-hidden">
         <div className="container px-4 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -139,16 +172,9 @@ const About = () => {
               Ready to Start Your Fitness Journey?
             </h2>
             <p className="text-lg opacity-90">
-              Join our community today and transform your fitness goals into
-              achievements.
+              Create your perfect plan from our pre-made section or make your
+              own unique plan in ours plans section.
             </p>
-            <Button
-              size="lg"
-              variant="secondary"
-              className="bg-white text-primary hover:bg-white/90"
-            >
-              Get Started Now
-            </Button>
           </div>
         </div>
       </section>
