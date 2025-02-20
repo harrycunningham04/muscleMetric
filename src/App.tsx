@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,6 +11,7 @@ import PreMadePlans from "./pages/premadePlans";
 import Contact from "./pages/contact";
 import Verify from "./pages/verify";
 import Footer from "./components/Footer";
+import Navigation from "./components/Navigation";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +22,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <div className="flex flex-col min-h-screen">
+          <Navigation />
           <div className="flex-grow">
             <Routes>
               <Route path="/" element={<Index />} />
