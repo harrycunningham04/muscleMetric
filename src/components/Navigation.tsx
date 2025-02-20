@@ -10,9 +10,9 @@ const Navigation = () => {
   const location = useLocation();
   
   const links = [
-    { href: "/", label: "Home" },
     { href: "/dashboard", label: "Dashboard" },
     { href: "/plans", label: "Plans" },
+    { href: "/pre-made-plans", label: "Pre-Made Plans" },
     { href: "/about", label: "About" },
     { href: "/contact", label: "Contact" },
   ];
@@ -25,8 +25,8 @@ const Navigation = () => {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center">
         <div className="mr-4 hidden md:flex">
-          <Link to="/" className="text-2xl font-bold">
-            Fitness App
+          <Link to="/" className="text-3xl font-bold">
+            <img src="/MuscleMetricIcon.png" className="size-9 rounded-xl" />
           </Link>
         </div>
         
@@ -62,7 +62,7 @@ const Navigation = () => {
               <Link
                 key={link.href}
                 to={link.href}
-                className={`text-sm font-medium transition-colors hover:text-primary ${
+                className={`text-xl font-medium transition-colors hover:text-primary ${
                   isActive(link.href) ? "text-primary" : "text-muted-foreground"
                 }`}
               >
@@ -70,7 +70,6 @@ const Navigation = () => {
               </Link>
             ))}
           </div>
-          <Button>Get Started</Button>
         </nav>
       </div>
     </header>
