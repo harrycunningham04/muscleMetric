@@ -7,11 +7,12 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "typeRoots": ["src/types", "./node_modules/@types"]
+    "typeRoots": ["src/types", "./node_modules/@types"],
+    "types": ["node"]
   },
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
-  ]
+  ],
 }
