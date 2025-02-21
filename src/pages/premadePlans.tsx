@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -56,14 +55,25 @@ const PreMadePlans = () => {
       toast.error("Please select exactly 3 muscle groups");
       return;
     }
+
     const matchingWorkouts = findMatchingWorkouts(
       selectedMuscles,
-      parseInt(daysPerWeek)
+      parseInt(daysPerWeek),
+      gender
     );
-    const selectedWorkout = matchingWorkouts[0];
+    const selectedWorkout = matchingWorkouts[0]; // Ensure this workout is what you want
+
+    // Log the entire pre-made plan
+    console.log("Pre-made Plan:", {
+      selectedWorkout,
+      gender,
+      daysPerWeek,
+      selectedMuscles,
+    });
+
     navigate("/plans/new", {
       state: {
-        preMadeWorkout: selectedWorkout,
+        preMadeWorkout: selectedWorkout, // The entire plan object is passed
         selections: { gender, daysPerWeek, selectedMuscles },
       },
     });
@@ -78,7 +88,8 @@ const PreMadePlans = () => {
     {
       icon: Calendar,
       title: "How often would you like to work out?",
-      description: "Choose the number of days you can commit to working out each week",
+      description:
+        "Choose the number of days you can commit to working out each week",
     },
     {
       icon: Target,
@@ -99,7 +110,8 @@ const PreMadePlans = () => {
             Create Your Custom Plan
           </h1>
           <p className="text-lg text-muted-foreground">
-            Follow these steps to create a personalized workout plan tailored to your goals
+            Follow these steps to create a personalized workout plan tailored to
+            your goals
           </p>
         </motion.div>
 
@@ -167,18 +179,25 @@ const PreMadePlans = () => {
                     >
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="male" id="male" />
-                        <Label htmlFor="male" className="text-lg">Male</Label>
+                        <Label htmlFor="male" className="text-lg">
+                          Male
+                        </Label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="female" id="female" />
-                        <Label htmlFor="female" className="text-lg">Female</Label>
+                        <Label htmlFor="female" className="text-lg">
+                          Female
+                        </Label>
                       </div>
                     </RadioGroup>
                   )}
 
                   {currentStep === 2 && (
                     <div className="max-w-xs mx-auto">
-                      <Select value={daysPerWeek} onValueChange={setDaysPerWeek}>
+                      <Select
+                        value={daysPerWeek}
+                        onValueChange={setDaysPerWeek}
+                      >
                         <SelectTrigger className="w-full text-lg">
                           <SelectValue placeholder="Select days per week" />
                         </SelectTrigger>
@@ -203,7 +222,11 @@ const PreMadePlans = () => {
                             whileTap={{ scale: 0.98 }}
                           >
                             <Button
-                              variant={selectedMuscles.includes(muscle) ? "default" : "outline"}
+                              variant={
+                                selectedMuscles.includes(muscle)
+                                  ? "default"
+                                  : "outline"
+                              }
                               onClick={() => handleMuscleSelect(muscle)}
                               className={`w-full h-full min-h-[60px] ${
                                 selectedMuscles.includes(muscle)
@@ -238,10 +261,7 @@ const PreMadePlans = () => {
                         Back
                       </Button>
                     )}
-                    <Button
-                      onClick={handleNext}
-                      className="min-w-[100px]"
-                    >
+                    <Button onClick={handleNext} className="min-w-[100px]">
                       {currentStep === 3 ? "Create Plan" : "Next"}
                     </Button>
                   </div>

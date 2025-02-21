@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Features } from "@/components/Landing/Features";
+import { Faqs } from "@/components/Faqs";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -116,14 +117,14 @@ const Index = () => {
             className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-20"
           >
             <Button
-              onClick={() => navigate("/verify", { state: { type: "login" }})}
+              onClick={() => navigate("/verify", { state: { type: "login" } })}
               variant="outline"
               className="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-sm transition-all duration-300"
             >
               Login
             </Button>
             <Button
-              onClick={() => navigate("/verify", { state: { type: "signup" }})}
+              onClick={() => navigate("/verify", { state: { type: "signup" } })}
               className="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white transition-all duration-300"
             >
               Sign Up
@@ -145,6 +146,11 @@ const Index = () => {
 
       {/* Features Section */}
       <Features parallaxY2={parallaxY2} />
+
+      {/* FAQs Section */}
+      <div className="pb-12">
+        <Faqs />
+      </div>
     </div>
   );
 };
