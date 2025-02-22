@@ -8,6 +8,8 @@ import Index from "./pages/index";
 import Main from "./pages/main";
 import Plans from "./pages/plans";
 import PreMadePlans from "./pages/premadePlans";
+import PlanEditor from "./pages/planEditor";
+import PlanDetails from "./pages/planDetails";
 import Contact from "./pages/contact";
 import Verify from "./pages/verify";
 import About from "./pages/about";
@@ -28,6 +30,9 @@ const AppContent = () => {
           <Route path="/dashboard" element={<Main />} />
           <Route path="/plans" element={<Plans />} />
           <Route path="/pre-made-plans" element={<PreMadePlans />} />
+          <Route path="/plans/new" element={<PlanEditor />} />
+          <Route path="/plans/:id/edit" element={<PlanEditor />} />
+          <Route path="/plans/:id" element={<PlanDetails />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/verify" element={<Verify />} />
           <Route path="/about" element={<About />} />
