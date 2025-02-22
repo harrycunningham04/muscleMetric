@@ -194,6 +194,30 @@ const prioritizeMusclesForGender = (
   return selectedMuscles;
 };
 
+const generateGoals = (
+  selectedMuscles: string[],
+  compoundExercisesSelected: string[]
+): { description: string; targetDate: string }[] => {
+  const goals: { description: string; targetDate: string }[] = [];
+
+  selectedMuscles.forEach((muscle) => {
+    const matchingExercises =
+      compoundExercises[muscle as keyof typeof compoundExercises];
+    const exerciseForGoal = compoundExercisesSelected.find((exercise) =>
+      matchingExercises.includes(exercise)
+    );
+
+    if (exerciseForGoal) {
+      goals.push({
+        description: `Improve strength in ${muscle} using ${exerciseForGoal}`,
+        targetDate: "8 weeks",
+      });
+    }
+  });
+
+  return goals;
+};
+
 const generateWorkoutPlan = (
   selectedMuscles: string[],
   daysPerWeek: number,
@@ -206,15 +230,18 @@ const generateWorkoutPlan = (
 
   split.forEach((type, index) => {
     const exercises: Exercise[] = [];
-    const musclesForDay = [...selectedMuscles];
-
-    // Reset muscle selection to ensure exercises are selected from a fresh list each day
-    let totalExercisesCount = 0; // Keep track of the total number of exercises
+    const usedMuscles: string[] = [];
+    let totalExercisesCount = 0;
 
     // Select compound exercises
-    while (totalExercisesCount < 3 && musclesForDay.length > 0) {
-      const muscleIndex = Math.floor(Math.random() * musclesForDay.length);
-      const muscle = musclesForDay[muscleIndex];
+    while (totalExercisesCount < 3 && selectedMuscles.length > 0) {
+      const availableMuscles = selectedMuscles.filter(
+        (muscle) => !usedMuscles.includes(muscle)
+      );
+      if (availableMuscles.length === 0) break;
+
+      const muscle =
+        availableMuscles[Math.floor(Math.random() * availableMuscles.length)];
       const muscleCompoundExercises =
         compoundExercises[muscle as keyof typeof compoundExercises];
       const exercise =
@@ -230,16 +257,25 @@ const generateWorkoutPlan = (
           notes: `Focus on strength development for ${muscle}`,
         });
         compoundExercisesSelected.push(exercise);
-        totalExercisesCount++; // Increment total exercises count
+        usedMuscles.push(muscle);
+        totalExercisesCount++;
       }
-
-      musclesForDay.splice(muscleIndex, 1);
     }
 
-    // Select isolation exercises to reach exactly 7 exercises
-    while (totalExercisesCount < 7 && musclesForDay.length > 0) {
-      const muscleIndex = Math.floor(Math.random() * musclesForDay.length);
-      const muscle = musclesForDay[muscleIndex];
+    // Reset muscle selection for isolation exercises
+    while (totalExercisesCount < 7) {
+      const availableMuscles = selectedMuscles.filter(
+        (muscle) => !usedMuscles.includes(muscle)
+      );
+
+      // If no available muscles left, reset to all selected muscles
+      if (availableMuscles.length === 0) {
+        usedMuscles.length = 0;
+        continue;
+      }
+
+      const muscle =
+        availableMuscles[Math.floor(Math.random() * availableMuscles.length)];
       const muscleIsolationExercises =
         isolationExercises[muscle as keyof typeof isolationExercises];
       const exercise =
@@ -247,35 +283,14 @@ const generateWorkoutPlan = (
           Math.floor(Math.random() * muscleIsolationExercises.length)
         ];
 
-      exercises.push({
-        name: exercise,
-        sets: 3,
-        reps: 12,
-        notes: `Focus on isolating the ${muscle}`,
-      });
-      totalExercisesCount++; // Increment total exercises count
-    }
-
-    // If still not enough exercises, fill up with compound exercises again
-    while (totalExercisesCount < 7) {
-      const availableMuscles = Object.keys(compoundExercises) as Array<
-        keyof typeof compoundExercises
-      >;
-      const muscle =
-        availableMuscles[Math.floor(Math.random() * availableMuscles.length)];
-      const muscleCompoundExercises = compoundExercises[muscle];
-      const exercise =
-        muscleCompoundExercises[
-          Math.floor(Math.random() * muscleCompoundExercises.length)
-        ];
-
       if (!exercises.some((e) => e.name === exercise)) {
         exercises.push({
           name: exercise,
-          sets: 4,
-          reps: 6,
-          notes: `Focus on strength development for ${muscle}`,
+          sets: 3,
+          reps: 12,
+          notes: `Focus on isolating the ${muscle}`,
         });
+        usedMuscles.push(muscle);
         totalExercisesCount++;
       }
     }
@@ -287,13 +302,7 @@ const generateWorkoutPlan = (
     });
   });
 
-  const goals = compoundExercisesSelected.map((exercise) => {
-    const targetMuscle = exercise.split(" ")[0];
-    return {
-      description: `Improve ${targetMuscle} strength`,
-      targetDate: "8 weeks",
-    };
-  });
+  const goals = generateGoals(selectedMuscles, compoundExercisesSelected);
 
   return {
     id,
