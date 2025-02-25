@@ -1,16 +1,22 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Card } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { WorkoutDayEditor } from '@/components/WorkoutDayEditor';
-import { GoalEditor } from '@/components/GoalEditor';
-import { getExercisesList } from '@/components/ExerciseSelector';
+import { useState, useEffect } from "react";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Card } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ArrowLeft, Save, Plus, Trash } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { WorkoutDayEditor } from "@/components/WorkoutDayEditor";
+import { GoalEditor } from "@/components/GoalEditor";
+import { getExercisesList } from "@/components/ExerciseSelector";
 
 interface WorkoutDay {
   id: string;
@@ -38,30 +44,35 @@ const PlanEditor = () => {
   const isNew = !id;
   const preMadeWorkout = location.state?.preMadeWorkout || null;
 
-  const [title, setTitle] = useState('8-Week Strength Program');
-  const [duration, setDuration] = useState('8');
+  const [title, setTitle] = useState("8-Week Strength Program");
+  const [duration, setDuration] = useState("8");
   const [isDefault, setIsDefault] = useState(false);
   const [workoutDays, setWorkoutDays] = useState<WorkoutDay[]>([]);
   const [goals, setGoals] = useState<Goal[]>([]);
 
   useEffect(() => {
     if (preMadeWorkout) {
-      setTitle(preMadeWorkout.title || 'Pre-Made Workout Plan');
-      setDuration(preMadeWorkout.duration?.toString() || '8');
+      setTitle(preMadeWorkout.title || "Pre-Made Workout Plan");
+      setDuration(preMadeWorkout.duration?.toString() || "8");
       setWorkoutDays(preMadeWorkout.workoutDays || []);
       setGoals(preMadeWorkout.goals || []);
     }
   }, [preMadeWorkout]);
 
-  const handleUpdateWorkoutDay = (dayId: string, exercises: WorkoutDay['exercises']) => {
+  const handleUpdateWorkoutDay = (
+    dayId: string,
+    exercises: WorkoutDay["exercises"]
+  ) => {
     setWorkoutDays(
-      workoutDays.map((day) =>
-        day.id === dayId ? { ...day, exercises } : day
-      )
+      workoutDays.map((day) => (day.id === dayId ? { ...day, exercises } : day))
     );
   };
 
-  const handleUpdateGoal = (goalId: string, field: keyof Goal, value: string) => {
+  const handleUpdateGoal = (
+    goalId: string,
+    field: keyof Goal,
+    value: string
+  ) => {
     setGoals(
       goals.map((goal) =>
         goal.id === goalId ? { ...goal, [field]: value } : goal
@@ -69,10 +80,33 @@ const PlanEditor = () => {
     );
   };
 
+  const handleAddWorkoutDay = () => {
+    if (workoutDays.length < 7) {
+      const newDay: WorkoutDay = {
+        id: (workoutDays.length + 1).toString(),
+        name: `Day ${workoutDays.length + 1}`,
+        exercises: [],
+      };
+      setWorkoutDays([...workoutDays, newDay]);
+    }
+  };
+
+  const handleRemoveWorkoutDay = () => {
+    if (workoutDays.length > 0) {
+      const updatedDays = [...workoutDays];
+      updatedDays.pop();
+      setWorkoutDays(updatedDays);
+    }
+  };
+
   const handleSave = () => {
     toast({
-      title: isNew ? "Plan created successfully!" : "Plan updated successfully!",
-      description: `Your workout plan "${title}" has been ${isNew ? 'created' : 'updated'}.`,
+      title: isNew
+        ? "Plan created successfully!"
+        : "Plan updated successfully!",
+      description: `Your workout plan "${title}" has been ${
+        isNew ? "created" : "updated"
+      }.`,
     });
     if (isDefault) {
       toast({
@@ -80,7 +114,7 @@ const PlanEditor = () => {
         description: "This plan has been set as your default workout plan.",
       });
     }
-    navigate('/plans');
+    navigate("/plans");
   };
 
   return (
@@ -88,7 +122,7 @@ const PlanEditor = () => {
       <Button
         variant="ghost"
         className="mb-6"
-        onClick={() => navigate('/plans')}
+        onClick={() => navigate("/plans")}
       >
         <ArrowLeft className="w-4 h-4 mr-2" />
         Back to Plans
@@ -96,7 +130,7 @@ const PlanEditor = () => {
 
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-primary">
-          {isNew ? 'Create New Workout Plan' : 'Edit Workout Plan'}
+          {isNew ? "Create New Workout Plan" : "Edit Workout Plan"}
         </h1>
         <div className="flex items-center space-x-2">
           <Switch
@@ -110,7 +144,9 @@ const PlanEditor = () => {
 
       <div className="space-y-8">
         <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4 text-primary">Basic Information</h2>
+          <h2 className="text-xl font-semibold mb-4 text-primary">
+            Basic Information
+          </h2>
           <div className="space-y-4">
             <div>
               <Label htmlFor="title">Plan Title</Label>
@@ -138,7 +174,19 @@ const PlanEditor = () => {
         </Card>
 
         <Card className="p-6">
-          <h2 className="text-xl font-semibold text-primary">Workout Days</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold text-primary">Workout Days</h2>
+            {workoutDays.length < 7 && (
+              <Button
+                variant="outline"
+                onClick={handleAddWorkoutDay}
+                className="ml-auto"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Workout Day
+              </Button>
+            )}
+          </div>
           <div className="space-y-6">
             {workoutDays.map((day) => (
               <WorkoutDayEditor
@@ -148,6 +196,14 @@ const PlanEditor = () => {
               />
             ))}
           </div>
+          {workoutDays.length > 0 && (
+            <div className="border-t pt-6 mt-6 flex justify-end">
+              <Button variant="destructive" onClick={handleRemoveWorkoutDay}>
+                <Trash className="w-4 h-4 mr-2" />
+                Remove Last Day
+              </Button>
+            </div>
+          )}
         </Card>
 
         <Card className="p-6">
@@ -165,10 +221,13 @@ const PlanEditor = () => {
         </Card>
 
         <div className="flex justify-end space-x-4">
-          <Button variant="outline" onClick={() => navigate('/plans')}>
+          <Button variant="outline" onClick={() => navigate("/plans")}>
             Cancel
           </Button>
-          <Button onClick={handleSave} className="bg-primary hover:bg-primary-hover text-primary-foreground">
+          <Button
+            onClick={handleSave}
+            className="bg-primary hover:bg-primary-hover text-primary-foreground"
+          >
             <Save className="w-4 h-4 mr-2" />
             Save Changes
           </Button>
