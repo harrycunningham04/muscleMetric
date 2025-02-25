@@ -22,6 +22,7 @@ import { IoIosPeople } from "react-icons/io";
 
 // Import the exercises data
 import { exercises, Exercise } from "@/data/Exercise";
+import React from "react";
 
 interface BodyPart {
   id: string;
@@ -37,7 +38,7 @@ const bodyParts: BodyPart[] = [
   { id: "glutes", name: "Glutes", icon: FaDumbbell },
   { id: "calves", name: "Calves", icon: FaRegHdd },
   { id: "biceps", name: "Biceps", icon: FaDumbbell },
-  { id: "triceps", name: "Triceps", icon: FaDumbbell }, 
+  { id: "triceps", name: "Triceps", icon: FaDumbbell },
   { id: "core", name: "Core", icon: GiPlanks },
   { id: "shoulders", name: "Shoulders", icon: IoIosPeople },
 ];
@@ -58,8 +59,8 @@ export const ExerciseSelectionModal = ({
   selectedExercises = [],
 }: ExerciseSelectionModalProps) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedBodyPart, setSelectedBodyPart] = useState<string | null>(null); // Explicitly type this state
-  const [selectedLetter, setSelectedLetter] = useState<string | null>(null); // Explicitly type this state
+  const [selectedBodyPart, setSelectedBodyPart] = useState<string | null>(null);
+  const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
   const [localSelectedExercises, setLocalSelectedExercises] =
     useState<Exercise[]>(selectedExercises);
   const [lastFilter, setLastFilter] = useState<
@@ -75,14 +76,14 @@ export const ExerciseSelectionModal = ({
   };
 
   const handleBodyPartSelect = (bodyPart: string) => {
-    setSelectedBodyPart(bodyPart); // No issue now
+    setSelectedBodyPart(bodyPart);
     setLastFilter("bodyPart");
     setSelectedLetter(null);
     setSearchTerm("");
   };
 
   const handleLetterSelect = (letter: string) => {
-    setSelectedLetter(letter); // No issue now
+    setSelectedLetter(letter);
     setLastFilter("letter");
     setSelectedBodyPart(null);
     setSearchTerm("");
@@ -120,7 +121,16 @@ export const ExerciseSelectionModal = ({
 
   const handleConfirm = () => {
     onSelect(localSelectedExercises);
+    setLocalSelectedExercises([]);
     onOpenChange(false);
+  };
+
+  // New function to clear all filters
+  const handleClearFilters = () => {
+    setSearchTerm("");
+    setSelectedBodyPart(null);
+    setSelectedLetter(null);
+    setLastFilter(null);
   };
 
   return (
@@ -131,23 +141,24 @@ export const ExerciseSelectionModal = ({
         </DialogHeader>
 
         <div className="flex-1 flex gap-4 min-h-0">
-          {/* Left Sidebar - Body Parts */}
-          <div className="w-48 border-r">
-            <ScrollArea className="h-full">
-              {bodyParts.map((part) => (
-                <Button
-                  key={part.id}
-                  variant="ghost"
-                  className={cn(
-                    "w-full justify-start gap-2",
-                    selectedBodyPart === part.id && "bg-accent"
-                  )}
-                  onClick={() => handleBodyPartSelect(part.id)}
-                >
-                  <part.icon className="h-4 w-4" />
-                  {part.name}
-                </Button>
-              ))}
+          <div className="w-48 border-r h-full flex flex-col">
+            <ScrollArea className="flex-1">
+              <div className="flex flex-col h-full gap-2">
+                {bodyParts.map((part) => (
+                  <Button
+                    key={part.id}
+                    variant="ghost"
+                    className={cn(
+                      "flex-1 w-full justify-start gap-2",
+                      selectedBodyPart === part.id && "bg-accent"
+                    )}
+                    onClick={() => handleBodyPartSelect(part.id)}
+                  >
+                    {React.createElement(part.icon, { className: "h-6 w-6" })}
+                    {part.name}
+                  </Button>
+                ))}
+              </div>
             </ScrollArea>
           </div>
 
@@ -207,13 +218,27 @@ export const ExerciseSelectionModal = ({
           </div>
         </div>
 
-        <div className="flex justify-end gap-2 mt-4">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handleConfirm}>
-            Add Selected ({localSelectedExercises.length})
-          </Button>
+        <div className="flex justify-between gap-2 mt-4">
+          <div>
+            {" "}
+            <Button variant="outline" onClick={handleClearFilters}>
+              Clear Filters
+            </Button>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                onOpenChange(false);
+                setLocalSelectedExercises([]);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleConfirm}>
+              Add Selected ({localSelectedExercises.length})
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
