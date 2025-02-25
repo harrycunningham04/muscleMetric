@@ -1,6 +1,5 @@
-
-import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -34,33 +33,25 @@ const PlanEditor = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const location = useLocation();
+
   const isNew = !id;
+  const preMadeWorkout = location.state?.preMadeWorkout || null;
 
   const [title, setTitle] = useState('8-Week Strength Program');
   const [duration, setDuration] = useState('8');
   const [isDefault, setIsDefault] = useState(false);
-  const [workoutDays, setWorkoutDays] = useState<WorkoutDay[]>([
-    {
-      id: '1',
-      name: 'Day 1 - Push',
-      exercises: [
-        { id: '1', name: 'Bench Press', sets: 3, reps: 10 },
-        { id: '2', name: 'Overhead Press', sets: 3, reps: 12 },
-      ],
-    },
-    {
-      id: '2',
-      name: 'Day 2 - Pull',
-      exercises: [
-        { id: '3', name: 'Deadlift', sets: 3, reps: 8 },
-        { id: '4', name: 'Barbell Row', sets: 3, reps: 10 },
-      ],
-    },
-  ]);
-  const [goals, setGoals] = useState<Goal[]>([
-    { id: '1', description: 'Bench Press', targetDate: '225' },
-    { id: '2', description: 'Deadlift', targetDate: '315' },
-  ]);
+  const [workoutDays, setWorkoutDays] = useState<WorkoutDay[]>([]);
+  const [goals, setGoals] = useState<Goal[]>([]);
+
+  useEffect(() => {
+    if (preMadeWorkout) {
+      setTitle(preMadeWorkout.title || 'Pre-Made Workout Plan');
+      setDuration(preMadeWorkout.duration?.toString() || '8');
+      setWorkoutDays(preMadeWorkout.workoutDays || []);
+      setGoals(preMadeWorkout.goals || []);
+    }
+  }, [preMadeWorkout]);
 
   const handleUpdateWorkoutDay = (dayId: string, exercises: WorkoutDay['exercises']) => {
     setWorkoutDays(
@@ -147,9 +138,7 @@ const PlanEditor = () => {
         </Card>
 
         <Card className="p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-primary">Workout Days</h2>
-          </div>
+          <h2 className="text-xl font-semibold text-primary">Workout Days</h2>
           <div className="space-y-6">
             {workoutDays.map((day) => (
               <WorkoutDayEditor
@@ -162,9 +151,7 @@ const PlanEditor = () => {
         </Card>
 
         <Card className="p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-primary">Goals</h2>
-          </div>
+          <h2 className="text-xl font-semibold text-primary">Goals</h2>
           <div className="space-y-4">
             {goals.map((goal) => (
               <GoalEditor

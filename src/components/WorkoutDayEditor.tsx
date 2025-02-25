@@ -29,8 +29,10 @@ export const WorkoutDayEditor = ({ day, onUpdate }: WorkoutDayProps) => {
     setIsModalOpen(true);
   };
 
-  const handleExerciseSelect = (selectedExercises: Array<{ id: string; name: string }>) => {
-    const newExercises = selectedExercises.map(exercise => ({
+  const handleExerciseSelect = (
+    selectedExercises: Array<{ id: string; name: string }>
+  ) => {
+    const newExercises = selectedExercises.map((exercise) => ({
       id: exercise.id,
       name: exercise.name,
       sets: 3,
@@ -46,7 +48,11 @@ export const WorkoutDayEditor = ({ day, onUpdate }: WorkoutDayProps) => {
     );
   };
 
-  const handleExerciseChange = (exerciseId: string, field: keyof Exercise, value: string | number) => {
+  const handleExerciseChange = (
+    exerciseId: string,
+    field: keyof Exercise,
+    value: string | number
+  ) => {
     onUpdate(
       day.id,
       day.exercises.map((ex) =>
@@ -78,56 +84,61 @@ export const WorkoutDayEditor = ({ day, onUpdate }: WorkoutDayProps) => {
           Add Exercise
         </Button>
       </div>
-      
+
       <DragDropContext onDragEnd={handleDragEnd}>
         <Droppable droppableId={day.id}>
           {(provided) => (
-            <div 
+            <div
               {...provided.droppableProps}
               ref={provided.innerRef}
               className="space-y-4"
             >
               {day.exercises.map((exercise, index) => (
-                <Draggable 
-                  key={exercise.id} 
-                  draggableId={exercise.id} 
+                <Draggable
+                  key={exercise.id}
+                  draggableId={exercise.id}
                   index={index}
                 >
                   {(provided) => (
                     <div
                       ref={provided.innerRef}
                       {...provided.draggableProps}
-                      className="grid grid-cols-[auto_1fr_auto_auto] gap-4 items-center bg-white p-3 rounded-lg border"
+                      className="flex items-center bg-white p-3 rounded-lg border"
                     >
-                      <div {...provided.dragHandleProps}>
+                      <div {...provided.dragHandleProps} className="mr-4">
                         <GripVertical className="h-4 w-4 text-gray-400" />
                       </div>
-                      <div className="flex items-center gap-3">
-                        <img 
-                          src="/placeholder.svg" 
-                          alt={exercise.name} 
-                          className="w-10 h-10 rounded object-cover"
+                      <span className="flex-1 font-medium">
+                        {exercise.name}
+                      </span>
+                      <div className="flex items-center space-x-2">
+                        <p>Sets</p>
+                        <Input
+                          type="number"
+                          placeholder="Sets"
+                          value={exercise.sets}
+                          onChange={(e) =>
+                            handleExerciseChange(
+                              exercise.id,
+                              "sets",
+                              parseInt(e.target.value)
+                            )
+                          }
+                          className="w-16"
                         />
-                        <span>{exercise.name}</span>
-                      </div>
-                      <Input
-                        type="number"
-                        placeholder="Sets"
-                        value={exercise.sets}
-                        onChange={(e) =>
-                          handleExerciseChange(exercise.id, "sets", parseInt(e.target.value))
-                        }
-                        className="w-20"
-                      />
-                      <div className="flex items-center gap-2">
+                        <p>Reps</p>
                         <Input
                           type="number"
                           placeholder="Reps"
                           value={exercise.reps}
                           onChange={(e) =>
-                            handleExerciseChange(exercise.id, "reps", parseInt(e.target.value))
+                            handleExerciseChange(
+                              exercise.id,
+                              "reps",
+                              parseInt(e.target.value)
+                            )
                           }
-                          className="w-20"
+                          className="w-16"
                         />
                         <Button
                           variant="ghost"

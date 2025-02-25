@@ -61,7 +61,7 @@ const PreMadePlans = () => {
       parseInt(daysPerWeek),
       gender
     );
-    const selectedWorkout = matchingWorkouts[0]; // Ensure this workout is what you want
+    const selectedWorkout = matchingWorkouts[0]; 
 
     // Log the entire pre-made plan
     console.log("Pre-made Plan:", {
@@ -73,7 +73,7 @@ const PreMadePlans = () => {
 
     navigate("/plans/new", {
       state: {
-        preMadeWorkout: selectedWorkout, // The entire plan object is passed
+        preMadeWorkout: selectedWorkout,
         selections: { gender, daysPerWeek, selectedMuscles },
       },
     });
