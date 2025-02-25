@@ -28,6 +28,16 @@ const mockPlans = [
     startDate: "2024-03-01",
     endDate: "2024-05-31",
   },
+  {
+    id: "3",
+    title: "Winter Bulk",
+    duration: "12 weeks",
+    workoutDays: 5,
+    goals: 3,
+    progress: 90,
+    startDate: "2023-10-01",
+    endDate: "2024-03-31",
+  },
 ];
 
 const Plans = () => {

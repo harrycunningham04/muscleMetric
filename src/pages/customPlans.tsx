@@ -12,18 +12,22 @@ import {
 } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { muscleGroups, findMatchingWorkouts } from "../data/premadeWorkout";
+import { muscleGroups, findMatchingWorkouts } from "@/data/premadeWorkout";
 import { motion, AnimatePresence } from "framer-motion";
-import { Dumbbell, Calendar, Target } from "lucide-react";
+import { Dumbbell, Calendar, Target, User, Clock } from "lucide-react";
 
 type Gender = "male" | "female";
+type ExperienceLevel = "beginner" | "intermediate" | "advanced";
+type WorkoutDuration = "30" | "45" | "60" | "90";
 
-const customPlans = () => {
+const CustomPlans = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [gender, setGender] = useState<Gender>("male");
   const [daysPerWeek, setDaysPerWeek] = useState<string>("3");
   const [selectedMuscles, setSelectedMuscles] = useState<string[]>([]);
+  const [experience, setExperience] = useState<ExperienceLevel>("beginner");
+  const [workoutDuration, setWorkoutDuration] = useState<WorkoutDuration>("30");
 
   const handleMuscleSelect = (muscle: string) => {
     setSelectedMuscles((prev) => {
@@ -39,7 +43,7 @@ const customPlans = () => {
   };
 
   const handleNext = () => {
-    if (currentStep === 3) {
+    if (currentStep === 5) {
       handleSubmit();
     } else {
       setCurrentStep((prev) => prev + 1);
@@ -59,22 +63,22 @@ const customPlans = () => {
     const matchingWorkouts = findMatchingWorkouts(
       selectedMuscles,
       parseInt(daysPerWeek),
-      gender
-    );
-    const selectedWorkout = matchingWorkouts[0]; 
-
-    // Log the entire pre-made plan
-    console.log("Pre-made Plan:", {
-      selectedWorkout,
       gender,
-      daysPerWeek,
-      selectedMuscles,
-    });
+      experience,
+      workoutDuration,
+    );
+    const selectedWorkout = matchingWorkouts[0];
 
     navigate("/plans/new", {
       state: {
         preMadeWorkout: selectedWorkout,
-        selections: { gender, daysPerWeek, selectedMuscles },
+        selections: {
+          gender,
+          daysPerWeek,
+          selectedMuscles,
+          experience,
+          workoutDuration,
+        },
       },
     });
   };
@@ -90,6 +94,16 @@ const customPlans = () => {
       title: "How often would you like to work out?",
       description:
         "Choose the number of days you can commit to working out each week",
+    },
+    {
+      icon: User,
+      title: "What's your experience level?",
+      description: "Choose your fitness experience level",
+    },
+    {
+      icon: Clock,
+      title: "Preferred workout duration",
+      description: "Select how long you want your workouts to be",
     },
     {
       icon: Target,
@@ -213,6 +227,49 @@ const customPlans = () => {
                   )}
 
                   {currentStep === 3 && (
+                    <div className="max-w-xs mx-auto">
+                      <Select
+                        value={experience}
+                        onValueChange={(value: ExperienceLevel) =>
+                          setExperience(value)
+                        }
+                      >
+                        <SelectTrigger className="w-full text-lg">
+                          <SelectValue placeholder="Select experience level" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="beginner">Beginner</SelectItem>
+                          <SelectItem value="intermediate">
+                            Intermediate
+                          </SelectItem>
+                          <SelectItem value="advanced">Advanced</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+
+                  {currentStep === 4 && (
+                    <div className="max-w-xs mx-auto">
+                      <Select
+                        value={workoutDuration}
+                        onValueChange={(value: WorkoutDuration) =>
+                          setWorkoutDuration(value)
+                        }
+                      >
+                        <SelectTrigger className="w-full text-lg">
+                          <SelectValue placeholder="Select workout duration" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="30">30 minutes</SelectItem>
+                          <SelectItem value="45">45 minutes</SelectItem>
+                          <SelectItem value="60">60 minutes</SelectItem>
+                          <SelectItem value="90">90 minutes</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+
+                  {currentStep === 5 && (
                     <div className="space-y-6">
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         {muscleGroups.map((muscle) => (
@@ -262,7 +319,7 @@ const customPlans = () => {
                       </Button>
                     )}
                     <Button onClick={handleNext} className="min-w-[100px]">
-                      {currentStep === 3 ? "Create Plan" : "Next"}
+                      {currentStep === 5 ? "Create Plan" : "Next"}
                     </Button>
                   </div>
                 </motion.div>
@@ -275,4 +332,4 @@ const customPlans = () => {
   );
 };
 
-export default customPlans;
+export default CustomPlans;

@@ -178,12 +178,67 @@ const workoutSplits = {
   6: ["Push", "Pull", "Legs", "Push", "Pull", "Legs"],
 };
 
+export type ExperienceLevel = "beginner" | "intermediate" | "advanced";
+
+export interface WorkoutPlanOptions {
+  selectedMuscles: string[];
+  daysPerWeek: number;
+  gender: "male" | "female";
+  experienceLevel: ExperienceLevel;
+  preferredDuration: "30" | "45" | "60" | "90";
+}
+
+const getExerciseCountsForDuration = (preferredDuration: "30" | "45" | "60" | "90") => {
+  switch (preferredDuration) {
+    case "30":
+      return { compound: 2, isolation: 2 };
+    case "45":
+      return { compound: 3, isolation: 2 };
+    case "60":
+      return { compound: 4, isolation: 3 };
+    case "90":
+      return { compound: 4, isolation: 5 };
+    default:
+      return { compound: 3, isolation: 3 }; // Default to 45 min
+  }
+};
+
+const adjustForExperienceLevel = (
+  experienceLevel: ExperienceLevel,
+  exercises: Exercise[]
+): Exercise[] => {
+  switch (experienceLevel) {
+    case "beginner":
+      // Beginner: Lower sets and reps, more focus on form
+      return exercises.map((exercise) => ({
+        ...exercise,
+        sets: 3,
+        reps: 12,
+      }));
+    case "intermediate":
+      // Intermediate: Balanced sets and reps
+      return exercises.map((exercise) => ({
+        ...exercise,
+        sets: 4,
+        reps: 10,
+      }));
+    case "advanced":
+      // Advanced: Higher intensity, more sets, and reps
+      return exercises.map((exercise) => ({
+        ...exercise,
+        sets: 5,
+        reps: 6,
+      }));
+    default:
+      return exercises;
+  }
+};
+
 const prioritizeMusclesForGender = (
   selectedMuscles: string[],
   gender: "male" | "female"
 ): string[] => {
   if (gender === "female") {
-    // Prioritize hamstrings, glutes, quads, and core
     const priorityMuscles = ["Hamstrings", "Glutes", "Quads", "Core"];
     return selectedMuscles
       .filter((muscle) => priorityMuscles.includes(muscle))
@@ -218,23 +273,28 @@ const generateGoals = (
   return goals;
 };
 
-const generateWorkoutPlan = (
-  selectedMuscles: string[],
-  daysPerWeek: number,
-  gender: "male" | "female"
-): PreMadeWorkout => {
+const generateWorkoutPlan = ({
+  selectedMuscles,
+  daysPerWeek,
+  gender,
+  experienceLevel,
+  preferredDuration,
+}: WorkoutPlanOptions): PreMadeWorkout => {
   const id = Math.random().toString(36).substr(2, 9);
   const split = workoutSplits[daysPerWeek as keyof typeof workoutSplits];
   const workoutDays: WorkoutDay[] = [];
   let compoundExercisesSelected: string[] = [];
 
+  const { compound: compoundCount, isolation: isolationCount } =
+    getExerciseCountsForDuration(preferredDuration);
+  let totalExercisesCount = 0;
+
   split.forEach((type, index) => {
     const exercises: Exercise[] = [];
     const usedMuscles: string[] = [];
-    let totalExercisesCount = 0;
 
     // Select compound exercises
-    while (totalExercisesCount < 3 && selectedMuscles.length > 0) {
+    while (totalExercisesCount < compoundCount && selectedMuscles.length > 0) {
       const availableMuscles = selectedMuscles.filter(
         (muscle) => !usedMuscles.includes(muscle)
       );
@@ -262,8 +322,8 @@ const generateWorkoutPlan = (
       }
     }
 
-    // Reset muscle selection for isolation exercises
-    while (totalExercisesCount < 7) {
+    // Select isolation exercises
+    while (totalExercisesCount < compoundCount + isolationCount) {
       const availableMuscles = selectedMuscles.filter(
         (muscle) => !usedMuscles.includes(muscle)
       );
@@ -295,10 +355,16 @@ const generateWorkoutPlan = (
       }
     }
 
+    // Adjust exercise intensity based on experience level
+    const adjustedExercises = adjustForExperienceLevel(
+      experienceLevel,
+      exercises
+    );
+
     workoutDays.push({
       name: `Day ${index + 1} - ${type}`,
       type: type,
-      exercises: exercises,
+      exercises: adjustedExercises,
     });
   });
 
@@ -321,17 +387,21 @@ const generateWorkoutPlan = (
 export const findMatchingWorkouts = (
   selectedMuscles: string[],
   daysPerWeek: number,
-  gender: "male" | "female"
+  gender: "male" | "female",
+  experienceLevel: ExperienceLevel,
+  preferredDuration: "30" | "45" | "60" | "90"
 ): PreMadeWorkout[] => {
   const prioritizedMuscles = prioritizeMusclesForGender(
     selectedMuscles,
     gender
   );
-  const customPlan = generateWorkoutPlan(
-    prioritizedMuscles,
+  const customPlan = generateWorkoutPlan({
+    selectedMuscles: prioritizedMuscles,
     daysPerWeek,
-    gender
-  );
+    gender,
+    experienceLevel,
+    preferredDuration,
+  });
   return [customPlan];
 };
 

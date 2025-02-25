@@ -59,7 +59,7 @@ const PlanCard = ({
       <Card 
         className={`p-6 hover:shadow-lg transition-all cursor-pointer ${
           isActive 
-            ? 'bg-white border-primary border-2' 
+            ? 'bg-muted border-primary border-2' 
             : 'bg-secondary hover:bg-secondary/90'
         }`}
         onClick={handleActivateClick}
