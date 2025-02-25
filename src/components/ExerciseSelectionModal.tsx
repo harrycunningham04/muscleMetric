@@ -8,26 +8,41 @@ import {
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
-import { Search, Dumbbell, ChevronRight } from "lucide-react";
+import { Search, ChevronRight } from "lucide-react";
 import { useState } from "react";
+import { FaDumbbell, FaRegHdd } from "react-icons/fa";
+import {
+  GiChest,
+  GiMuscleUp,
+  GiLeg,
+  GiHammerDrop,
+  GiPlanks,
+} from "react-icons/gi";
+import { IoIosPeople } from "react-icons/io";
 
-const bodyParts = [
-  { id: "chest", name: "Chest", icon: Dumbbell },
-  { id: "back", name: "Back", icon: Dumbbell },
-  { id: "legs", name: "Legs", icon: Dumbbell },
-  { id: "arms", name: "Arms", icon: Dumbbell },
-  { id: "core", name: "Core", icon: Dumbbell },
-  { id: "shoulders", name: "Shoulders", icon: Dumbbell },
+// Import the exercises data
+import { exercises, Exercise } from "@/data/Exercise";
+
+interface BodyPart {
+  id: string;
+  name: string;
+  icon: React.ElementType; // Ensure the icon is a React component type
+}
+
+const bodyParts: BodyPart[] = [
+  { id: "chest", name: "Chest", icon: GiChest },
+  { id: "back", name: "Back", icon: GiMuscleUp },
+  { id: "quads", name: "Quads", icon: GiLeg },
+  { id: "hamstrings", name: "Hamstring", icon: GiHammerDrop },
+  { id: "glutes", name: "Glutes", icon: FaDumbbell },
+  { id: "calves", name: "Calves", icon: FaRegHdd },
+  { id: "biceps", name: "Biceps", icon: FaDumbbell },
+  { id: "triceps", name: "Triceps", icon: FaDumbbell }, 
+  { id: "core", name: "Core", icon: GiPlanks },
+  { id: "shoulders", name: "Shoulders", icon: IoIosPeople },
 ];
 
 const alphabet = Array.from("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-
-interface Exercise {
-  id: string;
-  name: string;
-  bodyPart: string;
-  equipment?: string;
-}
 
 interface ExerciseSelectionModalProps {
   open: boolean;
@@ -43,21 +58,13 @@ export const ExerciseSelectionModal = ({
   selectedExercises = [],
 }: ExerciseSelectionModalProps) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedBodyPart, setSelectedBodyPart] = useState<string | null>(null);
-  const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
-  const [localSelectedExercises, setLocalSelectedExercises] = useState<Exercise[]>(selectedExercises);
-  const [lastFilter, setLastFilter] = useState<'search' | 'bodyPart' | 'letter' | null>(null);
-
-  // Mock exercises - replace with your actual exercise data
-  const exercises: Exercise[] = [
-    { id: "1", name: "Bench Press", bodyPart: "chest" },
-    { id: "2", name: "Deadlift", bodyPart: "back" },
-    { id: "3", name: "Squats", bodyPart: "legs" },
-    { id: "4", name: "Bicep Curls", bodyPart: "arms" },
-    { id: "5", name: "Shoulder Press", bodyPart: "shoulders" },
-    { id: "6", name: "Crunches", bodyPart: "core" },
-    // Add more exercises as needed
-  ];
+  const [selectedBodyPart, setSelectedBodyPart] = useState<string | null>(null); // Explicitly type this state
+  const [selectedLetter, setSelectedLetter] = useState<string | null>(null); // Explicitly type this state
+  const [localSelectedExercises, setLocalSelectedExercises] =
+    useState<Exercise[]>(selectedExercises);
+  const [lastFilter, setLastFilter] = useState<
+    "search" | "bodyPart" | "letter" | null
+  >(null);
 
   const handleExerciseToggle = (exercise: Exercise) => {
     setLocalSelectedExercises((prev) =>
@@ -68,15 +75,15 @@ export const ExerciseSelectionModal = ({
   };
 
   const handleBodyPartSelect = (bodyPart: string) => {
-    setSelectedBodyPart(bodyPart);
-    setLastFilter('bodyPart');
+    setSelectedBodyPart(bodyPart); // No issue now
+    setLastFilter("bodyPart");
     setSelectedLetter(null);
     setSearchTerm("");
   };
 
   const handleLetterSelect = (letter: string) => {
-    setSelectedLetter(letter);
-    setLastFilter('letter');
+    setSelectedLetter(letter); // No issue now
+    setLastFilter("letter");
     setSelectedBodyPart(null);
     setSearchTerm("");
   };
@@ -84,7 +91,7 @@ export const ExerciseSelectionModal = ({
   const handleSearch = (value: string) => {
     setSearchTerm(value);
     if (value) {
-      setLastFilter('search');
+      setLastFilter("search");
       setSelectedBodyPart(null);
       setSelectedLetter(null);
     } else {
@@ -94,16 +101,16 @@ export const ExerciseSelectionModal = ({
 
   const getFilteredExercises = () => {
     switch (lastFilter) {
-      case 'search':
-        return exercises.filter(exercise =>
+      case "search":
+        return exercises.filter((exercise) =>
           exercise.name.toLowerCase().includes(searchTerm.toLowerCase())
         );
-      case 'bodyPart':
-        return exercises.filter(exercise =>
-          exercise.bodyPart === selectedBodyPart
+      case "bodyPart":
+        return exercises.filter(
+          (exercise) => exercise.bodyPart === selectedBodyPart
         );
-      case 'letter':
-        return exercises.filter(exercise =>
+      case "letter":
+        return exercises.filter((exercise) =>
           exercise.name.startsWith(selectedLetter!)
         );
       default:
@@ -122,7 +129,7 @@ export const ExerciseSelectionModal = ({
         <DialogHeader>
           <DialogTitle>Select Exercises</DialogTitle>
         </DialogHeader>
-        
+
         <div className="flex-1 flex gap-4 min-h-0">
           {/* Left Sidebar - Body Parts */}
           <div className="w-48 border-r">
@@ -166,7 +173,9 @@ export const ExerciseSelectionModal = ({
                     variant="outline"
                     className={cn(
                       "justify-start",
-                      localSelectedExercises.some((e) => e.id === exercise.id) && "bg-accent"
+                      localSelectedExercises.some(
+                        (e) => e.id === exercise.id
+                      ) && "bg-accent"
                     )}
                     onClick={() => handleExerciseToggle(exercise)}
                   >
