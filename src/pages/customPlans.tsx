@@ -18,7 +18,7 @@ import { Dumbbell, Calendar, Target } from "lucide-react";
 
 type Gender = "male" | "female";
 
-const PreMadePlans = () => {
+const customPlans = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [gender, setGender] = useState<Gender>("male");
@@ -275,4 +275,4 @@ const PreMadePlans = () => {
   );
 };
 
-export default PreMadePlans;
+export default customPlans;

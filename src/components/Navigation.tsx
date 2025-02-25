@@ -14,7 +14,7 @@ const Navigation = () => {
   const links = [
     { href: "/dashboard", label: "Dashboard" },
     { href: "/plans", label: "Plans" },
-    { href: "/pre-made-plans", label: "Pre-Made Plans" },
+    { href: "/custom-Plans", label: "Custom Plans" },
     { href: "/about", label: "About" },
     { href: "/contact", label: "Contact" },
   ];

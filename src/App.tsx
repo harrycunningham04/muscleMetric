@@ -7,7 +7,7 @@ import "tailwindcss/tailwind.css";
 import Index from "./pages/index";
 import Main from "./pages/main";
 import Plans from "./pages/plans";
-import PreMadePlans from "./pages/premadePlans";
+import CustomPlans from "./pages/customPlans";
 import PlanEditor from "./pages/planEditor";
 import PlanDetails from "./pages/planDetails";
 import Contact from "./pages/contact";
@@ -29,7 +29,7 @@ const AppContent = () => {
           <Route path="/" element={<Index />} />
           <Route path="/dashboard" element={<Main />} />
           <Route path="/plans" element={<Plans />} />
-          <Route path="/pre-made-plans" element={<PreMadePlans />} />
+          <Route path="/custom-plans" element={<CustomPlans />} />
           <Route path="/plans/new" element={<PlanEditor />} />
           <Route path="/plans/:id/edit" element={<PlanEditor />} />
           <Route path="/plans/:id" element={<PlanDetails />} />
