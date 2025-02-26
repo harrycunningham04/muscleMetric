@@ -1,9 +1,32 @@
-
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useEffect, useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { OneRepModal } from "./OneRepModal";
-import { Dumbbell, Target, ListChecks, ActivitySquare, Timer, Calculator } from "lucide-react";
+import {
+  Dumbbell,
+  Target,
+  ListChecks,
+  ActivitySquare,
+  Timer,
+  Calculator,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
+
+// Motivational quotes array
+const quotes = [
+  "The only bad workout is the one that didn't happen.",
+  "Your body can stand almost anything. It's your mind you have to convince.",
+  "The harder you work, the luckier you get.",
+  "Success starts with self-discipline.",
+  "Your health is an investment, not an expense.",
+  "The difference between try and triumph is just a little umph!",
+  "Don't wish for it, work for it.",
+];
 
 export const DashboardView = () => {
   const [isOneRmModalOpen, setIsOneRmModalOpen] = useState(false);
@@ -15,21 +38,44 @@ export const DashboardView = () => {
     totalVolume: 24560,
     workoutsCompleted: 32,
     setsCompleted: 486,
-    averageWorkoutDuration: "45min"
+    averageWorkoutDuration: "45min",
   };
 
-  const todaysWorkout = "Push Day"; // This would come from your backend
+  const [dailyQuote, setDailyQuote] = useState("");
+
+  useEffect(() => {
+    // Get a consistent quote for the day using the date
+    const today = new Date();
+    const dayOfYear = Math.floor(
+      (today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) /
+        1000 /
+        60 /
+        60 /
+        24
+    );
+    const quoteIndex = dayOfYear % quotes.length;
+    setDailyQuote(quotes[quoteIndex]);
+  }, []);
+
+  const handleWorkoutClick = () => {
+    navigate("/workout");
+  };
 
   return (
     <Card className="w-full hover:shadow-lg transition-all">
       <CardHeader className="bg-primary rounded-xl">
-        <div 
-          className="flex items-center cursor-pointer text-white hover:text-black transition-colors group"
-          onClick={() => navigate('/workout')}
+        <div
+          className="flex flex-col items-center justify-center p-6 cursor-pointer hover:bg-primary/5 transition-all duration-300 rounded-xl text-muted group"
+          onClick={handleWorkoutClick}
         >
-          <CardTitle className="text-3xl group-hover:scale-105 transition-transform">
-            {todaysWorkout}
+          <div></div>
+          <CardTitle className="text-3xl group-hover:scale-105 transition-transform pb-6">
+            {dailyQuote}
           </CardTitle>
+          <CardDescription className="text-3xl group-hover:scale-105 transition-transform">
+            Lets Workout 💪
+          </CardDescription>
+          <div></div>
         </div>
       </CardHeader>
       <CardContent>
@@ -45,33 +91,47 @@ export const DashboardView = () => {
             {/* Total Volume */}
             <div className="p-4 rounded-lg bg-gradient-to-br from-blue-500/10 to-cyan-500/10 hover:from-blue-500/20 hover:to-cyan-500/20 transition-all flex flex-col items-center justify-center text-center space-y-2 hover:scale-105 cursor-default">
               <Dumbbell className="w-8 h-8 text-blue-600" />
-              <div className="text-2xl font-bold">{stats.totalVolume.toLocaleString()}</div>
-              <div className="text-sm text-muted-foreground">Total kgs Lifted</div>
+              <div className="text-2xl font-bold">
+                {stats.totalVolume.toLocaleString()}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                Total kgs Lifted
+              </div>
             </div>
 
             {/* Workouts Completed */}
             <div className="p-4 rounded-lg bg-gradient-to-br from-green-500/10 to-emerald-500/10 hover:from-green-500/20 hover:to-emerald-500/20 transition-all flex flex-col items-center justify-center text-center space-y-2 hover:scale-105 cursor-default">
               <Target className="w-8 h-8 text-green-600" />
-              <div className="text-2xl font-bold">{stats.workoutsCompleted}</div>
-              <div className="text-sm text-muted-foreground">Workouts Complete</div>
+              <div className="text-2xl font-bold">
+                {stats.workoutsCompleted}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                Workouts Complete
+              </div>
             </div>
 
             {/* Sets Completed */}
             <div className="p-4 rounded-lg bg-gradient-to-br from-purple-500/10 to-violet-500/10 hover:from-purple-500/20 hover:to-violet-500/20 transition-all flex flex-col items-center justify-center text-center space-y-2 hover:scale-105 cursor-default">
               <ListChecks className="w-8 h-8 text-purple-600" />
               <div className="text-2xl font-bold">{stats.setsCompleted}</div>
-              <div className="text-sm text-muted-foreground">Sets Completed</div>
+              <div className="text-sm text-muted-foreground">
+                Sets Completed
+              </div>
             </div>
 
             {/* Average Workout Duration */}
             <div className="p-4 rounded-lg bg-gradient-to-br from-pink-500/10 to-rose-500/10 hover:from-pink-500/20 hover:to-rose-500/20 transition-all flex flex-col items-center justify-center text-center space-y-2 hover:scale-105 cursor-default">
               <Timer className="w-8 h-8 text-pink-600" />
-              <div className="text-2xl font-bold">{stats.averageWorkoutDuration}</div>
-              <div className="text-sm text-muted-foreground">Avg. Workout Time</div>
+              <div className="text-2xl font-bold">
+                {stats.averageWorkoutDuration}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                Avg. Workout Time
+              </div>
             </div>
 
             {/* 1RM Calculator Card */}
-            <div 
+            <div
               className="p-4 rounded-lg bg-gradient-to-br from-indigo-500/10 to-blue-500/10 hover:from-indigo-500/20 hover:to-blue-500/20 transition-all flex flex-col items-center justify-center text-center space-y-2 hover:scale-105 cursor-pointer"
               onClick={() => setIsOneRmModalOpen(true)}
             >
