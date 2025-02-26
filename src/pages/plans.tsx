@@ -209,7 +209,7 @@ const Plans = () => {
                             <Card
                               key={workout.id}
                               className="p-4 hover:shadow-lg transition-all cursor-pointer"
-                              onClick={() => navigate(`/workout/${workout.id}`)}
+                              onClick={() => navigate(`/history/${workout.id}`)}
                             >
                               <div className="flex justify-between items-start">
                                 <div>
