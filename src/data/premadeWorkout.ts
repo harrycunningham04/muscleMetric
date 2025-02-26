@@ -1,3 +1,5 @@
+import { Exercises } from "./Exercise";
+
 export type MuscleGroup =
   | "Chest"
   | "Back"

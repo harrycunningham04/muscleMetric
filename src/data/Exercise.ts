@@ -1,5 +1,5 @@
 // data/Exercise.ts
-export interface Exercise {
+export interface Exercises {
   id: string;
   name: string;
   bodyPart: string;
@@ -10,7 +10,7 @@ export interface Exercise {
   user: "beginner" | "intermediate" | "advanced"
 }
 
-export const exercises: Exercise[] = [
+export const exercises: Exercises[] = [
   //Chest 1 - 100
   //Back 101 - 199
   //Quads 200 - 250
