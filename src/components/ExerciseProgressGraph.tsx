@@ -16,7 +16,7 @@ interface ExerciseProgressGraphProps {
   exercise: string;
 }
 
-export const ExerciseProgressGraph = ({ exercise }: ExerciseProgressGraphProps) => {
+export const ExerciseProgressGraph = ({ }: ExerciseProgressGraphProps) => {
   // Mock data - replace with actual API data
   const data = Array.from({ length: 10 }, (_, i) => ({
     date: format(addDays(new Date(), i * 3), "MMM dd"),

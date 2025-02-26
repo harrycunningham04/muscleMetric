@@ -188,7 +188,9 @@ export interface WorkoutPlanOptions {
   preferredDuration: "30" | "45" | "60" | "90";
 }
 
-const getExerciseCountsForDuration = (preferredDuration: "30" | "45" | "60" | "90") => {
+const getExerciseCountsForDuration = (
+  preferredDuration: "30" | "45" | "60" | "90"
+) => {
   switch (preferredDuration) {
     case "30":
       return { compound: 2, isolation: 2 };
@@ -256,10 +258,12 @@ const generateGoals = (
   const goals: { description: string; targetDate: string }[] = [];
 
   selectedMuscles.forEach((muscle) => {
-    const matchingExercises =
-      compoundExercises[muscle as keyof typeof compoundExercises];
+    const matchingExercises = [
+      ...compoundExercises[muscle as keyof typeof compoundExercises],
+    ];
+
     const exerciseForGoal = compoundExercisesSelected.find((exercise) =>
-      matchingExercises.includes(exercise)
+      (matchingExercises as string[]).includes(exercise)
     );
 
     if (exerciseForGoal) {
@@ -276,7 +280,6 @@ const generateGoals = (
 const generateWorkoutPlan = ({
   selectedMuscles,
   daysPerWeek,
-  gender,
   experienceLevel,
   preferredDuration,
 }: WorkoutPlanOptions): PreMadeWorkout => {
