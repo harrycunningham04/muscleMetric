@@ -86,7 +86,7 @@ export const WorkoutDayEditor = ({ day, onUpdate }: WorkoutDayProps) => {
       </div>
 
       <DragDropContext onDragEnd={handleDragEnd}>
-        <Droppable droppableId={day.id}>
+        <Droppable droppableId={String(day.id || "default-droppable-id")}>
           {(provided) => (
             <div
               {...provided.droppableProps}

@@ -154,10 +154,6 @@ const getExercisesForDay = (
       return;
     }
 
-    console.log(
-      "📋 Source Exercises Before Selection:",
-      source.map((e) => e.name)
-    );
     console.log(`🔢 Count to select: ${count}, Current added: ${added}`);
 
     while (added < count && source.length > 0) {
@@ -190,10 +186,6 @@ const getExercisesForDay = (
     }
     console.log(
       `✅ Selected ${added} ${isCompound ? "compound" : "isolation"} exercises`
-    );
-    console.log(
-      "📋 Remaining Exercises After Selection:",
-      source.map((e) => e.name)
     );
   };
 
