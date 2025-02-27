@@ -12,7 +12,12 @@ import {
 } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { muscleGroups, findMatchingWorkouts } from "@/data/premadeWorkout";
+import {
+  prioritizeMusclesForGender,
+  getExercisesForDay,
+  generateGoals,
+  MuscleGroupArray,
+} from "@/data/premadeWorkout";
 import { motion, AnimatePresence } from "framer-motion";
 import { Dumbbell, Calendar, Target, User, Clock } from "lucide-react";
 
@@ -60,18 +65,57 @@ const CustomPlans = () => {
       return;
     }
 
-    const matchingWorkouts = findMatchingWorkouts(
+    const days = parseInt(daysPerWeek);
+
+    // Prioritize muscles based on gender
+    const prioritizedMuscles = prioritizeMusclesForGender(
       selectedMuscles,
-      parseInt(daysPerWeek),
-      gender,
-      experience,
-      workoutDuration,
+      gender
     );
-    const selectedWorkout = matchingWorkouts[0];
+    console.log("Prioritized Muscles:", prioritizedMuscles);
+
+    // Generate workout days with exercises
+    const workoutDays = Array.from({ length: days }).map((_, dayIndex) => {
+      const exercises = getExercisesForDay(
+        prioritizedMuscles,
+        experience,
+        workoutDuration
+      );
+      console.log(`Exercises for Day ${dayIndex + 1}:`, exercises);
+
+      return {
+        name: `Day ${dayIndex + 1}`,
+        type: "Strength",
+        exercises,
+      };
+    });
+
+    // Generate goals for the selected muscle groups
+    const allExercises = workoutDays.flatMap((day) => day.exercises);
+    console.log("All Selected Exercises:", allExercises);
+
+    const goals = generateGoals(prioritizedMuscles, allExercises);
+    console.log("Generated Goals:", goals);
+
+    // Construct the workout plan object
+    const generatedWorkout = {
+      id: "custom-workout-" + Date.now(),
+      title: "Custom Workout Plan",
+      description: `A ${daysPerWeek}-day workout plan targeting ${selectedMuscles.join(
+        ", "
+      )}`,
+      targetMuscles: selectedMuscles,
+      daysPerWeek: days,
+      workoutDays,
+      recommendedWeeks: 4,
+      goals,
+    };
+
+    console.log("Generated Workout Plan:", generatedWorkout);
 
     navigate("/plans/new", {
       state: {
-        preMadeWorkout: selectedWorkout,
+        preMadeWorkout: generatedWorkout,
         selections: {
           gender,
           daysPerWeek,
@@ -272,7 +316,7 @@ const CustomPlans = () => {
                   {currentStep === 5 && (
                     <div className="space-y-6">
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        {muscleGroups.map((muscle) => (
+                        {MuscleGroupArray.map((muscle) => (
                           <motion.div
                             key={muscle}
                             whileHover={{ scale: 1.02 }}

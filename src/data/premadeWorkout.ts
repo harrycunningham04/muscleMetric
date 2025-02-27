@@ -1,4 +1,4 @@
-import { Exercises } from "./Exercise";
+import { exercises } from "./Exercise";
 
 export type MuscleGroup =
   | "Chest"
@@ -12,11 +12,30 @@ export type MuscleGroup =
   | "Quads"
   | "Calves";
 
+export const MuscleGroupArray: MuscleGroup[] = [
+  "Chest",
+  "Back",
+  "Shoulders",
+  "Biceps",
+  "Triceps",
+  "Core",
+  "Glutes",
+  "Hamstrings",
+  "Quads",
+  "Calves",
+];
+
 export interface Exercise {
   name: string;
   sets: number;
   reps: number;
   notes?: string;
+  type: string;
+  bodyPart: string;
+  equipment?: string;
+  setupDescription?: string;
+  repDescription?: string;
+  user: string;
 }
 
 export interface WorkoutDay {
@@ -36,150 +55,6 @@ export interface PreMadeWorkout {
   goals: { description: string; targetDate: string }[];
 }
 
-export const muscleGroups = [
-  "Chest",
-  "Back",
-  "Shoulders",
-  "Biceps",
-  "Triceps",
-  "Core",
-  "Glutes",
-  "Hamstrings",
-  "Quads",
-  "Calves",
-] as const;
-
-const compoundExercises = {
-  Chest: [
-    "Bench Press",
-    "Incline Dumbbell Press",
-    "Decline Bench Press",
-    "Dips",
-    "Chest Press Machine",
-    "Barbell Push-Ups",
-  ],
-  Back: [
-    "Deadlifts",
-    "Pull-Ups",
-    "Bent-over Rows",
-    "Lat Pulldown",
-    "T-Bar Rows",
-    "Barbell Rows",
-  ],
-  Shoulders: [
-    "Shoulder Press",
-    "Arnold Press",
-    "Overhead Press",
-    "Dumbbell Press",
-    "Military Press",
-  ],
-  Biceps: [
-    "Chin-Ups",
-    "Barbell Curls",
-    "Dumbbell Curls",
-    "Preacher Curls",
-    "Hammer Curls",
-  ],
-  Triceps: [
-    "Tricep Dips",
-    "Close-Grip Bench Press",
-    "Overhead Tricep Extension",
-    "Tricep Pushdowns",
-    "Diamond Push-Ups",
-  ],
-  Core: [
-    "Cable Woodchoppers",
-    "Ab Rollouts",
-    "Russian Twists",
-    "Hanging Leg Raises",
-    "Planks",
-  ],
-  Glutes: [
-    "Hip Thrusts",
-    "Deadlifts",
-    "Sumo Deadlifts",
-    "Bulgarian Split Squats",
-    "Lunges",
-  ],
-  Hamstrings: [
-    "Romanian Deadlifts",
-    "Glute-Ham Raises",
-    "Nordic Curls",
-    "Leg Curls",
-    "Good Mornings",
-  ],
-  Quads: ["Squats", "Leg Press", "Hack Squats", "Lunges", "Front Squats"],
-  Calves: ["Standing Calf Raises", "Seated Calf Raises", "Donkey Calf Raises"],
-} as const;
-
-const isolationExercises = {
-  Chest: [
-    "Chest Flys",
-    "Pec Deck Machine",
-    "Cable Chest Flys",
-    "Dumbbell Pullover",
-  ],
-  Back: [
-    "Single-arm Dumbbell Rows",
-    "Seated Cable Rows",
-    "Face Pulls",
-    "Reverse Flys",
-    "Straight-arm Pulldown",
-  ],
-  Shoulders: [
-    "Lateral Raises",
-    "Front Raises",
-    "Reverse Pec Deck",
-    "Cable Lateral Raises",
-  ],
-  Biceps: [
-    "Concentration Curls",
-    "Cable Curls",
-    "Incline Dumbbell Curls",
-    "Spider Curls",
-  ],
-  Triceps: [
-    "Skull Crushers",
-    "Rope Extensions",
-    "Cable Tricep Kickbacks",
-    "Tricep Pushdowns",
-  ],
-  Core: ["Crunches", "Bicycle Crunches", "Leg Raises", "Dragon Flags", "V-Ups"],
-  Glutes: [
-    "Glute Bridges",
-    "Cable Kickbacks",
-    "Step-Ups",
-    "Kickbacks",
-    "Donkey Kicks",
-  ],
-  Hamstrings: [
-    "Hamstring Curls",
-    "Swiss Ball Leg Curls",
-    "Kettlebell Swings",
-    "Stiff-leg Deadlifts",
-  ],
-  Quads: [
-    "Leg Extensions",
-    "Step-Ups",
-    "Bulgarian Split Squats",
-    "Leg Curl Machine",
-  ],
-  Calves: [
-    "Jump Rope",
-    "Box Jumps",
-    "Calf Raises on Leg Press",
-    "Single-leg Calf Raises",
-  ],
-} as const;
-
-const workoutSplits = {
-  2: ["Upper Body", "Lower Body"],
-  3: ["Push", "Pull", "Legs"],
-  4: ["Upper Body", "Lower Body", "Upper Body", "Lower Body"],
-  5: ["Push", "Pull", "Legs", "Upper Body", "Lower Body"],
-  6: ["Push", "Pull", "Legs", "Push", "Pull", "Legs"],
-};
-
 export type ExperienceLevel = "beginner" | "intermediate" | "advanced";
 
 export interface WorkoutPlanOptions {
@@ -189,6 +64,22 @@ export interface WorkoutPlanOptions {
   experienceLevel: ExperienceLevel;
   preferredDuration: "30" | "45" | "60" | "90";
 }
+
+const prioritizeMusclesForGender = (
+  selectedMuscles: string[],
+  gender: "male" | "female"
+): string[] => {
+  const femalePriority = ["Hamstrings", "Glutes", "Quads", "Core"];
+  const malePriority = ["Chest", "Biceps", "Triceps"];
+
+  const priorityMuscles = gender === "female" ? femalePriority : malePriority;
+
+  return selectedMuscles
+    .filter((muscle) => priorityMuscles.includes(muscle))
+    .concat(
+      selectedMuscles.filter((muscle) => !priorityMuscles.includes(muscle))
+    );
+};
 
 const getExerciseCountsForDuration = (
   preferredDuration: "30" | "45" | "60" | "90"
@@ -207,212 +98,144 @@ const getExerciseCountsForDuration = (
   }
 };
 
-const adjustForExperienceLevel = (
+const getExercisesForDay = (
+  muscleGroups: string[],
   experienceLevel: ExperienceLevel,
-  exercises: Exercise[]
+  preferredDuration: "30" | "45" | "60" | "90"
 ): Exercise[] => {
-  switch (experienceLevel) {
-    case "beginner":
-      // Beginner: Lower sets and reps, more focus on form
-      return exercises.map((exercise) => ({
-        ...exercise,
-        sets: 3,
-        reps: 12,
-      }));
-    case "intermediate":
-      // Intermediate: Balanced sets and reps
-      return exercises.map((exercise) => ({
-        ...exercise,
-        sets: 4,
-        reps: 10,
-      }));
-    case "advanced":
-      // Advanced: Higher intensity, more sets, and reps
-      return exercises.map((exercise) => ({
-        ...exercise,
-        sets: 5,
-        reps: 6,
-      }));
-    default:
-      return exercises;
-  }
-};
+  const { compound, isolation } =
+    getExerciseCountsForDuration(preferredDuration);
 
-const prioritizeMusclesForGender = (
-  selectedMuscles: string[],
-  gender: "male" | "female"
-): string[] => {
-  if (gender === "female") {
-    const priorityMuscles = ["Hamstrings", "Glutes", "Quads", "Core"];
-    return selectedMuscles
-      .filter((muscle) => priorityMuscles.includes(muscle))
-      .concat(
-        selectedMuscles.filter((muscle) => !priorityMuscles.includes(muscle))
+  const lowerCaseMuscleGroups = muscleGroups.map((muscle) =>
+    muscle.toLowerCase()
+  );
+
+  const compoundExercises = exercises
+    .filter((exercise) => lowerCaseMuscleGroups.includes(exercise.bodyPart))
+    .filter((exercise) => exercise.type === "compound")
+    .filter((exercise) =>
+      experienceLevel === "beginner"
+        ? exercise.user === "beginner"
+        : experienceLevel === "intermediate"
+        ? ["beginner", "intermediate"].includes(exercise.user)
+        : true
+    );
+
+  const isolationExercises = exercises
+    .filter((exercise) => lowerCaseMuscleGroups.includes(exercise.bodyPart))
+    .filter((exercise) => exercise.type !== "compound")
+    .filter((exercise) =>
+      experienceLevel === "beginner"
+        ? exercise.user === "beginner"
+        : experienceLevel === "intermediate"
+        ? ["beginner", "intermediate"].includes(exercise.user)
+        : true
+    );
+
+  console.log("🏋️ Compound Exercises:", compoundExercises.length);
+  console.log("💪 Isolation Exercises:", isolationExercises.length);
+
+  const selectedExercises: Exercise[] = [];
+
+  const selectRandomExercises = (
+    source: typeof exercises,
+    count: number,
+    isCompound: boolean
+  ) => {
+    let added = 0;
+    console.log(
+      `🎲 Selecting ${count} ${isCompound ? "compound" : "isolation"} exercises`
+    );
+
+    if (source.length === 0) {
+      console.warn(
+        `🚫 No available ${isCompound ? "compound" : "isolation"} exercises!`
       );
-  }
-  return selectedMuscles;
+      return;
+    }
+
+    console.log(
+      "📋 Source Exercises Before Selection:",
+      source.map((e) => e.name)
+    );
+    console.log(`🔢 Count to select: ${count}, Current added: ${added}`);
+
+    while (added < count && source.length > 0) {
+      console.log("🚦 Entering selection loop");
+      const randomIndex = Math.floor(Math.random() * source.length);
+      console.log(`🎲 Random Index: ${randomIndex}`);
+
+      const exercise = source.splice(randomIndex, 1)[0];
+      if (!exercise) {
+        console.warn(
+          "❌ Failed to select an exercise. Source array may be empty."
+        );
+        break;
+      }
+
+      selectedExercises.push({
+        name: exercise.name,
+        sets: isCompound
+          ? Math.floor(Math.random() * 2) + 3
+          : Math.floor(Math.random() * 2) + 2,
+        reps: isCompound
+          ? Math.floor(Math.random() * 2) * 2 + 6
+          : Math.floor(Math.random() * 4) * 2 + 8,
+        notes: exercise.setupDescription || exercise.repDescription || "",
+        type: exercise.type,
+        bodyPart: exercise.bodyPart,
+        user: exercise.user,
+      });
+      added++;
+    }
+    console.log(
+      `✅ Selected ${added} ${isCompound ? "compound" : "isolation"} exercises`
+    );
+    console.log(
+      "📋 Remaining Exercises After Selection:",
+      source.map((e) => e.name)
+    );
+  };
+
+  selectRandomExercises(compoundExercises, compound, true);
+  selectRandomExercises(isolationExercises, isolation, false);
+
+  console.log("🎯 Final Selected Exercises for Day:", selectedExercises);
+
+  return selectedExercises;
 };
 
 const generateGoals = (
   selectedMuscles: string[],
-  compoundExercisesSelected: string[]
+  exercises: Exercise[]
 ): { description: string; targetDate: string }[] => {
-  const goals: { description: string; targetDate: string }[] = [];
-
-  selectedMuscles.forEach((muscle) => {
-    const matchingExercises = [
-      ...compoundExercises[muscle as keyof typeof compoundExercises],
-    ];
-
-    const exerciseForGoal = compoundExercisesSelected.find((exercise) =>
-      (matchingExercises as string[]).includes(exercise)
-    );
-
-    if (exerciseForGoal) {
-      goals.push({
-        description: `Improve strength in ${muscle} using ${exerciseForGoal}`,
-        targetDate: "8 weeks",
-      });
-    }
-  });
+  const goals = selectedMuscles
+    .map((muscle) => {
+      const relevantExercises = exercises.filter((exercise) =>
+        exercise.bodyPart.toLowerCase().includes(muscle.toLowerCase())
+      );
+      if (relevantExercises.length > 0) {
+        const compoundExercises = relevantExercises.filter(
+          (exercise) => exercise.type === "compound"
+        );
+        if (compoundExercises.length > 0) {
+          const randomIndex = Math.floor(
+            Math.random() * compoundExercises.length
+          );
+          const exercise = compoundExercises[randomIndex];
+          return {
+            description: `Increase strength in ${muscle} by improving performance in ${exercise.name}`,
+            targetDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+              .toISOString()
+              .split("T")[0],
+          };
+        }
+      }
+      return null;
+    })
+    .filter(Boolean) as { description: string; targetDate: string }[];
 
   return goals;
 };
 
-const generateWorkoutPlan = ({
-  selectedMuscles,
-  daysPerWeek,
-  experienceLevel,
-  preferredDuration,
-}: WorkoutPlanOptions): PreMadeWorkout => {
-  const id = Math.random().toString(36).substr(2, 9);
-  const split = workoutSplits[daysPerWeek as keyof typeof workoutSplits];
-  const workoutDays: WorkoutDay[] = [];
-  let compoundExercisesSelected: string[] = [];
-
-  const { compound: compoundCount, isolation: isolationCount } =
-    getExerciseCountsForDuration(preferredDuration);
-  let totalExercisesCount = 0;
-
-  split.forEach((type, index) => {
-    const exercises: Exercise[] = [];
-    const usedMuscles: string[] = [];
-
-    // Select compound exercises
-    while (totalExercisesCount < compoundCount && selectedMuscles.length > 0) {
-      const availableMuscles = selectedMuscles.filter(
-        (muscle) => !usedMuscles.includes(muscle)
-      );
-      if (availableMuscles.length === 0) break;
-
-      const muscle =
-        availableMuscles[Math.floor(Math.random() * availableMuscles.length)];
-      const muscleCompoundExercises =
-        compoundExercises[muscle as keyof typeof compoundExercises];
-      const exercise =
-        muscleCompoundExercises[
-          Math.floor(Math.random() * muscleCompoundExercises.length)
-        ];
-
-      if (!compoundExercisesSelected.includes(exercise)) {
-        exercises.push({
-          name: exercise,
-          sets: 4,
-          reps: 6,
-          notes: `Focus on strength development for ${muscle}`,
-        });
-        compoundExercisesSelected.push(exercise);
-        usedMuscles.push(muscle);
-        totalExercisesCount++;
-      }
-    }
-
-    // Select isolation exercises
-    while (totalExercisesCount < compoundCount + isolationCount) {
-      const availableMuscles = selectedMuscles.filter(
-        (muscle) => !usedMuscles.includes(muscle)
-      );
-
-      // If no available muscles left, reset to all selected muscles
-      if (availableMuscles.length === 0) {
-        usedMuscles.length = 0;
-        continue;
-      }
-
-      const muscle =
-        availableMuscles[Math.floor(Math.random() * availableMuscles.length)];
-      const muscleIsolationExercises =
-        isolationExercises[muscle as keyof typeof isolationExercises];
-      const exercise =
-        muscleIsolationExercises[
-          Math.floor(Math.random() * muscleIsolationExercises.length)
-        ];
-
-      if (!exercises.some((e) => e.name === exercise)) {
-        exercises.push({
-          name: exercise,
-          sets: 3,
-          reps: 12,
-          notes: `Focus on isolating the ${muscle}`,
-        });
-        usedMuscles.push(muscle);
-        totalExercisesCount++;
-      }
-    }
-
-    // Adjust exercise intensity based on experience level
-    const adjustedExercises = adjustForExperienceLevel(
-      experienceLevel,
-      exercises
-    );
-
-    workoutDays.push({
-      name: `Day ${index + 1} - ${type}`,
-      type: type,
-      exercises: adjustedExercises,
-    });
-  });
-
-  const goals = generateGoals(selectedMuscles, compoundExercisesSelected);
-
-  return {
-    id,
-    title: `${daysPerWeek}-Day ${selectedMuscles.join("/")} Focus`,
-    description: `Custom workout plan focusing on ${selectedMuscles.join(
-      ", "
-    )}`,
-    targetMuscles: selectedMuscles,
-    daysPerWeek,
-    workoutDays,
-    recommendedWeeks: 8,
-    goals,
-  };
-};
-
-export const findMatchingWorkouts = (
-  selectedMuscles: string[],
-  daysPerWeek: number,
-  gender: "male" | "female",
-  experienceLevel: ExperienceLevel,
-  preferredDuration: "30" | "45" | "60" | "90"
-): PreMadeWorkout[] => {
-  const prioritizedMuscles = prioritizeMusclesForGender(
-    selectedMuscles,
-    gender
-  );
-  const customPlan = generateWorkoutPlan({
-    selectedMuscles: prioritizedMuscles,
-    daysPerWeek,
-    gender,
-    experienceLevel,
-    preferredDuration,
-  });
-  return [customPlan];
-};
-
-export default {
-  muscleGroups,
-  compoundExercises,
-  isolationExercises,
-  findMatchingWorkouts,
-};
+export { prioritizeMusclesForGender, getExercisesForDay, generateGoals };
