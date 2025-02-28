@@ -82,9 +82,10 @@ const PlanEditor = () => {
 
   const handleAddWorkoutDay = () => {
     if (workoutDays.length < 7) {
+      const newDayNumber = workoutDays.length + 1;
       const newDay: WorkoutDay = {
-        id: (workoutDays.length + 1).toString(),
-        name: `Day ${workoutDays.length + 1}`,
+        id: newDayNumber.toString(),
+        name: `Day ${newDayNumber}`,
         exercises: [],
       };
       setWorkoutDays([...workoutDays, newDay]);
@@ -92,7 +93,10 @@ const PlanEditor = () => {
   };
 
   const handleRemoveWorkoutDay = () => {
-    if (workoutDays.length > 0) {
+    if (
+      workoutDays.length > 0 &&
+      confirm("Are you sure you want to remove the last day?")
+    ) {
       const updatedDays = [...workoutDays];
       updatedDays.pop();
       setWorkoutDays(updatedDays);
@@ -100,6 +104,14 @@ const PlanEditor = () => {
   };
 
   const handleSave = () => {
+    if (!title.trim()) {
+      toast({ title: "Error", description: "Plan title is required." });
+      return;
+    }
+    if (!workoutDays.length) {
+      toast({ title: "Error", description: "Add at least one workout day." });
+      return;
+    }
     toast({
       title: isNew
         ? "Plan created successfully!"
@@ -188,9 +200,9 @@ const PlanEditor = () => {
             )}
           </div>
           <div className="space-y-6">
-            {workoutDays.map((day) => (
+            {workoutDays.map((day, index) => (
               <WorkoutDayEditor
-                key={day.id}
+                key={`workout-day-${day.id}-${index}`}
                 day={day}
                 onUpdate={handleUpdateWorkoutDay}
               />
@@ -209,9 +221,9 @@ const PlanEditor = () => {
         <Card className="p-6">
           <h2 className="text-xl font-semibold text-primary">Goals</h2>
           <div className="space-y-4">
-            {goals.map((goal) => (
+            {goals.map((goal, index) => (
               <GoalEditor
-                key={goal.id}
+                key={`goal-${goal}-${index}`}
                 goal={goal}
                 exercises={getExercisesList()}
                 onChange={handleUpdateGoal}

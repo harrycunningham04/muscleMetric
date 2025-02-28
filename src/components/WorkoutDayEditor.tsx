@@ -95,7 +95,7 @@ export const WorkoutDayEditor = ({ day, onUpdate }: WorkoutDayProps) => {
             >
               {day.exercises.map((exercise, index) => (
                 <Draggable
-                  key={exercise.id}
+                  key={`exercise-${exercise.id}-${index}`}
                   draggableId={exercise.id}
                   index={index}
                 >
