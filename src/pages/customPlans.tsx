@@ -19,11 +19,19 @@ import {
   MuscleGroupArray,
 } from "@/data/premadeWorkout";
 import { motion, AnimatePresence } from "framer-motion";
-import { Dumbbell, Calendar, Target, User, Clock } from "lucide-react";
+import {
+  Dumbbell,
+  Calendar,
+  Target,
+  User,
+  Clock,
+  LayoutGrid,
+} from "lucide-react";
 
 type Gender = "male" | "female";
 type ExperienceLevel = "beginner" | "intermediate" | "advanced";
 type WorkoutDuration = "30" | "45" | "60" | "90";
+type Equipment = "bodyweight" | "bands" | "gym";
 
 const CustomPlans = () => {
   const navigate = useNavigate();
@@ -33,6 +41,7 @@ const CustomPlans = () => {
   const [selectedMuscles, setSelectedMuscles] = useState<string[]>([]);
   const [experience, setExperience] = useState<ExperienceLevel>("beginner");
   const [workoutDuration, setWorkoutDuration] = useState<WorkoutDuration>("30");
+  const [equipment, setEquipment] = useState<Equipment>("gym");
 
   const handleMuscleSelect = (muscle: string) => {
     setSelectedMuscles((prev) => {
@@ -148,6 +157,11 @@ const CustomPlans = () => {
       icon: Clock,
       title: "Preferred workout duration",
       description: "Select how long you want your workouts to be",
+    },
+    {
+      icon: LayoutGrid,
+      title: "What equipment do you have access to?",
+      description: "Choose the equipment available for your workouts",
     },
     {
       icon: Target,
@@ -314,6 +328,56 @@ const CustomPlans = () => {
                   )}
 
                   {currentStep === 5 && (
+                    <RadioGroup
+                      value={equipment}
+                      onValueChange={(value: Equipment) => setEquipment(value)}
+                      className="flex flex-col gap-4 max-w-xs mx-auto"
+                    >
+                      <div className="flex items-center p-3 border rounded-md hover:bg-accent">
+                        <RadioGroupItem
+                          value="bodyweight"
+                          id="bodyweight"
+                          className="mr-3"
+                        />
+                        <Label
+                          htmlFor="bodyweight"
+                          className="flex-1 cursor-pointer"
+                        >
+                          <div className="font-medium">Bodyweight Only</div>
+                          <div className="text-sm text-muted-foreground">
+                            No equipment needed
+                          </div>
+                        </Label>
+                      </div>
+                      <div className="flex items-center p-3 border rounded-md hover:bg-accent">
+                        <RadioGroupItem
+                          value="bands"
+                          id="bands"
+                          className="mr-3"
+                        />
+                        <Label
+                          htmlFor="bands"
+                          className="flex-1 cursor-pointer"
+                        >
+                          <div className="font-medium">Resistance Bands</div>
+                          <div className="text-sm text-muted-foreground">
+                            Basic home equipment
+                          </div>
+                        </Label>
+                      </div>
+                      <div className="flex items-center p-3 border rounded-md hover:bg-accent">
+                        <RadioGroupItem value="gym" id="gym" className="mr-3" />
+                        <Label htmlFor="gym" className="flex-1 cursor-pointer">
+                          <div className="font-medium">Full Gym Access</div>
+                          <div className="text-sm text-muted-foreground">
+                            Access to weights and machines
+                          </div>
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                  )}
+
+                  {currentStep === 6 && (
                     <div className="space-y-6">
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         {MuscleGroupArray.map((muscle) => (
