@@ -8,7 +8,10 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "typeRoots": ["src/types", "./node_modules/@types"],
-    "types": ["node"]
+    "types": ["node"],
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true
   },
   "files": [],
   "references": [

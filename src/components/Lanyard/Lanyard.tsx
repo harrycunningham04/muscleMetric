@@ -11,8 +11,10 @@ import {
   CuboidCollider,
   Physics,
   RigidBody,
+  RigidBodyProps,
   useRopeJoint,
   useSphericalJoint,
+  RapierRigidBody
 } from "@react-three/rapier";
 import { MeshLineGeometry, MeshLineMaterial } from "meshline";
 
@@ -26,10 +28,31 @@ extend({ MeshLineGeometry, MeshLineMaterial });
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      meshLineGeometry: React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
-      meshLineMaterial: React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+      meshLineGeometry: React.DetailedHTMLProps<
+        React.HTMLAttributes<HTMLElement>,
+        HTMLElement
+      >;
+      meshLineMaterial: React.DetailedHTMLProps<
+        React.HTMLAttributes<HTMLElement>,
+        HTMLElement
+      >;
     }
   }
+}
+
+// Extend RigidBody to include lerped property and methods
+
+// Define the expected structure of the GLTF model
+interface GLTFModel {
+  nodes: {
+    card: THREE.Mesh;
+    clip: THREE.Mesh;
+    clamp: THREE.Mesh;
+  };
+  materials: {
+    base: THREE.MeshStandardMaterial;
+    metal: THREE.MeshStandardMaterial;
+  };
 }
 
 export default function Lanyard({
@@ -91,24 +114,27 @@ export default function Lanyard({
 
 function Band({ maxSpeed = 50, minSpeed = 10 }) {
   const band = useRef<THREE.Mesh>(null);
-  const fixed = useRef<React.ElementRef<typeof RigidBody>>(null!);
-  const j1 = useRef<React.ElementRef<typeof RigidBody>>(null!);
-  const j2 = useRef<React.ElementRef<typeof RigidBody>>(null!);
-  const j3 = useRef<React.ElementRef<typeof RigidBody>>(null!);
-  const card = useRef<React.ElementRef<typeof RigidBody>>(null!);
+  const fixed = useRef<RapierRigidBody>(null!);
+  const j1 = useRef<RapierRigidBody>(null!);
+  const j2 = useRef<RapierRigidBody>(null!);
+  const j3 = useRef<RapierRigidBody>(null!);
+  const card = useRef<RapierRigidBody>(null!);
 
   const vec = new THREE.Vector3(),
     ang = new THREE.Vector3(),
     rot = new THREE.Vector3(),
     dir = new THREE.Vector3();
-  const segmentProps = {
+  const segmentProps: RigidBodyProps = {
     type: "dynamic",
     canSleep: true,
     colliders: false,
     angularDamping: 4,
     linearDamping: 4,
   };
-  const { nodes, materials } = useGLTF(cardGLB);
+
+  // Use unknown to bypass strict type checking
+  const { nodes, materials } = useGLTF(cardGLB) as unknown as GLTFModel;
+
   const texture = useTexture(lanyard);
   const { width, height } = useThree((state) => state.size);
   const [curve] = useState(
@@ -171,10 +197,15 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
       curve.points[1].copy(j2.current.lerped);
       curve.points[2].copy(j1.current.lerped);
       curve.points[3].copy(fixed.current.translation());
-      band.current.geometry.setPoints(curve.getPoints(32));
+      if (band.current) {
+        band.current.geometry.setPoints(curve.getPoints(32));
+      }
       ang.copy(card.current.angvel());
       rot.copy(card.current.rotation());
-      card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z });
+      card.current.setAngvel(
+        { x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z },
+        true
+      );
     }
   });
 
@@ -206,16 +237,21 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
             position={[0, -1.2, -0.05]}
             onPointerOver={() => hover(true)}
             onPointerOut={() => hover(false)}
-            onPointerUp={(e) => (
-              e.target.releasePointerCapture(e.pointerId), drag(false)
-            )}
+            onPointerUp={(e) => {
+              if (e.target) {
+                e.target.releasePointerCapture(e.pointerId);
+                drag(false);
+              }
+            }}
             onPointerDown={(e) => {
-              e.target.setPointerCapture(e.pointerId);
-              drag(
-                new THREE.Vector3()
-                  .copy(e.point)
-                  .sub(vec.copy(card.current!.translation()))
-              );
+              if (e.target) {
+                e.target.setPointerCapture(e.pointerId);
+                drag(
+                  new THREE.Vector3()
+                    .copy(e.point)
+                    .sub(vec.copy(card.current!.translation()))
+                );
+              }
             }}
           >
             <mesh geometry={nodes.card.geometry}>

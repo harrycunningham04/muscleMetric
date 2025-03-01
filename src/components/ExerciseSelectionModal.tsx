@@ -21,7 +21,7 @@ import {
 import { IoIosPeople } from "react-icons/io";
 
 // Import the exercises data
-import { exercises, Exercise } from "@/data/Exercise";
+import { exercises, Exercises } from "@/data/Exercise";
 import React from "react";
 
 interface BodyPart {
@@ -48,8 +48,8 @@ const alphabet = Array.from("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 interface ExerciseSelectionModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSelect: (exercises: Exercise[]) => void;
-  selectedExercises?: Exercise[];
+  onSelect: (exercises: Exercises[]) => void;
+  selectedExercises?: Exercises[];
 }
 
 export const ExerciseSelectionModal = ({
@@ -62,12 +62,12 @@ export const ExerciseSelectionModal = ({
   const [selectedBodyPart, setSelectedBodyPart] = useState<string | null>(null);
   const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
   const [localSelectedExercises, setLocalSelectedExercises] =
-    useState<Exercise[]>(selectedExercises);
+    useState<Exercises[]>(selectedExercises);
   const [lastFilter, setLastFilter] = useState<
     "search" | "bodyPart" | "letter" | null
   >(null);
 
-  const handleExerciseToggle = (exercise: Exercise) => {
+  const handleExerciseToggle = (exercise: Exercises) => {
     setLocalSelectedExercises((prev) =>
       prev.some((e) => e.id === exercise.id)
         ? prev.filter((e) => e.id !== exercise.id)
