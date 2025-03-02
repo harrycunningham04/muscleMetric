@@ -31,7 +31,7 @@ import {
 type Gender = "male" | "female";
 type ExperienceLevel = "beginner" | "intermediate" | "advanced";
 type WorkoutDuration = "30" | "45" | "60" | "90";
-type Equipment = "bodyweight" | "bands" | "gym";
+type Equipment = "Bodyweight" | "Resistance Bands" | "Dumbbells" | "gym";
 
 const CustomPlans = () => {
   const navigate = useNavigate();
@@ -57,7 +57,7 @@ const CustomPlans = () => {
   };
 
   const handleNext = () => {
-    if (currentStep === 5) {
+    if (currentStep === 6) {
       handleSubmit();
     } else {
       setCurrentStep((prev) => prev + 1);
@@ -88,7 +88,8 @@ const CustomPlans = () => {
       const exercises = getExercisesForDay(
         prioritizedMuscles,
         experience,
-        workoutDuration
+        workoutDuration,
+        equipment
       );
       console.log(`Exercises for Day ${dayIndex + 1}:`, exercises);
 
@@ -335,7 +336,7 @@ const CustomPlans = () => {
                     >
                       <div className="flex items-center p-3 border rounded-md hover:bg-accent">
                         <RadioGroupItem
-                          value="bodyweight"
+                          value="Bodyweight"
                           id="bodyweight"
                           className="mr-3"
                         />
@@ -351,7 +352,7 @@ const CustomPlans = () => {
                       </div>
                       <div className="flex items-center p-3 border rounded-md hover:bg-accent">
                         <RadioGroupItem
-                          value="bands"
+                          value="Resistance Bands"
                           id="bands"
                           className="mr-3"
                         />
@@ -362,6 +363,22 @@ const CustomPlans = () => {
                           <div className="font-medium">Resistance Bands</div>
                           <div className="text-sm text-muted-foreground">
                             Basic home equipment
+                          </div>
+                        </Label>
+                      </div>
+                      <div className="flex items-center p-3 border rounded-md hover:bg-accent">
+                        <RadioGroupItem
+                          value="Dumbbells"
+                          id="dumbbells"
+                          className="mr-3"
+                        />
+                        <Label
+                          htmlFor="dumbbells"
+                          className="flex-1 cursor-pointer"
+                        >
+                          <div className="font-medium">Dumbbells</div>
+                          <div className="text-sm text-muted-foreground">
+                            Enough Dumbbells for your weight training
                           </div>
                         </Label>
                       </div>
@@ -427,7 +444,7 @@ const CustomPlans = () => {
                       </Button>
                     )}
                     <Button onClick={handleNext} className="min-w-[100px]">
-                      {currentStep === 5 ? "Create Plan" : "Next"}
+                      {currentStep === 6 ? "Create Plan" : "Next"}
                     </Button>
                   </div>
                 </motion.div>

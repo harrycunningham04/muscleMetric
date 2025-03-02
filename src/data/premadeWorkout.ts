@@ -56,6 +56,7 @@ export interface PreMadeWorkout {
 }
 
 export type ExperienceLevel = "beginner" | "intermediate" | "advanced";
+export type Equipment = "Bodyweight" | "Resistance Bands" | "Dumbbells" | "gym";
 
 export interface WorkoutPlanOptions {
   selectedMuscles: string[];
@@ -101,7 +102,8 @@ const getExerciseCountsForDuration = (
 const getExercisesForDay = (
   muscleGroups: string[],
   experienceLevel: ExperienceLevel,
-  preferredDuration: "30" | "45" | "60" | "90"
+  preferredDuration: "30" | "45" | "60" | "90",
+  Equipment: "Bodyweight" | "Resistance Bands" | "Dumbbells" | "gym"
 ): Exercise[] => {
   const { compound, isolation } =
     getExerciseCountsForDuration(preferredDuration);
@@ -113,6 +115,7 @@ const getExercisesForDay = (
   const compoundExercises = exercises
     .filter((exercise) => lowerCaseMuscleGroups.includes(exercise.bodyPart))
     .filter((exercise) => exercise.type === "compound")
+    .filter((exercise) => (Equipment === "gym" || exercise.equipment === Equipment))
     .filter((exercise) =>
       experienceLevel === "beginner"
         ? exercise.user === "beginner"
