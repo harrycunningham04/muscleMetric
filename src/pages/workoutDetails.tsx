@@ -14,6 +14,9 @@ interface Exercise {
   weights: number[];
   actualReps: number[];
   previousWeight?: string;
+  form?: string;
+  equipment?: string[];
+  alternatives?: string[];
 }
 
 interface WorkoutState {
@@ -27,7 +30,7 @@ interface WorkoutState {
   startedExercises: string[];
 }
 
-const WorkoutDetails = () => {
+const Workout = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -42,6 +45,9 @@ const WorkoutDetails = () => {
         weights: [0, 0, 0],
         actualReps: [8, 8, 8],
         previousWeight: "80 kg × 8",
+        form: "Lie on a flat bench with your feet on the ground. Grip the barbell slightly wider than shoulder-width. Lower the bar to mid-chest level, then press back up to full arm extension. Keep your wrists straight and elbows at about 45° from your body.",
+        equipment: ["Barbell", "Bench", "Weight plates", "Safety rack"],
+        alternatives: ["Dumbbell Bench Press", "Push-Ups", "Cable Chest Press"],
       },
       {
         id: "2",
@@ -51,6 +57,9 @@ const WorkoutDetails = () => {
         weights: [0, 0, 0, 0],
         actualReps: [12, 12, 12, 12],
         previousWeight: "30 kg × 12",
+        form: "Place one knee and hand on a bench, keeping your back flat and parallel to the ground. Hold a dumbbell in your free hand, arm extended. Pull the dumbbell up to your side, keeping your elbow close to your body. Lower with control and repeat.",
+        equipment: ["Dumbbell", "Bench"],
+        alternatives: ["Barbell Rows", "Cable Rows", "TRX Rows"],
       },
     ],
     currentExerciseIndex: 0,
@@ -134,47 +143,47 @@ const WorkoutDetails = () => {
   };
 
   return (
-    <div className="relative min-h-screen bg-modern-white overflow-hidden">
+    <div className="relative min-h-screen bg-background">
       {/* Background Pattern */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-20 -right-20 opacity-5 transform rotate-12">
-          <Dumbbell className="w-96 h-96 text-modern-blue" />
+          <Dumbbell className="w-96 h-96 text-primary" />
         </div>
         <div className="absolute bottom-40 -left-20 opacity-5 transform -rotate-12">
-          <Dumbbell className="w-96 h-96 text-modern-blue" />
+          <Dumbbell className="w-96 h-96 text-primary" />
         </div>
       </div>
 
       {/* Content */}
       <div className="container relative max-w-2xl py-8 z-10">
-        <div className="flex items-center justify-between mb-8 backdrop-blur-sm bg-white/50 p-4 rounded-lg shadow-sm">
+        <div className="flex items-center justify-between mb-8 backdrop-blur-sm bg-card/80 p-4 rounded-lg shadow-sm border">
           <div className="flex items-center gap-4">
             <Button 
               variant="ghost" 
               size="icon"
               onClick={() => navigate(-1)}
-              className="hover:bg-modern-blue/10"
+              className="hover:bg-accent"
             >
               <ChevronLeft className="h-6 w-6" />
             </Button>
             <div>
-              <h1 className="text-2xl font-bold">{workout.name}</h1>
+              <h1 className="text-2xl font-bold text-foreground">{workout.name}</h1>
               <p className="text-sm text-muted-foreground">
                 {workout.exercises.length} exercises planned
               </p>
             </div>
           </div>
           {workout.isWorkoutStarted && (
-            <div className="flex items-center gap-2 bg-modern-blue/10 px-4 py-2 rounded-lg">
-              <Timer className="h-5 w-5 text-modern-blue" />
-              <span className="font-mono text-lg font-semibold">{formatTime(workout.timerSeconds)}</span>
+            <div className="flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-lg">
+              <Timer className="h-5 w-5 text-primary" />
+              <span className="font-mono text-lg font-semibold text-foreground">{formatTime(workout.timerSeconds)}</span>
             </div>
           )}
         </div>
 
         {!workout.isWorkoutStarted ? (
           <div className="space-y-4">
-            <div className="bg-white/50 backdrop-blur-sm rounded-xl p-6 shadow-sm">
+            <div className="bg-card/80 backdrop-blur-sm rounded-xl p-6 shadow-sm border text-center">
               {workout.exercises.map((exercise) => (
                 <ExerciseCard
                   key={exercise.id}
@@ -184,15 +193,16 @@ const WorkoutDetails = () => {
                   workoutStarted={false}
                 />
               ))}
-            </div>
-            <div className="fixed bottom-8 left-4 right-4 max-w-2xl mx-auto">
-              <Button 
-                onClick={startWorkout}
-                className="w-full border-2 border-modern-blue hover:bg-modern-blue/10 text-black transition-all duration-200 hover:scale-105 backdrop-blur-sm bg-white/50"
-                variant="outline"
-              >
-                Start Workout
-              </Button>
+              
+              <div className="mt-8">
+                <Button 
+                  onClick={startWorkout}
+                  className="w-full md:w-2/3 mx-auto border-2 border-primary hover:bg-accent text-foreground transition-all duration-200 hover:scale-105 backdrop-blur-sm bg-card/50"
+                  variant="outline"
+                >
+                  Start Workout
+                </Button>
+              </div>
             </div>
           </div>
         ) : (
@@ -208,10 +218,10 @@ const WorkoutDetails = () => {
                 workoutStarted={workout.isWorkoutStarted}
               />
             ))}
-            <div className="fixed bottom-8 left-4 right-4 max-w-2xl mx-auto">
+            <div className="mt-8 text-center">
               <Button 
                 onClick={handleFinishWorkout}
-                className="w-full bg-modern-blue hover:bg-modern-blue/90 text-black transition-colors duration-200 backdrop-blur-sm"
+                className="w-full md:w-2/3 mx-auto bg-primary hover:bg-primary/90 text-primary-foreground transition-colors duration-200 backdrop-blur-sm"
               >
                 Complete Workout
               </Button>
@@ -223,4 +233,4 @@ const WorkoutDetails = () => {
   );
 };
 
-export default WorkoutDetails;
+export default Workout;
