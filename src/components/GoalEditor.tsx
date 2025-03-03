@@ -1,6 +1,12 @@
-
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { AlertCircle } from "lucide-react";
 
 interface Goal {
   id: string;
@@ -12,13 +18,19 @@ interface GoalEditorProps {
   goal: Goal;
   exercises: string[];
   onChange: (goalId: string, field: keyof Goal, value: string) => void;
-  otherGoalExercises?: string[]; // New prop to track exercises selected by other goals
+  otherGoalExercises?: string[];
+  onValidationChange: (goalId: string, isValid: boolean) => void;
 }
 
-export const GoalEditor = ({ goal, exercises, onChange, otherGoalExercises = [] }: GoalEditorProps) => {
-  // Filter out exercises that are already selected by other goals
-  const availableExercises = exercises.filter(exercise => 
-    !otherGoalExercises.includes(exercise) || exercise === goal.description
+export const GoalEditor = ({
+  goal,
+  exercises,
+  onChange,
+  otherGoalExercises = [],
+}: GoalEditorProps) => {
+  const availableExercises = exercises.filter(
+    (exercise) =>
+      !otherGoalExercises.includes(exercise) || exercise === goal.description
   );
 
   return (
@@ -38,12 +50,18 @@ export const GoalEditor = ({ goal, exercises, onChange, otherGoalExercises = [] 
           ))}
         </SelectContent>
       </Select>
+      {!goal.description && (
+        <AlertCircle className="h-4 w-4 text-red-500 absolute right-10 top-3" />
+      )}
       <Input
         type="number"
         placeholder="Target weight (kgs)"
         value={goal.targetDate}
         onChange={(e) => onChange(goal.id, "targetDate", e.target.value)}
       />
+      {!goal.targetDate && (
+        <AlertCircle className="h-4 w-4 text-red-500 absolute right-2 top-3" />
+      )}
     </div>
   );
 };

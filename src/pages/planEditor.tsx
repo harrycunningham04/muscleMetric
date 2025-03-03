@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, Save, Plus, Trash } from "lucide-react";
+import { ArrowLeft, Save, Plus, Trash, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { WorkoutDayEditor } from "@/components/WorkoutDayEditor";
 import { GoalEditor } from "@/components/GoalEditor";
@@ -25,6 +25,7 @@ interface WorkoutDay {
     name: string;
     sets: number;
     reps: number;
+    startingWeight?: number;
   }>;
 }
 
@@ -33,6 +34,10 @@ interface Goal {
   description: string;
   targetDate: string;
   exercise: { name: string };
+}
+
+interface ValidationState {
+  [key: string]: boolean;
 }
 
 const PlanEditor = () => {
@@ -50,6 +55,12 @@ const PlanEditor = () => {
   const [workoutDays, setWorkoutDays] = useState<WorkoutDay[]>([]);
   const [goals, setGoals] = useState<Goal[]>([]);
 
+  const [workoutValidation, setWorkoutValidation] = useState<ValidationState>(
+    {}
+  );
+  const [goalValidation, setGoalValidation] = useState<ValidationState>({});
+  const [isFormValid, setIsFormValid] = useState(false);
+
   useEffect(() => {
     if (preMadeWorkout) {
       setTitle(preMadeWorkout.title || "Pre-Made Workout Plan");
@@ -58,6 +69,20 @@ const PlanEditor = () => {
       setGoals(preMadeWorkout.goals || []);
     }
   }, [preMadeWorkout]);
+
+  const handleDayValidationChange = (dayId: string, isValid: boolean) => {
+    setWorkoutValidation((prev) => ({
+      ...prev,
+      [dayId]: isValid,
+    }));
+  };
+
+  const handleGoalValidationChange = (goalId: string, isValid: boolean) => {
+    setGoalValidation((prev) => ({
+      ...prev,
+      [goalId]: isValid,
+    }));
+  };
 
   const handleUpdateWorkoutDay = (
     dayId: string,
@@ -78,13 +103,16 @@ const PlanEditor = () => {
 
   const handleAddWorkoutDay = () => {
     if (workoutDays.length < 7) {
-      const newDayNumber = workoutDays.length + 1;
       const newDay: WorkoutDay = {
-        id: newDayNumber.toString(),
-        name: `Day ${newDayNumber}`,
+        id: (workoutDays.length + 1).toString(),
+        name: `Day ${workoutDays.length + 1}`,
         exercises: [],
       };
       setWorkoutDays([...workoutDays, newDay]);
+      setWorkoutValidation((prev) => ({
+        ...prev,
+        [newDay.id]: true, 
+      }));
     }
   };
 
@@ -100,14 +128,15 @@ const PlanEditor = () => {
   };
 
   const handleSave = () => {
-    if (!title.trim()) {
-      toast({ title: "Error", description: "Plan title is required." });
+    if (!isFormValid) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required fields before saving.",
+        variant: "destructive",
+      });
       return;
     }
-    if (!workoutDays.length) {
-      toast({ title: "Error", description: "Add at least one workout day." });
-      return;
-    }
+
     toast({
       title: isNew
         ? "Plan created successfully!"
@@ -131,11 +160,11 @@ const PlanEditor = () => {
     if (currentGoalsCount < 3) {
       const newGoals = [...goals];
       for (let i = currentGoalsCount; i < 3; i++) {
-        newGoals.push({ 
-          id: `goal-${i + 1}`, 
-          description: "", 
-          targetDate: "", 
-          exercise: {name: ""}
+        newGoals.push({
+          id: `goal-${i + 1}`,
+          description: "",
+          targetDate: "",
+          exercise: { name: "" },
         });
       }
       setGoals(newGoals);
@@ -143,6 +172,21 @@ const PlanEditor = () => {
       setGoals(goals.slice(0, 3));
     }
   };
+
+  useEffect(() => {
+    const areWorkoutDaysValid = Object.values(workoutValidation).every(
+      (value) => value === true
+    );
+    const areGoalsValid = Object.values(goalValidation).every(
+      (value) => value === true
+    );
+    const isValid =
+      areWorkoutDaysValid &&
+      areGoalsValid &&
+      workoutDays.some((day) => day.exercises.length > 0); // At least one exercise
+
+    setIsFormValid(isValid);
+  }, [workoutValidation, goalValidation, workoutDays]);
 
   useEffect(() => {
     ensureThreeGoals();
@@ -165,6 +209,8 @@ const PlanEditor = () => {
       .filter((g) => g.id !== currentGoalId && g.description)
       .map((g) => g.description);
   };
+
+  const hasExercises = workoutDays.some((day) => day.exercises.length > 0);
 
   return (
     <div className="container max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -236,12 +282,21 @@ const PlanEditor = () => {
               </Button>
             )}
           </div>
+          {!hasExercises && (
+            <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-md flex items-center gap-2">
+              <AlertCircle className="text-amber-500 h-5 w-5" />
+              <p className="text-amber-700">
+                Add at least one exercise to your workout plan
+              </p>
+            </div>
+          )}
           <div className="space-y-6">
             {workoutDays.map((day, index) => (
               <WorkoutDayEditor
                 key={`workout-day-${day.id}-${index}`}
                 day={day}
                 onUpdate={handleUpdateWorkoutDay}
+                onValidationChange={handleDayValidationChange}
               />
             ))}
           </div>
@@ -265,6 +320,7 @@ const PlanEditor = () => {
                 exercises={getPlanExercises()}
                 onChange={handleUpdateGoal}
                 otherGoalExercises={getOtherGoalExercises(goal.id)}
+                onValidationChange={handleGoalValidationChange}
               />
             ))}
           </div>

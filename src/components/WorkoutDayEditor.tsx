@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Trash2, GripVertical } from "lucide-react";
+import { Plus, Trash2, GripVertical, AlertCircle } from "lucide-react";
 import { useState } from "react";
 import { ExerciseSelectionModal } from "./ExerciseSelectionModal";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
@@ -10,6 +10,7 @@ interface Exercise {
   name: string;
   sets: number;
   reps: number;
+  startingWeight?: number;
 }
 
 interface WorkoutDayProps {
@@ -19,11 +20,28 @@ interface WorkoutDayProps {
     exercises: Exercise[];
   };
   onUpdate: (dayId: string, exercises: Exercise[]) => void;
+  onValidationChange: (dayId: string, isValid: boolean) => void;
 }
 
-export const WorkoutDayEditor = ({ day, onUpdate }: WorkoutDayProps) => {
+export const WorkoutDayEditor = ({ day, onUpdate, onValidationChange }: WorkoutDayProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [workoutName, setWorkoutName] = useState(day.name);
+
+  // Validate if all exercises have starting weights set
+  const validateExercises = (exercises: Exercise[]) => {
+    const isValid = exercises.every(ex => 
+      ex.startingWeight !== undefined && 
+      ex.startingWeight !== null && 
+      ex.startingWeight.toString() !== ""
+    );
+    onValidationChange(day.id, isValid);
+    return isValid;
+  };
+
+  // Initial validation
+  useState(() => {
+    validateExercises(day.exercises);
+  });
 
   const handleAddExercise = () => {
     setIsModalOpen(true);
@@ -37,6 +55,7 @@ export const WorkoutDayEditor = ({ day, onUpdate }: WorkoutDayProps) => {
       name: exercise.name,
       sets: 3,
       reps: 10,
+      startingWeight: undefined,
     }));
     onUpdate(day.id, [...day.exercises, ...newExercises]);
   };
@@ -69,6 +88,12 @@ export const WorkoutDayEditor = ({ day, onUpdate }: WorkoutDayProps) => {
     items.splice(result.destination.index, 0, reorderedItem);
 
     onUpdate(day.id, items);
+  };
+
+  const isValidExercise = (exercise: Exercise) => {
+    return exercise.startingWeight !== undefined && 
+           exercise.startingWeight !== null && 
+           exercise.startingWeight.toString() !== "";
   };
 
   return (
@@ -140,6 +165,19 @@ export const WorkoutDayEditor = ({ day, onUpdate }: WorkoutDayProps) => {
                           }
                           className="w-16"
                         />
+                        <p>Starting Weight</p>
+                        <Input
+                            type="number"
+                            placeholder={'Kgs'}
+                            value={exercise.startingWeight ?? ""}
+                            onChange={(e) =>
+                              handleExerciseChange(exercise.id, "startingWeight", parseFloat(e.target.value))
+                            }
+                            className={`w-20 ${!isValidExercise(exercise) ? 'border-red-500' : ''}`}
+                          />
+                          {!isValidExercise(exercise) && (
+                            <AlertCircle className="h-4 w-4 text-red-500 absolute right-2 top-3" />
+                          )}
                         <Button
                           variant="ghost"
                           size="icon"
