@@ -115,7 +115,9 @@ const getExercisesForDay = (
   const compoundExercises = exercises
     .filter((exercise) => lowerCaseMuscleGroups.includes(exercise.bodyPart))
     .filter((exercise) => exercise.type === "compound")
-    .filter((exercise) => (Equipment === "gym" || exercise.equipment === Equipment))
+    .filter(
+      (exercise) => Equipment === "gym" || exercise.equipment === Equipment
+    )
     .filter((exercise) =>
       experienceLevel === "beginner"
         ? exercise.user === "beginner"
@@ -203,34 +205,26 @@ const getExercisesForDay = (
 const generateGoals = (
   selectedMuscles: string[],
   exercises: Exercise[]
-): { description: string; targetDate: string }[] => {
-  const goals = selectedMuscles
-    .map((muscle) => {
-      const relevantExercises = exercises.filter((exercise) =>
-        exercise.bodyPart.toLowerCase().includes(muscle.toLowerCase())
-      );
-      if (relevantExercises.length > 0) {
-        const compoundExercises = relevantExercises.filter(
-          (exercise) => exercise.type === "compound"
-        );
-        if (compoundExercises.length > 0) {
-          const randomIndex = Math.floor(
-            Math.random() * compoundExercises.length
-          );
-          const exercise = compoundExercises[randomIndex];
-          return {
-            description: `Increase strength in ${muscle} by improving performance in ${exercise.name}`,
-            targetDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-              .toISOString()
-              .split("T")[0],
-          };
-        }
-      }
-      return null;
-    })
-    .filter(Boolean) as { description: string; targetDate: string }[];
+): { description: string; exercise: Exercise }[] => {
+  return selectedMuscles.flatMap((muscle) => {
+    const relevantExercises = exercises.filter((exercise) =>
+      exercise.bodyPart.toLowerCase().includes(muscle.toLowerCase())
+    );
 
-  return goals;
+    const compoundExercises = relevantExercises.filter(
+      (exercise) => exercise.type === "compound"
+    );
+
+    if (compoundExercises.length === 0) return [];
+
+    const selectedExercise =
+      compoundExercises[Math.floor(Math.random() * compoundExercises.length)];
+
+    return {
+      description: `Increase strength in ${muscle} by improving performance in ${selectedExercise.name}`,
+      exercise: selectedExercise,
+    };
+  });
 };
 
 export { prioritizeMusclesForGender, getExercisesForDay, generateGoals };
