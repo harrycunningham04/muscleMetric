@@ -10,11 +10,11 @@ import {
 import { DashboardView } from "@/components/DashboardView";
 import { ProgressSummary } from "@/components/ProgressSummary";
 import { ExerciseProgressGraph } from "@/components/ExerciseProgressGraph";
-import { getExercisesList } from "@/components/ExerciseSelector";
+import { exercises } from "@/data/Exercise";
 
 const Main = () => {
   const [selectedExercise, setSelectedExercise] = useState<string | null>(null);
-  const exercises = getExercisesList();
+  const exerciseNames = exercises.map((exercise) => exercise.name);
 
   return (
     <div className="container py-8 bg-background text-foreground min-h-screen">
@@ -37,7 +37,7 @@ const Main = () => {
                   <SelectValue placeholder="Select an exercise" />
                 </SelectTrigger>
                 <SelectContent>
-                  {exercises.map((exercise) => (
+                  {exerciseNames.map((exercise) => (
                     <SelectItem key={exercise} value={exercise}>
                       {exercise}
                     </SelectItem>
@@ -51,15 +51,15 @@ const Main = () => {
                 <div className="space-y-2">
                   {exercises.map((exercise) => (
                     <button
-                      key={exercise}
-                      onClick={() => setSelectedExercise(exercise)}
+                      key={exercise.id}
+                      onClick={() => setSelectedExercise(exercise.name)}
                       className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
-                        selectedExercise === exercise
+                        selectedExercise === exercise.name
                           ? "bg-primary text-primary-foreground"
                           : "hover:bg-accent"
                       }`}
                     >
-                      {exercise}
+                      {exercise.name}
                     </button>
                   ))}
                 </div>
