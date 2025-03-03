@@ -16,7 +16,6 @@ import { ArrowLeft, Save, Plus, Trash } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { WorkoutDayEditor } from "@/components/WorkoutDayEditor";
 import { GoalEditor } from "@/components/GoalEditor";
-import { getExercisesList } from "@/components/ExerciseSelector";
 
 interface WorkoutDay {
   id: string;
@@ -33,6 +32,7 @@ interface Goal {
   id: string;
   description: string;
   targetDate: string;
+  exercise: { name: string };
 }
 
 const PlanEditor = () => {
@@ -68,11 +68,7 @@ const PlanEditor = () => {
     );
   };
 
-  const handleUpdateGoal = (
-    goalId: string,
-    field: keyof Goal,
-    value: string
-  ) => {
+  const handleUpdateGoal = (goalId: string, field: keyof Goal, value: any) => {
     setGoals(
       goals.map((goal) =>
         goal.id === goalId ? { ...goal, [field]: value } : goal
@@ -127,6 +123,47 @@ const PlanEditor = () => {
       });
     }
     navigate("/plans");
+  };
+
+  const ensureThreeGoals = () => {
+    const currentGoalsCount = goals.length;
+
+    if (currentGoalsCount < 3) {
+      const newGoals = [...goals];
+      for (let i = currentGoalsCount; i < 3; i++) {
+        newGoals.push({ 
+          id: `goal-${i + 1}`, 
+          description: "", 
+          targetDate: "", 
+          exercise: {name: ""}
+        });
+      }
+      setGoals(newGoals);
+    } else if (currentGoalsCount > 3) {
+      setGoals(goals.slice(0, 3));
+    }
+  };
+
+  useEffect(() => {
+    ensureThreeGoals();
+  }, []);
+
+  const getPlanExercises = () => {
+    const exerciseSet = new Set<string>();
+
+    workoutDays.forEach((day) => {
+      day.exercises.forEach((exercise) => {
+        exerciseSet.add(exercise.name);
+      });
+    });
+
+    return Array.from(exerciseSet);
+  };
+
+  const getOtherGoalExercises = (currentGoalId: string) => {
+    return goals
+      .filter((g) => g.id !== currentGoalId && g.description)
+      .map((g) => g.description);
   };
 
   return (
@@ -219,14 +256,15 @@ const PlanEditor = () => {
         </Card>
 
         <Card className="p-6">
-          <h2 className="text-xl font-semibold text-primary">Goals</h2>
+          <h2 className="text-xl font-semibold text-primary pb-4">Goals</h2>
           <div className="space-y-4">
             {goals.map((goal, index) => (
               <GoalEditor
                 key={`goal-${goal}-${index}`}
                 goal={goal}
-                exercises={getExercisesList()}
+                exercises={getPlanExercises()}
                 onChange={handleUpdateGoal}
+                otherGoalExercises={getOtherGoalExercises(goal.id)}
               />
             ))}
           </div>

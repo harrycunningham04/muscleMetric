@@ -1,3 +1,4 @@
+
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -11,9 +12,15 @@ interface GoalEditorProps {
   goal: Goal;
   exercises: string[];
   onChange: (goalId: string, field: keyof Goal, value: string) => void;
+  otherGoalExercises?: string[]; // New prop to track exercises selected by other goals
 }
 
-export const GoalEditor = ({ goal, exercises, onChange }: GoalEditorProps) => {
+export const GoalEditor = ({ goal, exercises, onChange, otherGoalExercises = [] }: GoalEditorProps) => {
+  // Filter out exercises that are already selected by other goals
+  const availableExercises = exercises.filter(exercise => 
+    !otherGoalExercises.includes(exercise) || exercise === goal.description
+  );
+
   return (
     <div key={goal.id} className="grid grid-cols-2 gap-4">
       <Select
@@ -24,7 +31,7 @@ export const GoalEditor = ({ goal, exercises, onChange }: GoalEditorProps) => {
           <SelectValue placeholder="Select exercise" />
         </SelectTrigger>
         <SelectContent>
-          {exercises.map((exercise) => (
+          {availableExercises.map((exercise) => (
             <SelectItem key={exercise} value={exercise}>
               {exercise}
             </SelectItem>
@@ -33,7 +40,7 @@ export const GoalEditor = ({ goal, exercises, onChange }: GoalEditorProps) => {
       </Select>
       <Input
         type="number"
-        placeholder="Target weight (lbs)"
+        placeholder="Target weight (kgs)"
         value={goal.targetDate}
         onChange={(e) => onChange(goal.id, "targetDate", e.target.value)}
       />

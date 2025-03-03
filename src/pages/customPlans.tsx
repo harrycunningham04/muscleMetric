@@ -76,14 +76,12 @@ const CustomPlans = () => {
 
     const days = parseInt(daysPerWeek);
 
-    // Prioritize muscles based on gender
     const prioritizedMuscles = prioritizeMusclesForGender(
       selectedMuscles,
       gender
     );
     console.log("Prioritized Muscles:", prioritizedMuscles);
 
-    // Generate workout days with exercises
     const workoutDays = Array.from({ length: days }).map((_, dayIndex) => {
       const exercises = getExercisesForDay(
         prioritizedMuscles,
@@ -100,14 +98,12 @@ const CustomPlans = () => {
       };
     });
 
-    // Generate goals for the selected muscle groups
     const allExercises = workoutDays.flatMap((day) => day.exercises);
     console.log("All Selected Exercises:", allExercises);
 
     const goals = generateGoals(prioritizedMuscles, allExercises);
     console.log("Generated Goals:", goals);
 
-    // Construct the workout plan object
     const generatedWorkout = {
       id: "custom-workout-" + Date.now(),
       title: "Custom Workout Plan",
