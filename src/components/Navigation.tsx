@@ -4,6 +4,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Menu, Moon, Sun } from "lucide-react";
 import { UserProfile } from "@/components/UserProfile";
+import Icon from "@/assets/MuscleMetricIcon.png";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -46,7 +47,7 @@ const Navigation = () => {
         <div className="mr-4 hidden md:flex">
           <Link to="/" className="text-4xl font-bold">
             <img
-              src="/MuscleMetricIcon.png"
+              src={Icon}
               className={`rounded-xl transition-all duration-300 ${
                 shrink ? "h-10 w-10" : "h-16 w-16"
               }`}
@@ -65,7 +66,7 @@ const Navigation = () => {
             <nav className="flex flex-col gap-4">
               <Link to="/" className="text-4xl font-bold">
                 <img
-                  src="/MuscleMetricIcon.png"
+                  src={Icon}
                   className="h-16 w-16 rounded-xl"
                 />
               </Link>

@@ -14,6 +14,7 @@ import {
   BarChart2,
   LucideIcon
 } from "lucide-react";
+import Image from "@/assets/Header.png";
 
 const StoryBlock = ({ 
   title, 
@@ -418,7 +419,7 @@ const About = () => {
                 className="rounded-2xl overflow-hidden shadow-2xl border border-gray-200"
               >
                 <img 
-                  src="/lovable-uploads/8826cf90-218e-4b8b-94c1-180b4ba8f96f.png" 
+                  src={Image} 
                   alt="Muscle Metric App Screenshot" 
                   className="w-full h-auto object-cover"
                 />

@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { CalendarDays, Dumbbell, ArrowLeft } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
 // Mock data - replace with actual data fetching
@@ -89,7 +89,6 @@ const mockPlan = {
 
 const PlanDetails = () => {
   const navigate = useNavigate();
-  const { id } = useParams();
   const { toast } = useToast();
   const [isDefault, setIsDefault] = useState(false);
 

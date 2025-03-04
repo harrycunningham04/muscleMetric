@@ -7,6 +7,11 @@ import {
   UserPlus,
 } from "lucide-react";
 import { ExampleExerciseProgressGraph } from "@/components/ExampleExerciseProgressGraph";
+import Goals from "@/assets/Goals.jpg";
+import Welcome from "@/assets/Welcome.jpg";
+import WorkoutPlans from "@/assets/WorkoutPlans.jpg";
+import ProgressTracking from "@/assets/ProgressTracking.png";
+import PerformanceMetric from "@/assets/PerformanceMetrics.png";
 
 export const features = [
   {
@@ -14,7 +19,7 @@ export const features = [
     title: "Goal Setting",
     description:
       "Set personalized fitness goals and get guided support to achieve them.",
-    image: "/Goals.jpg",
+    image: { Goals },
     content: (
       <div className="space-y-4">
         <div className="space-y-2">
@@ -43,7 +48,7 @@ export const features = [
     title: "Easy to Use",
     description:
       "Intuitive interface designed for both beginners and experienced athletes.",
-    image: "/Welcome.jpg",
+    image: { Welcome },
     content: (
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-2">
@@ -77,7 +82,7 @@ export const features = [
     title: "Workout Plans",
     description:
       "Access custom workout plans tailored to your fitness level and goals.",
-    image: "/WorkoutPlans.jpg",
+    image: { WorkoutPlans },
     content: (
       <div className="space-y-4">
         <div className="border rounded p-4">
@@ -114,7 +119,7 @@ export const features = [
     title: "Progress Tracking",
     description:
       "Track your workouts and monitor your progress with detailed analytics and charts.",
-    image: "/ProgressTracking.png",
+    image: { ProgressTracking },
     content: <ExampleExerciseProgressGraph exercise="Bench Press" />,
     type: "dialog",
   },
@@ -123,7 +128,7 @@ export const features = [
     title: "Performance Metrics",
     description:
       "Get detailed insights into your performance and areas for improvement.",
-    image: "/PerformanceMetrics.png",
+    image: { PerformanceMetric },
     content: (
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
@@ -157,7 +162,7 @@ export const features = [
     title: "Community",
     description:
       "Join a community of fitness enthusiasts and share your journey.",
-    image: "/Community.png",
+    image: "@/assets/Community.png",
     content: (
       <div className="space-y-4">
         <div className="space-y-2">

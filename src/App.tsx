@@ -58,7 +58,7 @@ const App = () => (
       <SettingsProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
+        <BrowserRouter basename="/muscleMetric/frontend">
           <AppContent />
         </BrowserRouter>
       </SettingsProvider>

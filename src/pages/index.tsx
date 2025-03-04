@@ -4,6 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Features } from "@/components/Landing/Features";
 import { Faqs } from "@/components/Faqs";
+import Icon from "@/assets/MuscleMetricIcon.png";
+import Dashboard from "@/assets/FitnessDashboard.png";
+import HeaderBg from "@/assets/Header.png"; 
 
 const Index = () => {
   const navigate = useNavigate();
@@ -14,7 +17,6 @@ const Index = () => {
   const parallaxY2 = useTransform(scrollYProgress, [0, 1], [0, -50]);
 
   const ref = useRef(null);
-
   const { scrollXProgress } = useScroll({
     target: ref,
     offset: ["start end", "end start"],
@@ -63,11 +65,8 @@ const Index = () => {
         className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center px-4"
       >
         {/* Background effect */}
-        <motion.div
-          className="absolute inset-0 opacity-20"
-          style={{ y: perspectiveY }}
-        >
-          <div className="absolute inset-0 bg-[url('/Header.png')] bg-center bg-no-repeat bg-contain" />
+        <motion.div className="absolute inset-0 opacity-20" style={{ y: perspectiveY }}>
+          <img src={HeaderBg} alt="Header Background" className="absolute inset-0 w-full h-full object-cover" />
         </motion.div>
 
         {/* Container */}
@@ -81,7 +80,7 @@ const Index = () => {
             {/* Logo & Title Row */}
             <div className="flex items-center justify-center gap-4 mt-20 mb-5">
               <motion.img
-                src="/MuscleMetricIcon.png"
+                src={Icon}
                 alt="MuscleMetric Logo"
                 className="w-14 h-auto object-contain rounded-xl"
                 whileHover={{ scale: 1.15 }}
@@ -136,7 +135,7 @@ const Index = () => {
         <div className="hero-image-wrapper">
           <div className={`hero-image ${scrolled ? "scrolled" : ""}`}>
             <img
-              src="/FitnessDashboard.png"
+              src={Dashboard}
               alt="Fitness Dashboard"
               className="w-full max-w-[900px] h-auto rounded-lg shadow-2xl mx-auto"
             />
