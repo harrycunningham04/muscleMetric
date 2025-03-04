@@ -4,18 +4,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Calculator } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { exercises } from "@/data/Exercise";
+import { useSettings } from "@/context/SettingsContext";
+import ExerciseAutocomplete from "./ExerciseAutoComplete";
 
 interface OneRepMaxModalProps {
   isOpen: boolean;
@@ -37,41 +31,41 @@ const calculateAverage = (values: Record<string, number>) => {
   return sum / Object.values(values).length;
 };
 
-// Mock function to get last workout data - replace with actual data fetching
-const getLastWorkoutData = (exercise: string) => {
-  const mockData = {
-    "Bench Press": { weight: 225, reps: 5 },
-    Squat: { weight: 315, reps: 3 },
-    Deadlift: { weight: 405, reps: 2 },
-  };
-  return mockData[exercise as keyof typeof mockData] || { weight: 0, reps: 0 };
-};
-
 export const OneRepModal = ({ isOpen, onClose }: OneRepMaxModalProps) => {
   const [selectedExercise, setSelectedExercise] = useState<string>("");
   const [weight, setWeight] = useState<string>("");
   const [reps, setReps] = useState<string>("");
   const [results, setResults] = useState<Record<string, number> | null>(null);
-  const exerciseNames = exercises.map((exercise) => exercise.name);
+  const { weightUnit } = useSettings();
 
-  const handleExerciseChange = (exercise: string) => {
-    setSelectedExercise(exercise);
-    const lastWorkout = getLastWorkoutData(exercise);
-    setWeight(lastWorkout.weight.toString());
-    setReps(lastWorkout.reps.toString());
-    handleCalculate(lastWorkout.weight, lastWorkout.reps);
+  useEffect(() => {
+    if (!isOpen) {
+      resetForm();
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    setResults(null);
+  }, [selectedExercise, weight, reps]);
+
+  const resetForm = () => {
+    setSelectedExercise("");
+    setWeight("");
+    setReps("");
+    setResults(null);
   };
 
-  const handleCalculate = (
-    weightInput: number = parseFloat(weight),
-    repsInput: number = parseInt(reps)
-  ) => {
-    if (
-      isNaN(weightInput) ||
-      isNaN(repsInput) ||
-      repsInput < 1 ||
-      weightInput < 1
-    ) {
+  const handleCalculate = () => {
+    if (!selectedExercise.trim()) {
+      alert("Please select an exercise before calculating 1RM.");
+      return;
+    }
+
+    const weightInput = parseFloat(weight);
+    const repsInput = parseInt(reps);
+
+    if (isNaN(weightInput) || isNaN(repsInput) || repsInput < 1 || weightInput < 1) {
+      setResults(null);
       return;
     }
 
@@ -92,34 +86,22 @@ export const OneRepModal = ({ isOpen, onClose }: OneRepMaxModalProps) => {
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
             <Label htmlFor="exercise">Select Exercise</Label>
-            <Select
-              value={selectedExercise}
-              onValueChange={handleExerciseChange}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Choose an exercise" />
-              </SelectTrigger>
-              <SelectContent>
-                {exerciseNames.map((exercise) => (
-                  <SelectItem key={exercise} value={exercise}>
-                    {exercise}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <ExerciseAutocomplete
+              onSelect={(exercise) => {
+                setSelectedExercise(exercise);
+                setResults(null); // Reset results when exercise is changed
+              }}
+            />
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="weight">Weight (kgs)</Label>
+            <Label htmlFor="weight">Weight ({weightUnit})</Label>
             <Input
               id="weight"
               type="number"
               min="1"
               value={weight}
-              onChange={(e) => {
-                setWeight(e.target.value);
-                handleCalculate(parseFloat(e.target.value), parseInt(reps));
-              }}
+              onChange={(e) => setWeight(e.target.value)}
               placeholder="Enter weight"
             />
           </div>
@@ -131,13 +113,18 @@ export const OneRepModal = ({ isOpen, onClose }: OneRepMaxModalProps) => {
               type="number"
               min="1"
               value={reps}
-              onChange={(e) => {
-                setReps(e.target.value);
-                handleCalculate(parseFloat(weight), parseInt(e.target.value));
-              }}
+              onChange={(e) => setReps(e.target.value)}
               placeholder="Enter reps"
             />
           </div>
+
+          <button
+            className="bg-blue-500 text-white py-2 px-4 rounded-md disabled:bg-gray-400"
+            onClick={handleCalculate}
+            disabled={!selectedExercise}
+          >
+            Calculate 1RM
+          </button>
 
           {results && (
             <div className="mt-4 space-y-3 p-4 rounded-lg bg-muted">
@@ -146,7 +133,7 @@ export const OneRepModal = ({ isOpen, onClose }: OneRepMaxModalProps) => {
                   Average 1RM Estimate:
                 </h3>
                 <p className="text-xl font-bold">
-                  {Math.round(calculateAverage(results))} kgs
+                  {Math.round(calculateAverage(results))} {weightUnit}
                 </p>
               </div>
               <h3 className="font-semibold text-sm text-muted-foreground mb-2">
@@ -158,7 +145,9 @@ export const OneRepModal = ({ isOpen, onClose }: OneRepMaxModalProps) => {
                   className="flex justify-between items-center"
                 >
                   <span className="capitalize text-sm">{formula}:</span>
-                  <span className="font-mono">{Math.round(value)} kgs</span>
+                  <span className="font-mono">
+                    {Math.round(value)} {weightUnit}
+                  </span>
                 </div>
               ))}
             </div>
