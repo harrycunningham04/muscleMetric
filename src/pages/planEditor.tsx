@@ -81,7 +81,20 @@ const PlanEditor = () => {
     exercises: WorkoutDay["exercises"]
   ) => {
     setWorkoutDays(
-      workoutDays.map((day) => (day.id === dayId ? { ...day, exercises } : day))
+      workoutDays.map((day) =>
+        day.id === dayId
+          ? {
+              ...day,
+              exercises: exercises.map((ex) => ({
+                ...ex,
+                startingWeight:
+                  ex.startingWeight && ex.startingWeight < 0
+                    ? 0
+                    : ex.startingWeight,
+              })),
+            }
+          : day
+      )
     );
   };
 
@@ -93,9 +106,9 @@ const PlanEditor = () => {
     setGoals((prevGoals) =>
       prevGoals.map((goal) => {
         if (goal.id === goalId) {
-          const updatedGoal = { ...goal, [field]: value };
+          let updatedValue = value;
 
-          if (field === "targetWeight") {
+          if (field === "targetWeight" && typeof value === "number") {
             const exercise = workoutDays
               .flatMap((day) => day.exercises)
               .find((ex) => ex.name === goal.exerciseName);
@@ -107,30 +120,33 @@ const PlanEditor = () => {
               const minWeight = startingWeight * 1.02 ** weeks; // 2% increase per week
               const maxWeight = startingWeight * 1.1 ** weeks; // 10% increase per week
 
-              if (updatedGoal.targetWeight < minWeight) {
+              // Round to nearest 0.25
+              const roundToNearest = (num: number) => Math.round(num * 4) / 4;
+              const roundedMinWeight = roundToNearest(minWeight);
+              const roundedMaxWeight = roundToNearest(maxWeight);
+              const roundedValue = roundToNearest(value);
+
+              if (roundedValue < roundedMinWeight) {
                 toast({
                   title: "Goal Weight Too Low",
-                  description: `The target weight for ${
-                    goal.exerciseName
-                  } should be at least ${minWeight.toFixed(
-                    2
-                  )}kg over ${weeks} weeks.`,
+                  description: `The target weight for ${goal.exerciseName} should be at least ${roundedMinWeight}kg over ${weeks} weeks.`,
                   variant: "destructive",
                 });
-              } else if (updatedGoal.targetWeight > maxWeight) {
+                updatedValue = roundedMinWeight;
+              } else if (roundedValue > roundedMaxWeight) {
                 toast({
                   title: "Goal Weight Too High",
-                  description: `The target weight for ${
-                    goal.exerciseName
-                  } should not exceed ${maxWeight.toFixed(
-                    2
-                  )}kg over ${weeks} weeks.`,
+                  description: `The target weight for ${goal.exerciseName} should not exceed ${roundedMaxWeight}kg over ${weeks} weeks.`,
                   variant: "destructive",
                 });
+                updatedValue = roundedMaxWeight;
+              } else {
+                updatedValue = roundedValue;
               }
             }
           }
-          return updatedGoal;
+
+          return { ...goal, [field]: updatedValue };
         }
         return goal;
       })
