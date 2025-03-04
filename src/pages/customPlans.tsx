@@ -40,7 +40,7 @@ const CustomPlans = () => {
   const [daysPerWeek, setDaysPerWeek] = useState<string>("3");
   const [selectedMuscles, setSelectedMuscles] = useState<string[]>([]);
   const [experience, setExperience] = useState<ExperienceLevel>("beginner");
-  const [workoutDuration, setWorkoutDuration] = useState<WorkoutDuration>("30");
+  const [workoutDuration, setWorkoutDuration] = useState<WorkoutDuration>("45");
   const [equipment, setEquipment] = useState<Equipment>("gym");
 
   const handleMuscleSelect = (muscle: string) => {
@@ -168,17 +168,17 @@ const CustomPlans = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-background/95 py-16">
-      <div className="container max-w-4xl mx-auto px-4">
+    <div className="min-h-screen bg-gradient-to-b from-background to-background/95 py-8 px-4">
+      <div className="container max-w-4xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12 mt-12"
+          className="text-center mb-8 mt-8"
         >
-          <h1 className="text-4xl font-bold text-primary mb-4">
+          <h1 className="text-3xl md:text-4xl font-bold text-primary mb-4">
             Create Your Custom Plan
           </h1>
-          <p className="text-lg text-muted-foreground">
+          <p className="text-base md:text-lg text-muted-foreground">
             Follow these steps to create a personalized workout plan tailored to
             your goals
           </p>
@@ -191,13 +191,14 @@ const CustomPlans = () => {
         >
           <Card className="shadow-lg border-t-4 border-t-primary">
             <CardHeader className="pb-0">
-              <div className="flex justify-center space-x-16">
+              {/* Progress indicator - Hidden on small screens */}
+              <div className="hidden md:flex justify-center space-x-8 md:space-x-12">
                 {steps.map((step, index) => {
                   const Icon = step.icon;
                   return (
                     <motion.div
                       key={index}
-                      className={`relative w-12 h-12 flex items-center justify-center rounded-full ${
+                      className={`relative w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full ${
                         index + 1 <= currentStep
                           ? "bg-primary text-primary-foreground"
                           : "bg-muted text-muted-foreground"
@@ -209,7 +210,7 @@ const CustomPlans = () => {
                       <Icon className="w-5 h-5" />
                       {index < steps.length - 1 && (
                         <motion.div
-                          className={`absolute -right-16 top-1/2 h-[2px] w-16 ${
+                          className={`absolute -right-8 md:-right-12 top-1/2 h-[2px] w-8 md:w-12 ${
                             index + 1 < currentStep ? "bg-primary" : "bg-muted"
                           }`}
                           initial={{ scaleX: 0 }}
@@ -221,8 +222,25 @@ const CustomPlans = () => {
                   );
                 })}
               </div>
+              {/* Mobile step indicator */}
+              <div className="flex md:hidden justify-between items-center mb-4">
+                <span className="text-sm text-muted-foreground">
+                  Step {currentStep} of {steps.length}
+                </span>
+                <div className="flex gap-1">
+                  {steps.map((_, idx) => (
+                    <div
+                      key={idx}
+                      className={`w-6 h-1 rounded-full ${
+                        idx + 1 <= currentStep ? "bg-primary" : "bg-muted"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
             </CardHeader>
-            <CardContent className="pt-8">
+
+            <CardContent className="pt-6">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentStep}
@@ -231,11 +249,11 @@ const CustomPlans = () => {
                   exit={{ opacity: 0, x: -20 }}
                   className="space-y-6"
                 >
-                  <div className="text-center mb-8">
-                    <h2 className="text-2xl font-semibold text-foreground mb-2">
+                  <div className="text-center mb-6">
+                    <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-2">
                       {steps[currentStep - 1].title}
                     </h2>
-                    <p className="text-muted-foreground">
+                    <p className="text-sm md:text-base text-muted-foreground">
                       {steps[currentStep - 1].description}
                     </p>
                   </div>
@@ -246,18 +264,61 @@ const CustomPlans = () => {
                       onValueChange={(value: Gender) => setGender(value)}
                       className="flex gap-4 justify-center"
                     >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="male" id="male" />
-                        <Label htmlFor="male" className="text-lg">
-                          Male
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="female" id="female" />
-                        <Label htmlFor="female" className="text-lg">
-                          Female
-                        </Label>
-                      </div>
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="flex-1 max-w-[200px]"
+                      >
+                        <div
+                          className={`p-4 rounded-lg border-2 ${
+                            gender === "male"
+                              ? "border-primary bg-primary/5"
+                              : "border-muted"
+                          } cursor-pointer transition-all`}
+                          onClick={() => setGender("male")}
+                        >
+                          <div className="flex items-center space-x-2 mb-2">
+                            <RadioGroupItem value="male" id="male" />
+                            <Label
+                              htmlFor="male"
+                              className="text-lg cursor-pointer"
+                            >
+                              Male
+                            </Label>
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            Optimized for male body types
+                          </div>
+                        </div>
+                      </motion.div>
+
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="flex-1 max-w-[200px]"
+                      >
+                        <div
+                          className={`p-4 rounded-lg border-2 ${
+                            gender === "female"
+                              ? "border-primary bg-primary/5"
+                              : "border-muted"
+                          } cursor-pointer transition-all`}
+                          onClick={() => setGender("female")}
+                        >
+                          <div className="flex items-center space-x-2 mb-2">
+                            <RadioGroupItem value="female" id="female" />
+                            <Label
+                              htmlFor="female"
+                              className="text-lg cursor-pointer"
+                            >
+                              Female
+                            </Label>
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            Optimized for female body types
+                          </div>
+                        </div>
+                      </motion.div>
                     </RadioGroup>
                   )}
 
@@ -278,49 +339,108 @@ const CustomPlans = () => {
                           ))}
                         </SelectContent>
                       </Select>
+
+                      <div className="grid grid-cols-5 gap-2 mt-4">
+                        {[2, 3, 4, 5, 6].map((days) => (
+                          <Button
+                            key={days}
+                            type="button"
+                            variant={
+                              daysPerWeek === days.toString()
+                                ? "default"
+                                : "outline"
+                            }
+                            onClick={() => setDaysPerWeek(days.toString())}
+                            className="w-full"
+                          >
+                            {days}
+                          </Button>
+                        ))}
+                      </div>
                     </div>
                   )}
 
                   {currentStep === 3 && (
-                    <div className="max-w-xs mx-auto">
-                      <Select
-                        value={experience}
-                        onValueChange={(value: ExperienceLevel) =>
-                          setExperience(value)
-                        }
-                      >
-                        <SelectTrigger className="w-full text-lg">
-                          <SelectValue placeholder="Select experience level" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="beginner">Beginner</SelectItem>
-                          <SelectItem value="intermediate">
-                            Intermediate
-                          </SelectItem>
-                          <SelectItem value="advanced">Advanced</SelectItem>
-                        </SelectContent>
-                      </Select>
+                    <div className="max-w-md mx-auto grid gap-4">
+                      {["beginner", "intermediate", "advanced"].map((level) => (
+                        <motion.div
+                          key={level}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <div
+                            className={`p-4 rounded-lg border-2 ${
+                              experience === level
+                                ? "border-primary bg-primary/5"
+                                : "border-muted"
+                            } cursor-pointer transition-all`}
+                            onClick={() =>
+                              setExperience(level as ExperienceLevel)
+                            }
+                          >
+                            <RadioGroup
+                              value={experience}
+                              onValueChange={(value) =>
+                                setExperience(value as ExperienceLevel)
+                              }
+                              className="flex items-center gap-3"
+                            >
+                              <RadioGroupItem value={level} id={level} />
+                              <div className="flex-1">
+                                <Label
+                                  htmlFor={level}
+                                  className="text-lg capitalize cursor-pointer"
+                                >
+                                  {level}
+                                </Label>
+                                <p className="text-sm text-muted-foreground mt-1">
+                                  {level === "beginner"
+                                    ? "New to fitness or returning after a long break"
+                                    : level === "intermediate"
+                                    ? "Consistent training for 6+ months"
+                                    : "Several years of consistent training"}
+                                </p>
+                              </div>
+                            </RadioGroup>
+                          </div>
+                        </motion.div>
+                      ))}
                     </div>
                   )}
 
                   {currentStep === 4 && (
-                    <div className="max-w-xs mx-auto">
-                      <Select
-                        value={workoutDuration}
-                        onValueChange={(value: WorkoutDuration) =>
-                          setWorkoutDuration(value)
-                        }
-                      >
-                        <SelectTrigger className="w-full text-lg">
-                          <SelectValue placeholder="Select workout duration" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="30">30 minutes</SelectItem>
-                          <SelectItem value="45">45 minutes</SelectItem>
-                          <SelectItem value="60">60 minutes</SelectItem>
-                          <SelectItem value="90">90 minutes</SelectItem>
-                        </SelectContent>
-                      </Select>
+                    <div className="max-w-md mx-auto">
+                      <div className="grid grid-cols-2 gap-4">
+                        {["30", "45", "60", "90"].map((duration) => (
+                          <motion.div
+                            key={duration}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            <div
+                              className={`p-4 rounded-lg border-2 ${
+                                workoutDuration === duration
+                                  ? "border-primary bg-primary/5"
+                                  : "border-muted"
+                              } cursor-pointer transition-all h-full flex flex-col justify-center items-center`}
+                              onClick={() =>
+                                setWorkoutDuration(duration as WorkoutDuration)
+                              }
+                            >
+                              <Clock
+                                className={`h-8 w-8 mb-2 ${
+                                  workoutDuration === duration
+                                    ? "text-primary"
+                                    : "text-muted-foreground"
+                                }`}
+                              />
+                              <p className="font-medium text-lg">
+                                {duration} min
+                              </p>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
                     </div>
                   )}
 
@@ -328,71 +448,68 @@ const CustomPlans = () => {
                     <RadioGroup
                       value={equipment}
                       onValueChange={(value: Equipment) => setEquipment(value)}
-                      className="flex flex-col gap-4 max-w-xs mx-auto"
+                      className="flex flex-col gap-4 max-w-md mx-auto"
                     >
-                      <div className="flex items-center p-3 border rounded-md hover:bg-accent">
-                        <RadioGroupItem
-                          value="Bodyweight"
-                          id="bodyweight"
-                          className="mr-3"
-                        />
-                        <Label
-                          htmlFor="bodyweight"
-                          className="flex-1 cursor-pointer"
+                      {[
+                        {
+                          value: "bodyweight",
+                          title: "Bodyweight Only",
+                          description: "No equipment needed",
+                        },
+                        {
+                          value: "bands",
+                          title: "Resistance Bands",
+                          description: "Basic home equipment",
+                        },
+                        {
+                          value: "dumbbells",
+                          title: "Dumbbells",
+                          description: "Dumbbell only workouts",
+                        },
+                        {
+                          value: "gym",
+                          title: "Full Gym Access",
+                          description: "Access to weights and machines",
+                        },
+                      ].map((item) => (
+                        <motion.div
+                          key={item.value}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
                         >
-                          <div className="font-medium">Bodyweight Only</div>
-                          <div className="text-sm text-muted-foreground">
-                            No equipment needed
+                          <div
+                            className={`flex items-center p-4 border-2 rounded-md cursor-pointer transition-all ${
+                              equipment === item.value
+                                ? "border-primary bg-primary/5"
+                                : "border-muted"
+                            }`}
+                            onClick={() =>
+                              setEquipment(item.value as Equipment)
+                            }
+                          >
+                            <RadioGroupItem
+                              value={item.value}
+                              id={item.value}
+                              className="mr-3"
+                            />
+                            <Label
+                              htmlFor={item.value}
+                              className="flex-1 cursor-pointer"
+                            >
+                              <div className="font-medium">{item.title}</div>
+                              <div className="text-sm text-muted-foreground">
+                                {item.description}
+                              </div>
+                            </Label>
                           </div>
-                        </Label>
-                      </div>
-                      <div className="flex items-center p-3 border rounded-md hover:bg-accent">
-                        <RadioGroupItem
-                          value="Resistance Bands"
-                          id="bands"
-                          className="mr-3"
-                        />
-                        <Label
-                          htmlFor="bands"
-                          className="flex-1 cursor-pointer"
-                        >
-                          <div className="font-medium">Resistance Bands</div>
-                          <div className="text-sm text-muted-foreground">
-                            Basic home equipment
-                          </div>
-                        </Label>
-                      </div>
-                      <div className="flex items-center p-3 border rounded-md hover:bg-accent">
-                        <RadioGroupItem
-                          value="Dumbbells"
-                          id="dumbbells"
-                          className="mr-3"
-                        />
-                        <Label
-                          htmlFor="dumbbells"
-                          className="flex-1 cursor-pointer"
-                        >
-                          <div className="font-medium">Dumbbells</div>
-                          <div className="text-sm text-muted-foreground">
-                            Enough Dumbbells for your weight training
-                          </div>
-                        </Label>
-                      </div>
-                      <div className="flex items-center p-3 border rounded-md hover:bg-accent">
-                        <RadioGroupItem value="gym" id="gym" className="mr-3" />
-                        <Label htmlFor="gym" className="flex-1 cursor-pointer">
-                          <div className="font-medium">Full Gym Access</div>
-                          <div className="text-sm text-muted-foreground">
-                            Access to weights and machines
-                          </div>
-                        </Label>
-                      </div>
+                        </motion.div>
+                      ))}
                     </RadioGroup>
                   )}
 
                   {currentStep === 6 && (
                     <div className="space-y-6">
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                         {MuscleGroupArray.map((muscle) => (
                           <motion.div
                             key={muscle}
@@ -400,13 +517,14 @@ const CustomPlans = () => {
                             whileTap={{ scale: 0.98 }}
                           >
                             <Button
+                              type="button"
                               variant={
                                 selectedMuscles.includes(muscle)
                                   ? "default"
                                   : "outline"
                               }
                               onClick={() => handleMuscleSelect(muscle)}
-                              className={`w-full h-full min-h-[60px] ${
+                              className={`w-full h-full min-h-[56px] ${
                                 selectedMuscles.includes(muscle)
                                   ? "bg-primary text-primary-foreground"
                                   : ""
@@ -439,7 +557,13 @@ const CustomPlans = () => {
                         Back
                       </Button>
                     )}
-                    <Button onClick={handleNext} className="min-w-[100px]">
+                    <Button
+                      onClick={handleNext}
+                      className="min-w-[100px]"
+                      disabled={
+                        currentStep === 6 && selectedMuscles.length !== 3
+                      }
+                    >
                       {currentStep === 6 ? "Create Plan" : "Next"}
                     </Button>
                   </div>
