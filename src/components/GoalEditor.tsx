@@ -6,62 +6,55 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { AlertCircle } from "lucide-react";
 
 interface Goal {
   id: string;
-  description: string;
-  targetDate: string;
+  exerciseName: string;
+  targetWeight: number;
 }
 
 interface GoalEditorProps {
   goal: Goal;
-  exercises: string[];
-  onChange: (goalId: string, field: keyof Goal, value: string) => void;
-  otherGoalExercises?: string[];
-  onValidationChange: (goalId: string, isValid: boolean) => void;
+  onChange: (goalId: string, field: keyof Goal, value: string | number) => void;
+  exercises: string[]; // List of exercise names to choose from
 }
 
-export const GoalEditor = ({
-  goal,
-  exercises,
-  onChange,
-  otherGoalExercises = [],
-}: GoalEditorProps) => {
-  const availableExercises = exercises.filter(
-    (exercise) =>
-      !otherGoalExercises.includes(exercise) || exercise === goal.description
-  );
-
+export const GoalEditor = ({ goal, onChange, exercises }: GoalEditorProps) => {
   return (
-    <div key={goal.id} className="grid grid-cols-2 gap-4">
+    <div className="flex space-x-4">
       <Select
-        value={goal.description}
-        onValueChange={(value) => onChange(goal.id, "description", value)}
+        value={goal.exerciseName}
+        onValueChange={(value) => onChange(goal.id, "exerciseName", value)}
       >
         <SelectTrigger>
           <SelectValue placeholder="Select exercise" />
         </SelectTrigger>
         <SelectContent>
-          {availableExercises.map((exercise) => (
+          {exercises.map((exercise) => (
             <SelectItem key={exercise} value={exercise}>
               {exercise}
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
-      {!goal.description && (
-        <AlertCircle className="h-4 w-4 text-red-500 absolute right-10 top-3" />
-      )}
+
       <Input
         type="number"
-        placeholder="Target weight (kgs)"
-        value={goal.targetDate}
-        onChange={(e) => onChange(goal.id, "targetDate", e.target.value)}
+        value={
+          goal.targetWeight !== undefined && goal.targetWeight !== null
+            ? goal.targetWeight
+            : ""
+        }
+        onChange={(e) =>
+          onChange(
+            goal.id,
+            "targetWeight",
+            e.target.value === "" ? "" : Number(e.target.value)
+          )
+        }
+        placeholder="Goal Weight"
+        className="bg-white"
       />
-      {!goal.targetDate && (
-        <AlertCircle className="h-4 w-4 text-red-500 absolute right-2 top-3" />
-      )}
     </div>
   );
 };

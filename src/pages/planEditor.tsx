@@ -31,9 +31,8 @@ interface WorkoutDay {
 
 interface Goal {
   id: string;
-  description: string;
-  targetDate: string;
-  exercise: { name: string };
+  exerciseName: string;
+  targetWeight: number;
 }
 
 interface ValidationState {
@@ -77,13 +76,6 @@ const PlanEditor = () => {
     }));
   };
 
-  const handleGoalValidationChange = (goalId: string, isValid: boolean) => {
-    setGoalValidation((prev) => ({
-      ...prev,
-      [goalId]: isValid,
-    }));
-  };
-
   const handleUpdateWorkoutDay = (
     dayId: string,
     exercises: WorkoutDay["exercises"]
@@ -96,12 +88,52 @@ const PlanEditor = () => {
   const handleUpdateGoal = (
     goalId: string,
     field: keyof Goal,
-    value: string
+    value: string | number
   ) => {
-    setGoals(
-      goals.map((goal) =>
-        goal.id === goalId ? { ...goal, [field]: value } : goal
-      )
+    setGoals((prevGoals) =>
+      prevGoals.map((goal) => {
+        if (goal.id === goalId) {
+          const updatedGoal = { ...goal, [field]: value };
+
+          if (field === "targetWeight") {
+            const exercise = workoutDays
+              .flatMap((day) => day.exercises)
+              .find((ex) => ex.name === goal.exerciseName);
+
+            if (exercise && exercise.startingWeight) {
+              const startingWeight = exercise.startingWeight;
+              const weeks = parseInt(duration, 10);
+
+              const minWeight = startingWeight * 1.02 ** weeks; // 2% increase per week
+              const maxWeight = startingWeight * 1.1 ** weeks; // 10% increase per week
+
+              if (updatedGoal.targetWeight < minWeight) {
+                toast({
+                  title: "Goal Weight Too Low",
+                  description: `The target weight for ${
+                    goal.exerciseName
+                  } should be at least ${minWeight.toFixed(
+                    2
+                  )}kg over ${weeks} weeks.`,
+                  variant: "destructive",
+                });
+              } else if (updatedGoal.targetWeight > maxWeight) {
+                toast({
+                  title: "Goal Weight Too High",
+                  description: `The target weight for ${
+                    goal.exerciseName
+                  } should not exceed ${maxWeight.toFixed(
+                    2
+                  )}kg over ${weeks} weeks.`,
+                  variant: "destructive",
+                });
+              }
+            }
+          }
+          return updatedGoal;
+        }
+        return goal;
+      })
     );
   };
 
@@ -159,22 +191,19 @@ const PlanEditor = () => {
   };
 
   const ensureThreeGoals = () => {
-    const currentGoalsCount = goals.length;
+    setGoals((prevGoals) => {
+      const updatedGoals = [...prevGoals];
 
-    if (currentGoalsCount < 3) {
-      const newGoals = [...goals];
-      for (let i = currentGoalsCount; i < 3; i++) {
-        newGoals.push({
-          id: `goal-${i + 1}`,
-          description: "",
-          targetDate: "",
-          exercise: { name: "" },
+      while (updatedGoals.length < 3) {
+        updatedGoals.push({
+          id: `goal-${updatedGoals.length + 1}`,
+          exerciseName: "",
+          targetWeight: 0,
         });
       }
-      setGoals(newGoals);
-    } else if (currentGoalsCount > 3) {
-      setGoals(goals.slice(0, 3));
-    }
+
+      return updatedGoals.slice(0, 3); // Ensure exactly 3 goals
+    });
   };
 
   useEffect(() => {
@@ -205,8 +234,9 @@ const PlanEditor = () => {
 
   useEffect(() => {
     ensureThreeGoals();
+  }, []); // Runs only once on mount
 
-    // Initialize validation states
+  useEffect(() => {
     const initialWorkoutValidation: ValidationState = {};
     workoutDays.forEach((day) => {
       initialWorkoutValidation[day.id] = day.exercises.every(
@@ -221,10 +251,10 @@ const PlanEditor = () => {
     const initialGoalValidation: ValidationState = {};
     goals.forEach((goal) => {
       initialGoalValidation[goal.id] =
-        goal.description !== "" && goal.targetDate !== "";
+        goal.exerciseName.trim() !== "" && goal.targetWeight > 0;
     });
     setGoalValidation(initialGoalValidation);
-  }, []);
+  }, [workoutDays, goals]);
 
   const getPlanExercises = () => {
     const exerciseSet = new Set<string>();
@@ -236,12 +266,6 @@ const PlanEditor = () => {
     });
 
     return Array.from(exerciseSet);
-  };
-
-  const getOtherGoalExercises = (currentGoalId: string) => {
-    return goals
-      .filter((g) => g.id !== currentGoalId && g.description)
-      .map((g) => g.description);
   };
 
   const hasExercises = workoutDays.some((day) => day.exercises.length > 0);
@@ -347,14 +371,12 @@ const PlanEditor = () => {
         <Card className="p-6">
           <h2 className="text-xl font-semibold text-primary pb-4">Goals</h2>
           <div className="space-y-4">
-            {goals.map((goal, index) => (
+            {goals.map((goal) => (
               <GoalEditor
-                key={`goal-${goal}-${index}`}
+                key={goal.id}
                 goal={goal}
                 exercises={getPlanExercises()}
                 onChange={handleUpdateGoal}
-                otherGoalExercises={getOtherGoalExercises(goal.id)}
-                onValidationChange={handleGoalValidationChange}
               />
             ))}
           </div>
