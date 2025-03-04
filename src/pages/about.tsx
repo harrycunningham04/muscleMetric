@@ -1,182 +1,470 @@
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
-import Lanyard from "../components/Lanyard/Lanyard";
+import { Button } from "@/components/ui/button";
+import { 
+  Heart, 
+  Dumbbell, 
+  Target, 
+  Users, 
+  Trophy, 
+  ArrowRight, 
+  Sparkles,
+  Star,
+  Calendar,
+  BarChart2,
+  LucideIcon
+} from "lucide-react";
+
+const StoryBlock = ({ 
+  title, 
+  content, 
+  icon: Icon, 
+  color = "bg-primary/10"
+}: { 
+  title: string; 
+  content: string; 
+  icon: React.ElementType; 
+  color?: string;
+}) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{ duration: 0.5 }}
+    className="flex flex-col md:flex-row gap-6 items-start"
+  >
+    <div className={`p-4 rounded-2xl ${color} text-primary shrink-0`}>
+      <Icon size={28} />
+    </div>
+    <div className="space-y-3">
+      <h3 className="text-2xl font-semibold">{title}</h3>
+      <p className="text-lg text-muted-foreground">{content}</p>
+    </div>
+  </motion.div>
+);
+
+const CoreValueCard = ({ 
+  title, 
+  description, 
+  icon: Icon, 
+  delay = 0,
+  color = "bg-primary/5" 
+}: { 
+  title: string; 
+  description: string; 
+  icon: React.ElementType; 
+  delay?: number;
+  color?: string;
+}) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{ duration: 0.6, delay }}
+    className="h-full"
+  >
+    <Card className={`h-full ${color} hover:shadow-xl transition-all duration-300 border-none hover:-translate-y-2`}>
+      <CardContent className="p-6 flex flex-col items-center text-center h-full">
+        <div className="bg-white rounded-full p-4 shadow-md mb-4">
+          <Icon className="text-primary" size={24} />
+        </div>
+        <h4 className="text-xl font-semibold mb-2">{title}</h4>
+        <p className="text-muted-foreground">{description}</p>
+      </CardContent>
+    </Card>
+  </motion.div>
+);
+
+const Testimonial = ({
+  quote,
+  author,
+  role,
+  rating,
+  delay = 0
+}: {
+  quote: string;
+  author: string;
+  role: string;
+  rating: number;
+  delay?: number;
+}) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{ duration: 0.6, delay }}
+    className="h-full"
+  >
+    <Card className="h-full hover:shadow-lg transition-all duration-300 border-primary/10">
+      <CardContent className="p-6 flex flex-col h-full">
+        <div className="flex mb-4">
+          {Array.from({ length: rating }).map((_, i) => (
+            <Star key={i} size={18} className="text-yellow-500 fill-yellow-500" />
+          ))}
+        </div>
+        <p className="text-lg italic text-muted-foreground flex-grow">"{quote}"</p>
+        <div className="mt-6 pt-4 border-t border-gray-100">
+          <p className="font-semibold">{author}</p>
+          <p className="text-sm text-muted-foreground">{role}</p>
+        </div>
+      </CardContent>
+    </Card>
+  </motion.div>
+);
+
+const ProductFeature = ({
+  title,
+  description,
+  icon: Icon,
+  delay = 0
+}: {
+  title: string;
+  description: string;
+  icon: LucideIcon;
+  delay?: number;
+}) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{ duration: 0.5, delay }}
+    className="flex gap-4"
+  >
+    <div className="p-3 rounded-full bg-primary/10 text-primary shrink-0 h-fit">
+      <Icon size={24} />
+    </div>
+    <div>
+      <h3 className="text-xl font-semibold mb-2">{title}</h3>
+      <p className="text-muted-foreground">{description}</p>
+    </div>
+  </motion.div>
+);
 
 const About = () => {
   return (
-    <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <section className="relative h-[60vh] min-h-[500px] flex items-center justify-center overflow-hidden bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 mix-blend-overlay" />
+    <div className="min-h-screen">
+      <section className="relative h-[70vh] min-h-[600px] flex items-center justify-center bg-gradient-to-br from-primary to-purple-700 overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden">
+          <motion.div 
+            className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-white/10 blur-3xl"
+            animate={{ 
+              x: [0, 30, 0], 
+              y: [0, -30, 0],
+              scale: [1, 1.2, 1] 
+            }}
+            transition={{ 
+              repeat: Infinity,
+              duration: 10,
+              ease: "easeInOut"
+            }}
+          />
+          <motion.div 
+            className="absolute bottom-1/3 right-1/3 w-80 h-80 rounded-full bg-white/5 blur-3xl"
+            animate={{ 
+              x: [0, -40, 0], 
+              y: [0, 20, 0],
+              scale: [1, 1.1, 1] 
+            }}
+            transition={{ 
+              repeat: Infinity,
+              duration: 8,
+              ease: "easeInOut"
+            }}
+          />
+        </div>
+        
         <div className="container relative z-10 px-4 py-16 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="space-y-4"
+            transition={{ duration: 0.8 }}
+            className="space-y-6 max-w-4xl mx-auto"
           >
-            <h1 className="text-4xl md:text-6xl font-bold text-white">
-              About Our Company
+            <div className="inline-block bg-white/10 backdrop-blur-sm px-4 py-1 rounded-full text-white/80 mb-4">
+              <Sparkles className="inline-block mr-2 h-4 w-4" /> Transforming Fitness Through Technology
+            </div>
+            <h1 className="text-5xl md:text-7xl font-bold text-white drop-shadow-sm">
+              We're on a Mission to <span className="text-yellow-300">Redefine</span> Fitness
             </h1>
-            <p className="text-xl md:text-2xl text-white/80 max-w-2xl mx-auto">
-              Empowering individuals to achieve their fitness goals through
-              innovative technology and personalized solutions.
+            <p className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto">
+              Building the tools that empower everyone to achieve their personal fitness goals through intelligent planning and tracking.
             </p>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5, duration: 0.5 }}
+            >
+              <Button 
+                size="lg" 
+                className="rounded-full bg-white text-primary hover:bg-white/90 mt-8 text-lg px-8"
+                onClick={() => document.getElementById('our-story')?.scrollIntoView({ behavior: 'smooth' })}
+              >
+                Our Story
+              </Button>
+            </motion.div>
           </motion.div>
         </div>
       </section>
 
-      {/* Mission Section */}
-      <section className="py-16 md:py-12 mt-[-175px]">
+      <section id="our-story" className="py-24 bg-white">
         <div className="container px-4">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div className="max-w-4xl mx-auto">
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
+              className="flex flex-col gap-16"
             >
-              <Lanyard position={[0, 0, 30]} />
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="space-y-6"
-            >
-              <h2 className="text-3xl md:text-4xl font-bold">Our Mission</h2>
-
-              <div className="space-y-4">
-                <h3 className="text-2xl font-semibold">
-                  Empowering Your Fitness Journey
-                </h3>
-                <p className="text-lg text-muted-foreground">
-                  Our goal is to transform the fitness industry by providing a
-                  comprehensive platform where you can create tailored workout
-                  plans, set achievable goals, and track your progress
-                  effectively. We believe fitness should be accessible,
-                  structured, and motivating for everyone, whether you're a
-                  beginner or an advanced athlete.
-                </p>
+              <div className="text-center space-y-4 mb-8">
+                <h2 className="text-4xl md:text-5xl font-bold text-primary">Our Story</h2>
+                <div className="w-20 h-1 bg-primary mx-auto rounded-full"></div>
               </div>
 
-              <div className="space-y-4">
-                <h3 className="text-2xl font-semibold">
-                  Why We Built This Platform
-                </h3>
-                <p className="text-lg text-muted-foreground">
-                  We saw a gap in the market for a truly user-friendly and
-                  professional workout planning tool. Many existing solutions
-                  lacked the personalization and guidance needed to help
-                  individuals make consistent progress. By combining technology
-                  with expert insights, our platform offers a streamlined
-                  experience that adapts to your evolving fitness needs.
-                </p>
-              </div>
+              <StoryBlock 
+                title="Empowering Your Fitness Journey"
+                content="Our goal is to transform the fitness industry by providing a comprehensive platform where you can create tailored workout plans, set achievable goals, and track your progress effectively. We believe fitness should be accessible, structured, and motivating for everyone, whether you're a beginner or an advanced athlete."
+                icon={Dumbbell}
+                color="bg-purple-100"
+              />
 
-              <div className="space-y-4">
-                <h3 className="text-2xl font-semibold">The Future</h3>
-                <p className="text-lg text-muted-foreground">
-                  We want to allow brands, people, everyone to collaborate. We
-                  know the best thing about the fitness world is the community
-                  it brings together, so our next goal is to allow for the
-                  community to come together on this app and share experiences,
-                  knowledge and new prs together. We hope you are just as
-                  excited as we are about the future of Muscle Metric's!
-                </p>
-              </div>
+              <StoryBlock 
+                title="Why We Built This Platform"
+                content="We saw a gap in the market for a truly user-friendly and professional workout planning tool. Many existing solutions lacked the personalization and guidance needed to help individuals make consistent progress. By combining technology with expert insights, our platform offers a streamlined experience that adapts to your evolving fitness needs."
+                icon={Target}
+                color="bg-blue-100"
+              />
+
+              <StoryBlock 
+                title="The Future"
+                content="We want to allow brands, people, everyone to collaborate. We know the best thing about the fitness world is the community it brings together, so our next goal is to allow for the community to come together on this app and share experiences, knowledge and new prs together. We hope you are just as excited as we are about the future of Muscle Metric's!"
+                icon={Users}
+                color="bg-green-100"
+              />
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Values Section */}
-      <section className="py-20 relative overflow-hidden">
+      <section className="py-24 relative overflow-hidden bg-gradient-to-br from-white to-gray-50">
         <div className="container px-4 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-32"
+            className="text-center mb-16"
           >
-            <h2 className="text-[12rem] font-bold text-primary/10 absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
-              VALUES
-            </h2>
-            <h3 className="text-4xl font-bold relative z-10">
-              Our Core Values
-            </h3>
+            <h2 className="text-4xl md:text-5xl font-bold text-primary mb-4">Our Core Values</h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              These principles guide everything we do and how we build our platform
+            </p>
+            <div className="w-20 h-1 bg-primary mx-auto rounded-full mt-6"></div>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-10">
-            {[
-              {
-                title: "Customer Focus",
-                description: "Putting our customers first in everything we do",
-                delay: 0,
-              },
-              {
-                title: "Innovation",
-                description:
-                  "Constantly pushing boundaries and embracing change",
-                delay: 0.2,
-              },
-              {
-                title: "Excellence",
-                description: "Striving for the highest standards in our work",
-                delay: 0.4,
-              },
-              {
-                title: "Collaboration",
-                description: "Working together to achieve greater results",
-                delay: 0.6,
-              },
-              {
-                title: "Growth",
-                description: "Continuous learning and development",
-                delay: 0.8,
-              },
-              {
-                title: "Trustworthiness",
-                description: "Building lasting relationships through integrity",
-                delay: 1,
-              },
-            ].map((value, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: value.delay }}
-              >
-                <Card className="bg-primary/5 hover:bg-primary/10 transition-colors border-none">
-                  <CardContent className="p-6">
-                    <h4 className="text-xl font-semibold mb-2">
-                      {value.title}
-                    </h4>
-                    <p className="text-muted-foreground">{value.description}</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+            <CoreValueCard
+              title="Personalization"
+              description="We believe fitness is not one-size-fits-all. Our platform adapts to your unique goals and needs."
+              icon={Target}
+              delay={0}
+              color="bg-blue-50"
+            />
+            <CoreValueCard
+              title="Community"
+              description="Building connections that inspire and motivate each other to achieve more together."
+              icon={Users}
+              delay={0.1}
+              color="bg-green-50"
+            />
+            <CoreValueCard
+              title="Excellence"
+              description="Commitment to providing the highest quality tools and information to help you succeed."
+              icon={Trophy}
+              delay={0.2}
+              color="bg-yellow-50"
+            />
+            <CoreValueCard
+              title="Accessibility"
+              description="Making professional fitness planning accessible to everyone regardless of experience level."
+              icon={Heart}
+              delay={0.3}
+              color="bg-red-50"
+            />
+            <CoreValueCard
+              title="Innovation"
+              description="Constantly exploring new ways to improve and enhance your fitness journey through technology."
+              icon={Sparkles}
+              delay={0.4}
+              color="bg-purple-50"
+            />
+            <CoreValueCard
+              title="Growth"
+              description="Supporting continuous improvement and celebrating progress at every step of your journey."
+              icon={Dumbbell}
+              delay={0.5}
+              color="bg-indigo-50"
+            />
+          </div>
+          
+          <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 rounded-full bg-primary/5 blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-96 h-96 rounded-full bg-primary/5 blur-3xl"></div>
+        </div>
+      </section>
+
+      <section className="py-24 bg-white">
+        <div className="container px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-primary mb-4">What Our Users Say</h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Join thousands of satisfied users who have transformed their fitness journey with our platform
+            </p>
+            <div className="w-20 h-1 bg-primary mx-auto rounded-full mt-6"></div>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <Testimonial
+              quote="This platform completely changed how I approach my workouts. The personalized plans are exactly what I needed to start seeing real progress."
+              author="Alex Thompson"
+              role="Fitness Enthusiast"
+              rating={5}
+              delay={0}
+            />
+            <Testimonial
+              quote="As a busy professional, I needed something efficient and effective. This app delivers exactly that - structured workouts that fit my schedule perfectly."
+              author="Jamie Lee"
+              role="Marketing Executive"
+              rating={5}
+              delay={0.1}
+            />
+            <Testimonial
+              quote="The progress tracking feature is amazing! Being able to see my improvements over time keeps me motivated and on track with my fitness goals."
+              author="Chris Morgan"
+              role="Software Developer"
+              rating={4}
+              delay={0.2}
+            />
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-16 bg-primary text-primary-foreground">
+      <section className="py-24 bg-gray-50">
         <div className="container px-4">
-          <div className="max-w-3xl mx-auto text-center space-y-6">
-            <h2 className="text-3xl md:text-4xl font-bold">
-              Ready to Start Your Fitness Journey?
-            </h2>
-            <p className="text-lg opacity-90">
-              Create your perfect plan from our pre-made section or make your
-              own unique plan in ours plans section.
-            </p>
+          <div className="max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              <motion.div
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+                className="space-y-6"
+              >
+                <h2 className="text-4xl font-bold text-primary">How Muscle Metric Works For You</h2>
+                <p className="text-lg text-muted-foreground">
+                  Our intuitive platform makes it simple to plan, track, and achieve your fitness goals with features designed for real results.
+                </p>
+                
+                <div className="space-y-6 mt-8">
+                  <ProductFeature
+                    title="Create Custom Workout Plans"
+                    description="Design personalized workout routines tailored to your specific goals, fitness level, and available equipment."
+                    icon={Dumbbell}
+                    delay={0.1}
+                  />
+                  
+                  <ProductFeature
+                    title="Schedule Your Training"
+                    description="Easily organize your workouts in a weekly calendar to maintain consistency and build healthy habits."
+                    icon={Calendar}
+                    delay={0.2}
+                  />
+                  
+                  <ProductFeature
+                    title="Track Your Progress"
+                    description="Monitor your performance with detailed metrics and visualizations to see your improvements over time."
+                    icon={BarChart2}
+                    delay={0.3}
+                  />
+                  
+                  <ProductFeature
+                    title="Stay Connected"
+                    description="Get support and motivation through our growing community of fitness enthusiasts."
+                    icon={Users}
+                    delay={0.4}
+                  />
+                </div>
+                
+                <div className="pt-6">
+                  <Button
+                    size="lg"
+                    className="rounded-full bg-primary hover:bg-primary/90 text-white px-8"
+                  >
+                    Start Your Journey
+                  </Button>
+                </div>
+              </motion.div>
+              
+              <motion.div
+                initial={{ opacity: 0, x: 30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8 }}
+                className="rounded-2xl overflow-hidden shadow-2xl border border-gray-200"
+              >
+                <img 
+                  src="/lovable-uploads/8826cf90-218e-4b8b-94c1-180b4ba8f96f.png" 
+                  alt="Muscle Metric App Screenshot" 
+                  className="w-full h-auto object-cover"
+                />
+              </motion.div>
+            </div>
           </div>
         </div>
+      </section>
+
+      <section className="py-24 bg-gradient-to-br from-primary to-purple-800 text-white relative overflow-hidden">
+        <div className="container px-4 relative z-10">
+          <div className="max-w-3xl mx-auto text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="space-y-8"
+            >
+              <h2 className="text-4xl md:text-5xl font-bold drop-shadow-sm">
+                Ready to Transform Your Fitness Journey?
+              </h2>
+              <p className="text-xl text-white/80">
+                Join thousands of users who are already achieving their fitness goals with our platform.
+              </p>
+              <Button
+                size="lg"
+                variant="secondary"
+                className="bg-white text-primary hover:bg-white/90 rounded-full px-8 text-lg group"
+              >
+                Get Started Now <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </motion.div>
+          </div>
+        </div>
+        
+        <motion.div 
+          className="absolute top-0 left-0 w-full h-full opacity-10"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 0.1 }}
+          viewport={{ once: true }}
+        >
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full border-4 border-white/30"></div>
+          <div className="absolute bottom-1/4 right-1/3 w-40 h-40 rounded-full border-4 border-white/20"></div>
+          <div className="absolute top-1/2 right-1/4 w-80 h-80 rounded-full border-4 border-white/10"></div>
+        </motion.div>
       </section>
     </div>
   );

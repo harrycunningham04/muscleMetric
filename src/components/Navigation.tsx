@@ -104,7 +104,7 @@ const Navigation = () => {
           </div>
         </nav>
 
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4">
           <Button
             variant="ghost"
             size="icon"

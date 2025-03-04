@@ -36,7 +36,7 @@ export const UserProfile: React.FC = () => {
   const [userData, setUserData] = React.useState<UserData>(initialUserData);
   const [isProfileOpen, setIsProfileOpen] = React.useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
-  const { weightUnit, formatWeight } = useSettings();
+  const { weightUnit } = useSettings();
 
   React.useEffect(() => {
     if (!isProfileOpen) {
@@ -55,14 +55,10 @@ export const UserProfile: React.FC = () => {
     setIsEditing(false);
   };
 
-  // Convert weight for display if needed
-  const displayWeight = userData.weight
-    ? formatWeight(parseFloat(userData.weight))
-    : "";
 
   return (
     <>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-4">
         <Button
           variant="ghost"
           size="icon"
