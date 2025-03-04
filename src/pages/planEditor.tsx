@@ -93,7 +93,11 @@ const PlanEditor = () => {
     );
   };
 
-  const handleUpdateGoal = (goalId: string, field: keyof Goal, value: any) => {
+  const handleUpdateGoal = (
+    goalId: string,
+    field: keyof Goal,
+    value: string
+  ) => {
     setGoals(
       goals.map((goal) =>
         goal.id === goalId ? { ...goal, [field]: value } : goal
@@ -111,7 +115,7 @@ const PlanEditor = () => {
       setWorkoutDays([...workoutDays, newDay]);
       setWorkoutValidation((prev) => ({
         ...prev,
-        [newDay.id]: true, 
+        [newDay.id]: true,
       }));
     }
   };
@@ -174,22 +178,52 @@ const PlanEditor = () => {
   };
 
   useEffect(() => {
-    const areWorkoutDaysValid = Object.values(workoutValidation).every(
-      (value) => value === true
-    );
-    const areGoalsValid = Object.values(goalValidation).every(
-      (value) => value === true
-    );
-    const isValid =
-      areWorkoutDaysValid &&
-      areGoalsValid &&
-      workoutDays.some((day) => day.exercises.length > 0); // At least one exercise
+    // Verify all workout days have valid exercises
+    const areWorkoutDaysValid =
+      Object.keys(workoutValidation).length > 0 &&
+      Object.values(workoutValidation).every((value) => value === true);
+
+    // Verify all goals have valid data
+    const areGoalsValid =
+      Object.keys(goalValidation).length === goals.length &&
+      Object.values(goalValidation).every((value) => value === true);
+
+    // At least one exercise required
+    const hasExercises = workoutDays.some((day) => day.exercises.length > 0);
+
+    // All validation conditions must be met
+    const isValid = areWorkoutDaysValid && areGoalsValid && hasExercises;
 
     setIsFormValid(isValid);
-  }, [workoutValidation, goalValidation, workoutDays]);
+    console.log("Form validation:", {
+      areWorkoutDaysValid,
+      areGoalsValid,
+      hasExercises,
+      isValid,
+    });
+  }, [workoutValidation, goalValidation, workoutDays, goals.length]);
 
   useEffect(() => {
     ensureThreeGoals();
+
+    // Initialize validation states
+    const initialWorkoutValidation: ValidationState = {};
+    workoutDays.forEach((day) => {
+      initialWorkoutValidation[day.id] = day.exercises.every(
+        (ex) =>
+          ex.startingWeight !== undefined &&
+          ex.startingWeight !== null &&
+          ex.startingWeight.toString() !== ""
+      );
+    });
+    setWorkoutValidation(initialWorkoutValidation);
+
+    const initialGoalValidation: ValidationState = {};
+    goals.forEach((goal) => {
+      initialGoalValidation[goal.id] =
+        goal.description !== "" && goal.targetDate !== "";
+    });
+    setGoalValidation(initialGoalValidation);
   }, []);
 
   const getPlanExercises = () => {
@@ -332,7 +366,10 @@ const PlanEditor = () => {
           </Button>
           <Button
             onClick={handleSave}
-            className="bg-primary hover:bg-primary-hover text-primary-foreground"
+            className={`${
+              isFormValid ? "bg-primary hover:bg-primary-hover" : "bg-gray-400"
+            } text-primary-foreground`}
+            disabled={!isFormValid}
           >
             <Save className="w-4 h-4 mr-2" />
             Save Changes

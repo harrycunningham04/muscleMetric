@@ -8,6 +8,10 @@
 //Triceps 425 - 474
 //Shoulder 475 - 549
 //Core 550 - 615
+//droppableId={String(day.id || "default-droppable-id")}
+//                  key={`exercise-${exercise.id}`}
+//draggableId={`exercise-${exercise.id}`}
+//index={index}
 
 // data/Exercise.ts
 export interface Exercises {
