@@ -16,6 +16,7 @@ import {
   Calculator,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useSettings } from "@/context/SettingsContext";
 
 // Motivational quotes array
 const quotes = [
@@ -30,6 +31,7 @@ const quotes = [
 
 export const DashboardView = () => {
   const [isOneRmModalOpen, setIsOneRmModalOpen] = useState(false);
+  const { weightUnit, formatWeight } = useSettings();
   const navigate = useNavigate();
 
   // Mock data - in a real app, this would come from your backend
@@ -61,6 +63,12 @@ export const DashboardView = () => {
     navigate("/workout");
   };
 
+  // Format previous weight with current unit
+  const formattedTotalWeight = stats.totalVolume
+    ? formatWeight(stats.totalVolume, weightUnit)
+    : undefined;
+
+
   return (
     <Card className="w-full hover:shadow-lg transition-all">
       <CardHeader className="bg-primary rounded-xl">
@@ -91,11 +99,9 @@ export const DashboardView = () => {
             {/* Total Volume */}
             <div className="p-4 rounded-lg bg-gradient-to-br from-blue-500/10 to-cyan-500/10 hover:from-blue-500/20 hover:to-cyan-500/20 transition-all flex flex-col items-center justify-center text-center space-y-2 hover:scale-105 cursor-default">
               <Dumbbell className="w-8 h-8 text-blue-600" />
-              <div className="text-2xl font-bold">
-                {stats.totalVolume.toLocaleString()}
-              </div>
+              <div className="text-2xl font-bold">{formattedTotalWeight}</div>
               <div className="text-sm text-muted-foreground">
-                Total kgs Lifted
+                Total {weightUnit} Lifted
               </div>
             </div>
 
