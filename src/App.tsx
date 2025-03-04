@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import "tailwindcss/tailwind.css";
+import { SettingsProvider } from "./context/SettingsContext";
 import Index from "./pages/index";
 import Main from "./pages/main";
 import Plans from "./pages/plans";
@@ -54,11 +55,13 @@ const AppContent = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AppContent />
-      </BrowserRouter>
+      <SettingsProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AppContent />
+        </BrowserRouter>
+      </SettingsProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

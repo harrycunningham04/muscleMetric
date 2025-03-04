@@ -6,6 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useSettings } from "@/context/SettingsContext";
 
 interface Goal {
   id: string;
@@ -20,6 +21,7 @@ interface GoalEditorProps {
 }
 
 export const GoalEditor = ({ goal, onChange, exercises }: GoalEditorProps) => {
+  const { weightUnit } = useSettings();
   return (
     <div className="flex space-x-4">
       <Select
@@ -52,7 +54,7 @@ export const GoalEditor = ({ goal, onChange, exercises }: GoalEditorProps) => {
             e.target.value === "" ? "" : Number(e.target.value)
           )
         }
-        placeholder="Goal Weight"
+        placeholder={`Target weight (${weightUnit})`}
         className="bg-white"
       />
     </div>

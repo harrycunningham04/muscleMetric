@@ -1,28 +1,29 @@
-import {
-  ChartContainer,
-  ChartTooltip,
-} from "@/components/ui/chart";
-import {
-  Line,
-  LineChart,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Legend,
-} from "recharts";
+import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
+import { Line, LineChart, XAxis, YAxis, CartesianGrid, Legend } from "recharts";
 import { addDays, format } from "date-fns";
+import { useSettings } from "@/context/SettingsContext";
 
 interface ExerciseProgressGraphProps {
   exercise: string;
 }
 
-export const ExerciseProgressGraph = ({ }: ExerciseProgressGraphProps) => {
+export const ExerciseProgressGraph = ({}: ExerciseProgressGraphProps) => {
+  const { weightUnit, convertWeight, formatWeight } = useSettings();
+
   // Mock data - replace with actual API data
-  const data = Array.from({ length: 10 }, (_, i) => ({
-    date: format(addDays(new Date(), i * 3), "MMM dd"),
-    actual: Math.floor(100 + Math.random() * 50),
-    goal: 100 + (i * 5),
-  }));
+  const data = Array.from({ length: 10 }, (_, i) => {
+    const actualWeight = Math.floor(100 + Math.random() * 50);
+    const goalWeight = 100 + i * 5;
+
+    return {
+      date: format(addDays(new Date(), i * 3), "MMM dd"),
+      actual: actualWeight,
+      goal: goalWeight,
+      // Add converted values for display
+      actualDisplay: convertWeight(actualWeight),
+      goalDisplay: convertWeight(goalWeight),
+    };
+  });
 
   const config = {
     actual: {
@@ -52,7 +53,11 @@ export const ExerciseProgressGraph = ({ }: ExerciseProgressGraphProps) => {
                 style={{ backgroundColor: entry.color }}
               />
               <span className="text-muted-foreground">{entry.name}:</span>
-              <span className="font-medium">{entry.value} lbs</span>
+              <span className="font-medium">
+                {entry.name === "Actual Weight"
+                  ? formatWeight(entry.payload.actual)
+                  : formatWeight(entry.payload.goal)}
+              </span>
             </div>
           ))}
         </div>
@@ -67,7 +72,7 @@ export const ExerciseProgressGraph = ({ }: ExerciseProgressGraphProps) => {
         <div className="space-y-1">
           <p className="text-sm font-medium">Current Progress</p>
           <p className="text-2xl font-bold">
-            {data[data.length - 1].actual} lbs
+            {formatWeight(data[data.length - 1].actual)}
           </p>
         </div>
         <div
@@ -83,7 +88,10 @@ export const ExerciseProgressGraph = ({ }: ExerciseProgressGraphProps) => {
 
       <div className="h-[300px] mt-4">
         <ChartContainer config={config}>
-          <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+          <LineChart
+            data={data}
+            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+          >
             <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
             <XAxis
               dataKey="date"
@@ -93,12 +101,13 @@ export const ExerciseProgressGraph = ({ }: ExerciseProgressGraphProps) => {
             <YAxis
               stroke="currentColor"
               className="text-muted-foreground"
-              unit=" lbs"
+              unit={` ${weightUnit}`}
+              domain={['auto', 'auto']}
             />
             <ChartTooltip content={CustomTooltip} />
             <Line
               type="monotone"
-              dataKey="actual"
+              dataKey="actualDisplay"
               name="Actual Weight"
               stroke={config.actual.color}
               strokeWidth={2}
@@ -106,7 +115,7 @@ export const ExerciseProgressGraph = ({ }: ExerciseProgressGraphProps) => {
             />
             <Line
               type="monotone"
-              dataKey="goal"
+              dataKey="goalDisplay"
               name="Goal Weight"
               stroke={config.goal.color}
               strokeWidth={2}
