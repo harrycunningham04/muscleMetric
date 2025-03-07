@@ -10,17 +10,51 @@ import {
 import { DashboardView } from "@/components/DashboardView";
 import { ProgressSummary } from "@/components/ProgressSummary";
 import { ExerciseProgressGraph } from "@/components/ExerciseProgressGraph";
-import { exercises } from "@/data/Exercise";
+
+const mockPlan = {
+  id: 1,
+  name: "Plan 1",
+  exercises: [
+    "Bench Press",
+    "Squats",
+    "Deadlifts",
+    "Pull-Ups",
+    "Push-Ups",
+    "Overhead Press",
+    "Bent-Over Rows",
+    "Lat Pulldown",
+    "Leg Press",
+    "Lunges",
+    "Dumbbell Curls",
+    "Tricep Dips",
+    "Hammer Curls",
+    "Tricep Pushdowns",
+    "Calf Raises",
+    "Romanian Deadlifts",
+    "Glute Bridges",
+    "Hip Thrusts",
+    "Seated Shoulder Press",
+    "Face Pulls",
+    "Cable Flys",
+    "Chest Flys",
+    "Front Squats",
+    "Barbell Shrugs",
+    "Reverse Lunges",
+    "Sumo Deadlifts",
+    "Leg Curls",
+    "Leg Extensions",
+    "Incline Bench Press",
+    "Arnold Press",
+  ],
+};
 
 const Main = () => {
   const [selectedExercise, setSelectedExercise] = useState<string | null>(null);
-  const exerciseNames = exercises.map((exercise) => exercise.name);
 
   return (
     <div className="container py-8 bg-background text-foreground min-h-screen">
       <div className="space-y-8">
         <DashboardView />
-
         <ProgressSummary />
 
         <Card className="bg-card text-card-foreground">
@@ -37,7 +71,7 @@ const Main = () => {
                   <SelectValue placeholder="Select an exercise" />
                 </SelectTrigger>
                 <SelectContent>
-                  {exerciseNames.map((exercise) => (
+                  {mockPlan.exercises.map((exercise) => (
                     <SelectItem key={exercise} value={exercise}>
                       {exercise}
                     </SelectItem>
@@ -48,42 +82,40 @@ const Main = () => {
 
             <div className="hidden md:grid md:grid-cols-12 gap-6">
               <div className="md:col-span-3">
-                <div className="space-y-2">
-                  {exercises.map((exercise) => (
+                <div
+                  className="space-y-2 overflow-y-auto"
+                  style={{ maxHeight: "500px" }}
+                >
+                  {mockPlan.exercises.map((exercise) => (
                     <button
-                      key={exercise.id}
-                      onClick={() => setSelectedExercise(exercise.name)}
+                      key={exercise}
+                      onClick={() => setSelectedExercise(exercise)}
                       className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
-                        selectedExercise === exercise.name
+                        selectedExercise === exercise
                           ? "bg-primary text-primary-foreground"
                           : "hover:bg-accent"
                       }`}
                     >
-                      {exercise.name}
+                      {exercise}
                     </button>
                   ))}
                 </div>
               </div>
 
               <div className="md:col-span-9">
-                {selectedExercise ? (
-                  <ExerciseProgressGraph exercise={selectedExercise} />
-                ) : (
-                  <div className="text-center text-muted-foreground py-12">
-                    Select an exercise from the list to view your progress
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="md:hidden">
-              {selectedExercise ? (
-                <ExerciseProgressGraph exercise={selectedExercise} />
-              ) : (
-                <div className="text-center text-muted-foreground py-12">
-                  Select an exercise to view your progress
+                <div
+                  className="md:col-span-9 overflow-y-auto"
+                  style={{ maxHeight: "500px" }}
+                >
+                  {selectedExercise ? (
+                    <ExerciseProgressGraph exercise={selectedExercise} />
+                  ) : (
+                    <div className="text-center text-muted-foreground py-12">
+                      Select an exercise from the list to view your progress
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
             </div>
           </CardContent>
         </Card>

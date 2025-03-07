@@ -13,8 +13,10 @@ export const ExampleExerciseProgressGraph = ({
   const goalWeight = 110; // Target weight
 
   const data = Array.from({ length: 10 }, (_, i) => {
-    const progress = i / 9; 
-    const goal = parseFloat((startWeight + (goalWeight - startWeight) * progress).toFixed(2));
+    const progress = i / 9;
+    const goal = parseFloat(
+      (startWeight + (goalWeight - startWeight) * progress).toFixed(2)
+    );
 
     const actual = parseFloat((goal + (Math.random() * 10 - 5)).toFixed(2));
 
@@ -63,7 +65,7 @@ export const ExampleExerciseProgressGraph = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col h-full space-y-4">
       <div className="flex items-center justify-between">
         <div className="space-y-1">
           <p className="text-sm font-medium">{exercise} Progress</p>
@@ -82,11 +84,12 @@ export const ExampleExerciseProgressGraph = ({
         </div>
       </div>
 
-      <div className="h-[300px] mt-4">
-        <ChartContainer config={config}>
+      <div className="flex-grow">
+        <ChartContainer config={config} className="h-full">
           <LineChart
             data={data}
             margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+            className="h-full"
           >
             <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
             <XAxis
