@@ -16,6 +16,8 @@ import PlanDetails from "./pages/planDetails";
 import Contact from "./pages/contact";
 import Verify from "./pages/verify";
 import About from "./pages/about";
+import Terms from "./pages/terms";
+import Privacy from "./pages/privacy";
 import Footer from "./components/Footer";
 import Navigation from "./components/Navigation";
 import History from "./pages/history";
@@ -45,6 +47,8 @@ const AppContent = () => {
           <Route path="/history/:id" element={<HistoryDetails />} />
           <Route path="/verify" element={<Verify />} />
           <Route path="/about" element={<About />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
         </Routes>
       </div>
       <Footer />

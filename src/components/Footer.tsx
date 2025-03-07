@@ -1,5 +1,6 @@
 import { Github, Instagram, Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
@@ -8,39 +9,57 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-white">MuscleMetric</h3>
+            <h3 className="text-lg font-semibold mb-4 text-white">
+              MuscleMetric
+            </h3>
             <p className="text-sm text-gray-300">
               Empowering your fitness journey with smart tracking and analytics.
             </p>
           </div>
 
           {/* Quick Links */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4 text-white">Quick Links</h3>
+          <nav>
+            <h3 className="text-lg font-semibold mb-4 text-white">
+              Quick Links
+            </h3>
             <ul className="space-y-2">
               <li>
-                <Button
-                  variant="link"
-                  className="text-gray-300 hover:text-white p-0"
-                >
-                  Terms & Conditions
-                </Button>
+                <Link to="/about">
+                  <Button
+                    variant="link"
+                    className="text-gray-400 hover:text-white p-0 transition-colors duration-200"
+                  >
+                    About Us
+                  </Button>
+                </Link>
               </li>
               <li>
-                <Button
-                  variant="link"
-                  className="text-gray-300 hover:text-white p-0"
-                >
-                  Privacy Policy
-
-                </Button>
+                <Link to="/terms">
+                  <Button
+                    variant="link"
+                    className="text-gray-400 hover:text-white p-0 transition-colors duration-200"
+                  >
+                    Terms & Conditions
+                  </Button>
+                </Link>
+              </li>
+              <li>
+                <Link to="/privacy">
+                  <Button
+                    variant="link"
+                    className="text-gray-400 hover:text-white p-0 transition-colors duration-200"
+                  >
+                    Privacy Policy
+                  </Button>
+                </Link>
               </li>
             </ul>
-          </div>
-
+          </nav>
           {/* Social Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-white">Connect With Us</h3>
+            <h3 className="text-lg font-semibold mb-4 text-white">
+              Connect With Us
+            </h3>
             <div className="flex space-x-4">
               <a
                 href="https://github.com/harrycunningham04"
