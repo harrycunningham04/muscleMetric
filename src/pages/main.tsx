@@ -104,8 +104,7 @@ const Main = () => {
 
               <div className="md:col-span-9">
                 <div
-                  className="md:col-span-9 overflow-y-auto"
-                  style={{ maxHeight: "500px" }}
+                  className="md:col-span-9 h-full"
                 >
                   {selectedExercise ? (
                     <ExerciseProgressGraph exercise={selectedExercise} />

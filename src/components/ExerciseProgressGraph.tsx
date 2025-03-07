@@ -1,5 +1,13 @@
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
-import { Line, LineChart, XAxis, YAxis, CartesianGrid, Legend } from "recharts";
+import {
+  Line,
+  LineChart,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 import { addDays, format } from "date-fns";
 import { useSettings } from "@/context/SettingsContext";
 
@@ -86,44 +94,51 @@ export const ExerciseProgressGraph = ({}: ExerciseProgressGraphProps) => {
         </div>
       </div>
 
-      <div className="h-[300px] mt-4">
-        <ChartContainer config={config}>
-          <LineChart
-            data={data}
-            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            <XAxis
-              dataKey="date"
-              stroke="currentColor"
-              className="text-muted-foreground"
-            />
-            <YAxis
-              stroke="currentColor"
-              className="text-muted-foreground"
-              unit={` ${weightUnit}`}
-              domain={['auto', 'auto']}
-            />
-            <ChartTooltip content={CustomTooltip} />
-            <Line
-              type="monotone"
-              dataKey="actualDisplay"
-              name="Actual Weight"
-              stroke={config.actual.color}
-              strokeWidth={2}
-              dot={{ fill: config.actual.color }}
-            />
-            <Line
-              type="monotone"
-              dataKey="goalDisplay"
-              name="Goal Weight"
-              stroke={config.goal.color}
-              strokeWidth={2}
-              dot={{ fill: config.goal.color }}
-            />
-            <Legend />
-          </LineChart>
-        </ChartContainer>
+      <div className="w-full h-[400px]">
+        {" "}
+        {/* Adjusted height to ensure it fits in the container */}
+        <ResponsiveContainer width="100%" height="100%">
+          <ChartContainer config={config}>
+            <LineChart
+              data={data}
+              margin={{ top: 5, right: 10, left: 10, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+              <XAxis
+                dataKey="date"
+                stroke="currentColor"
+                className="text-muted-foreground"
+                tick={{ fontSize: 12 }}
+              />
+              <YAxis
+                stroke="currentColor"
+                className="text-muted-foreground"
+                unit={` ${weightUnit}`}
+                domain={["auto", "auto"]}
+                tick={{ fontSize: 12 }}
+                width={60}
+              />
+              <ChartTooltip content={CustomTooltip} />
+              <Line
+                type="monotone"
+                dataKey="actualDisplay"
+                name="Actual Weight"
+                stroke={config.actual.color}
+                strokeWidth={2}
+                dot={{ fill: config.actual.color, r: 3 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="goalDisplay"
+                name="Goal Weight"
+                stroke={config.goal.color}
+                strokeWidth={2}
+                dot={{ fill: config.goal.color, r: 3 }}
+              />
+              <Legend wrapperStyle={{ fontSize: "12px", marginTop: "10px" }} />
+            </LineChart>
+          </ChartContainer>
+        </ResponsiveContainer>
       </div>
     </div>
   );
