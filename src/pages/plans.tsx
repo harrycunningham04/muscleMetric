@@ -1,6 +1,13 @@
 import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, ArrowLeft, ArrowRight, Clock } from "lucide-react";
+import {
+  Plus,
+  ArrowLeft,
+  ArrowRight,
+  Clock,
+  Dumbbell,
+  CalendarCheck,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import PlanCard from "@/components/PlanCard";
 import EmptyState from "@/components/EmptyState";
@@ -10,7 +17,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-// Mock data - replace with actual data fetching
 const mockPlans = [
   {
     id: "1",
@@ -31,16 +37,6 @@ const mockPlans = [
     progress: 30,
     startDate: "2024-03-01",
     endDate: "2024-05-31",
-  },
-  {
-    id: "3",
-    title: "Winter Bulk",
-    duration: "12 weeks",
-    workoutDays: 5,
-    goals: 3,
-    progress: 90,
-    startDate: "2023-10-01",
-    endDate: "2024-03-31",
   },
 ];
 
@@ -115,140 +111,186 @@ const Plans = () => {
     );
   };
 
-  return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
-      <div className="container py-8 relative flex-1">
-        {mockPlans.length === 0 ? (
-          <EmptyState />
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="space-y-8">
-              {activePlan && (
-                <div>
-                  <h2 className="text-xl font-semibold mb-4">Active Plan</h2>
-                  <PlanCard
-                    {...activePlan}
-                    isActive={true}
-                    onActivate={handleActivatePlan}
-                  />
-                </div>
-              )}
+  const todaysWorkout = {
+    id: "today-1",
+    name: "Push Day",
+    exercises: ["Bench Press", "Shoulder Press", "Tricep Extensions"],
+    duration: "45 minutes",
+    planName: activePlan?.title || "Default Plan",
+  };
 
-              {inactivePlans.length > 0 && (
-                <div className="relative">
-                  <h2 className="text-xl font-semibold mb-4">Other Plans</h2>
-                  <div className="relative">
-                    <AnimatePresence mode="wait">
-                      <motion.div
-                        key={currentPlanIndex}
-                        initial={{ opacity: 0, x: 100 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -100 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <PlanCard
-                          {...inactivePlans[currentPlanIndex]}
-                          isActive={false}
-                          onActivate={handleActivatePlan}
-                        />
-                      </motion.div>
-                    </AnimatePresence>
-                    <div className="absolute top-1/2 -left-4 transform -translate-y-1/2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={previousPlan}
-                        className="rounded-full bg-background/80 backdrop-blur"
-                      >
-                        <ArrowLeft className="h-4 w-4" />
-                      </Button>
+  return (
+    <div className="container py-8 relative min-h-screen">
+      {mockPlans.length === 0 ? (
+        <EmptyState />
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="space-y-8">
+            <div>
+              <h2 className="text-xl font-semibold mb-4">Today's Workout</h2>
+              <Card
+                className="p-6 cursor-pointer transition-all duration-300 hover:shadow-lg bg-primary text-primary-foreground"
+                onClick={() => navigate(`/workout/${todaysWorkout.id}`)}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <CalendarCheck className="w-5 h-5" />
+                      <h3 className="text-xl font-semibold">
+                        {todaysWorkout.name}
+                      </h3>
                     </div>
-                    <div className="absolute top-1/2 -right-4 transform -translate-y-1/2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={nextPlan}
-                        className="rounded-full bg-background/80 backdrop-blur"
-                      >
-                        <ArrowRight className="h-4 w-4" />
-                      </Button>
+                    <p className="text-primary-foreground/80">
+                      {todaysWorkout.exercises.join(" • ")}
+                    </p>
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4" />
+                        <span className="text-sm">
+                          {todaysWorkout.duration}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Dumbbell className="w-4 h-4" />
+                        <span className="text-sm">
+                          {todaysWorkout.exercises.length} exercises
+                        </span>
+                      </div>
                     </div>
                   </div>
+                  <Button
+                    variant="secondary"
+                    className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+                  >
+                    Start Workout
+                  </Button>
                 </div>
-              )}
+              </Card>
             </div>
 
-            <div>
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">Recent Workouts</h2>
-                <Button
-                  variant="ghost"
-                  onClick={() => navigate("/history")}
-                  className="text-sm"
-                >
-                  View All History
-                </Button>
+            {activePlan && (
+              <div>
+                <h2 className="text-xl font-semibold mb-4">Active Plan</h2>
+                <PlanCard
+                  {...activePlan}
+                  isActive={true}
+                  onActivate={handleActivatePlan}
+                />
               </div>
-              <ScrollArea
-                className="h-[600px] rounded-md border p-4"
-                onScrollCapture={handleScroll}
-                ref={scrollRef}
-              >
-                <div className="space-y-4">
-                  {status === "pending" ? (
-                    <div className="text-center py-4">Loading...</div>
-                  ) : status === "error" ? (
-                    <div className="text-center py-4">
-                      Error loading workouts
-                    </div>
-                  ) : (
-                    <>
-                      {data.pages.map((page, i) => (
-                        <React.Fragment key={i}>
-                          {page.workouts.map((workout) => (
-                            <Card
-                              key={workout.id}
-                              className="p-4 hover:shadow-lg transition-all cursor-pointer"
-                              onClick={() => navigate(`/history/${workout.id}`)}
-                            >
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <h3 className="font-semibold text-lg mb-2">
-                                    {workout.planName}
-                                  </h3>
-                                  <div className="flex items-center text-muted-foreground mb-1">
-                                    <Clock className="w-4 h-4 mr-2" />
-                                    <span>{workout.duration}</span>
-                                  </div>
-                                </div>
-                                <span className="text-sm text-muted-foreground">
-                                  {new Date(workout.date).toLocaleDateString()}
-                                </span>
-                              </div>
-                              <div className="mt-2 text-sm text-muted-foreground">
-                                {workout.exercises.join(", ")}
-                              </div>
-                            </Card>
-                          ))}
-                        </React.Fragment>
-                      ))}
-                      {isFetchingNextPage && (
-                        <div className="text-center py-4">Loading more...</div>
-                      )}
-                    </>
-                  )}
-                </div>
-              </ScrollArea>
-            </div>
-          </div>
-        )}
+            )}
 
-        <div className="fixed bottom-8 right-8">
-          <Button onClick={() => navigate("/plans/new")} size="lg">
-            <Plus className="w-4 h-4 mr-2" />
-            Create New Plan
-          </Button>
+            {inactivePlans.length > 0 && (
+              <div className="relative">
+                <h2 className="text-xl font-semibold mb-4">Other Plans</h2>
+                <div className="relative">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={currentPlanIndex}
+                      initial={{ opacity: 0, x: 100 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -100 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <PlanCard
+                        {...inactivePlans[currentPlanIndex]}
+                        isActive={false}
+                        onActivate={handleActivatePlan}
+                      />
+                    </motion.div>
+                  </AnimatePresence>
+                  <div className="absolute top-1/2 -left-4 transform -translate-y-1/2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={previousPlan}
+                      className="rounded-full bg-background/80 backdrop-blur"
+                    >
+                      <ArrowLeft className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div className="absolute top-1/2 -right-4 transform -translate-y-1/2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={nextPlan}
+                      className="rounded-full bg-background/80 backdrop-blur"
+                    >
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Recent Workouts</h2>
+              <Button
+                variant="ghost"
+                onClick={() => navigate("/history")}
+                className="text-sm"
+              >
+                View All History
+              </Button>
+            </div>
+            <ScrollArea
+              className="h-[600px] rounded-md border p-4"
+              onScrollCapture={handleScroll}
+              ref={scrollRef}
+            >
+              <div className="space-y-4">
+                {status === "pending" ? (
+                  <div className="text-center py-4">Loading...</div>
+                ) : status === "error" ? (
+                  <div className="text-center py-4">Error loading workouts</div>
+                ) : (
+                  <>
+                    {data.pages.map((page, i) => (
+                      <React.Fragment key={i}>
+                        {page.workouts.map((workout) => (
+                          <Card
+                            key={workout.id}
+                            className="p-4 hover:shadow-lg transition-all cursor-pointer"
+                            onClick={() => navigate(`/workout/${workout.id}`)}
+                          >
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <h3 className="font-semibold text-lg mb-2">
+                                  {workout.planName}
+                                </h3>
+                                <div className="flex items-center text-muted-foreground mb-1">
+                                  <Clock className="w-4 h-4 mr-2" />
+                                  <span>{workout.duration}</span>
+                                </div>
+                              </div>
+                              <span className="text-sm text-muted-foreground">
+                                {new Date(workout.date).toLocaleDateString()}
+                              </span>
+                            </div>
+                            <div className="mt-2 text-sm text-muted-foreground">
+                              {workout.exercises.join(", ")}
+                            </div>
+                          </Card>
+                        ))}
+                      </React.Fragment>
+                    ))}
+                    {isFetchingNextPage && (
+                      <div className="text-center py-4">Loading more...</div>
+                    )}
+                  </>
+                )}
+              </div>
+            </ScrollArea>
+          </div>
         </div>
+      )}
+
+      <div className="fixed bottom-8 right-8">
+        <Button onClick={() => navigate("/plans/new")} size="lg">
+          <Plus className="w-4 h-4 mr-2" />
+          Create New Plan
+        </Button>
       </div>
     </div>
   );
