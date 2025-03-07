@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Timer, ChevronLeft, Dumbbell } from "lucide-react";
@@ -15,10 +14,13 @@ interface Exercise {
   reps: number;
   weights: number[];
   actualReps: number[];
-  previousWeight?: string;
-  form?: string;
-  equipment?: string[];
-  alternatives?: string[];
+  previousWeight: string;
+  bodyPart: string;
+  equipment: string;
+  setupDescription: string;
+  repDescription: string;
+  type: "compound" | "isolation";
+  user: "beginner" | "intermediate" | "advanced";
 }
 
 interface WorkoutState {
@@ -36,33 +38,94 @@ interface WorkoutState {
 const Workout = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+
   const [workout, setWorkout] = useState<WorkoutState>({
     name: "Push Day",
     exercises: [
       {
         id: "1",
-        name: "Barbell Bench Press",
-        sets: 3,
-        reps: 8,
-        weights: [0, 0, 0],
-        actualReps: [8, 8, 8],
-        previousWeight: "80 kg × 8",
-        form: "Lie on a flat bench with your feet on the ground. Grip the barbell slightly wider than shoulder-width. Lower the bar to mid-chest level, then press back up to full arm extension. Keep your wrists straight and elbows at about 45° from your body.",
-        equipment: ["Barbell", "Bench", "Weight plates", "Safety rack"],
-        alternatives: ["Dumbbell Bench Press", "Push-Ups", "Cable Chest Press"],
-      },
-      {
-        id: "2",
-        name: "Dumbbell Single Arm Row",
+        name: "Bench Press",
         sets: 4,
         reps: 12,
         weights: [0, 0, 0, 0],
         actualReps: [12, 12, 12, 12],
         previousWeight: "30 kg × 12",
-        form: "Place one knee and hand on a bench, keeping your back flat and parallel to the ground. Hold a dumbbell in your free hand, arm extended. Pull the dumbbell up to your side, keeping your elbow close to your body. Lower with control and repeat.",
-        equipment: ["Dumbbell", "Bench"],
-        alternatives: ["Barbell Rows", "Cable Rows", "TRX Rows"],
+        bodyPart: "chest",
+        equipment: "Barbell, Bench",
+        setupDescription:
+          "Lie flat on your back on a bench with the barbell set above your chest. Place your hands slightly wider than shoulder-width apart on the bar.",
+        repDescription:
+          "Lower the barbell slowly to your chest while maintaining control. Press the bar back up to the starting position, ensuring your elbows are at a 45-degree angle to your torso throughout the movement.",
+        type: "compound",
+        user: "intermediate",
+      },
+      {
+        id: "2",
+        name: "Incline Bench Press",
+        sets: 4,
+        reps: 12,
+        weights: [0, 0, 0, 0],
+        actualReps: [12, 12, 12, 12],
+        previousWeight: "30 kg × 12",
+        bodyPart: "chest",
+        equipment: "Barbell, Incline Bench",
+        setupDescription:
+          "Lie on an incline bench with the barbell positioned above your chest. Grip the barbell slightly wider than shoulder-width.",
+        repDescription:
+          "Lower the barbell to the upper part of your chest and then press it back up to the starting position, keeping your elbows at a 45-degree angle.",
+        type: "compound",
+        user: "advanced",
+      },
+      {
+        id: "3",
+        name: "Decline Bench Press",
+        sets: 4,
+        reps: 12,
+        weights: [0, 0, 0, 0],
+        actualReps: [12, 12, 12, 12],
+        previousWeight: "30 kg × 12",
+        bodyPart: "chest",
+        equipment: "Barbell, Decline Bench",
+        setupDescription:
+          "Lie on a decline bench with the barbell positioned above your chest. Grip the barbell slightly wider than shoulder-width.",
+        repDescription:
+          "Lower the barbell to the lower part of your chest, then press it back up to the starting position while maintaining control.",
+        type: "compound",
+        user: "advanced",
+      },
+      {
+        id: "4",
+        name: "Dumbbell Bench Press",
+        sets: 4,
+        reps: 12,
+        weights: [0, 0, 0, 0],
+        actualReps: [12, 12, 12, 12],
+        previousWeight: "30 kg × 12",
+        bodyPart: "chest",
+        equipment: "Dumbbells, Bench",
+        setupDescription:
+          "Lie flat on your back on a bench and hold a dumbbell in each hand at shoulder level.",
+        repDescription:
+          "Press the dumbbells upward, extending your arms fully, then lower them back to the starting position.",
+        type: "compound",
+        user: "beginner",
+      },
+      {
+        id: "5",
+        name: "Dumbbell Flys",
+        sets: 4,
+        reps: 12,
+        weights: [0, 0, 0, 0],
+        actualReps: [12, 12, 12, 12],
+        previousWeight: "30 kg × 12",
+        bodyPart: "chest",
+        equipment: "Dumbbells, Bench",
+        setupDescription:
+          "Lie flat on a bench with a dumbbell in each hand, arms extended above your chest.",
+        repDescription:
+          "Slowly lower the dumbbells outward, keeping a slight bend in your elbows. Bring the dumbbells back together, squeezing your chest.",
+        type: "isolation",
+        user: "beginner",
       },
     ],
     currentExerciseIndex: 0,
@@ -76,10 +139,10 @@ const Workout = () => {
 
   useEffect(() => {
     let interval: NodeJS.Timeout | undefined;
-    
+
     if (workout.isTimerRunning) {
       interval = setInterval(() => {
-        setWorkout(prev => ({
+        setWorkout((prev) => ({
           ...prev,
           timerSeconds: prev.timerSeconds + 1,
         }));
@@ -94,11 +157,13 @@ const Workout = () => {
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${mins.toString().padStart(2, "0")}:${secs
+      .toString()
+      .padStart(2, "0")}`;
   };
 
   const startWorkout = () => {
-    setWorkout(prev => ({
+    setWorkout((prev) => ({
       ...prev,
       isWorkoutStarted: true,
       isTimerRunning: true,
@@ -112,19 +177,19 @@ const Workout = () => {
   const startExercise = (exerciseId: string) => {
     // If there's an active exercise and it's different from the one being started
     if (workout.activeExerciseId && workout.activeExerciseId !== exerciseId) {
-      setWorkout(prev => ({
+      setWorkout((prev) => ({
         ...prev,
-        startedExercises: prev.startedExercises.includes(exerciseId) 
-          ? prev.startedExercises 
+        startedExercises: prev.startedExercises.includes(exerciseId)
+          ? prev.startedExercises
           : [...prev.startedExercises, exerciseId],
         activeExerciseId: exerciseId,
       }));
     } else {
       // Starting a new exercise or the same exercise
-      setWorkout(prev => ({
+      setWorkout((prev) => ({
         ...prev,
-        startedExercises: prev.startedExercises.includes(exerciseId) 
-          ? prev.startedExercises 
+        startedExercises: prev.startedExercises.includes(exerciseId)
+          ? prev.startedExercises
           : [...prev.startedExercises, exerciseId],
         activeExerciseId: exerciseId,
       }));
@@ -132,12 +197,14 @@ const Workout = () => {
   };
 
   const reopenExercise = (exerciseId: string) => {
-    setWorkout(prev => ({
+    setWorkout((prev) => ({
       ...prev,
-      completedExercises: prev.completedExercises.filter(id => id !== exerciseId),
+      completedExercises: prev.completedExercises.filter(
+        (id) => id !== exerciseId
+      ),
       activeExerciseId: exerciseId,
     }));
-    
+
     toast({
       title: "Exercise Reopened",
       description: "You can now edit your weights and reps",
@@ -145,14 +212,14 @@ const Workout = () => {
   };
 
   const deactivateExercise = () => {
-    setWorkout(prev => ({
+    setWorkout((prev) => ({
       ...prev,
       activeExerciseId: null,
     }));
   };
 
   const completeExercise = (exerciseId: string) => {
-    setWorkout(prev => ({
+    setWorkout((prev) => ({
       ...prev,
       completedExercises: [...prev.completedExercises, exerciseId],
       activeExerciseId: null,
@@ -171,7 +238,9 @@ const Workout = () => {
       });
       navigate("/main");
     } else {
-      const confirmed = window.confirm("You haven't completed all exercises. Are you sure you want to finish the workout?");
+      const confirmed = window.confirm(
+        "You haven't completed all exercises. Are you sure you want to finish the workout?"
+      );
       if (confirmed) {
         toast({
           title: "Workout saved",
@@ -200,8 +269,8 @@ const Workout = () => {
         <Card className="mb-8 backdrop-blur-sm bg-card/90 dark:bg-card/80 border border-border/50 dark:border-border/30 shadow-sm">
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center gap-4">
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 size="icon"
                 onClick={() => navigate(-1)}
                 className="hover:bg-accent hover:text-accent-foreground rounded-full transition-colors"
@@ -210,7 +279,9 @@ const Workout = () => {
                 <ChevronLeft className="h-6 w-6" />
               </Button>
               <div>
-                <h1 className="text-2xl font-bold text-foreground">{workout.name}</h1>
+                <h1 className="text-2xl font-bold text-foreground">
+                  {workout.name}
+                </h1>
                 <p className="text-sm text-muted-foreground">
                   {workout.exercises.length} exercises planned
                 </p>
@@ -219,7 +290,9 @@ const Workout = () => {
             {workout.isWorkoutStarted && (
               <div className="flex items-center gap-2 bg-primary/10 dark:bg-primary/20 px-4 py-2 rounded-lg border border-primary/20 dark:border-primary/30">
                 <Timer className="h-5 w-5 text-primary dark:text-primary" />
-                <span className="font-mono text-lg font-semibold text-foreground">{formatTime(workout.timerSeconds)}</span>
+                <span className="font-mono text-lg font-semibold text-foreground">
+                  {formatTime(workout.timerSeconds)}
+                </span>
               </div>
             )}
           </div>
@@ -229,7 +302,9 @@ const Workout = () => {
           <div className="flex justify-center items-center w-full">
             <Card className="overflow-hidden w-full backdrop-blur-sm bg-card/95 dark:bg-card/90 border border-border/50 dark:border-border/30 shadow-sm">
               <div className="p-6 text-center">
-                <h2 className="text-xl font-semibold mb-4 text-foreground">Workout Preview</h2>
+                <h2 className="text-xl font-semibold mb-4 text-foreground">
+                  Workout Preview
+                </h2>
                 <Separator className="my-4 bg-border/70 dark:bg-border/50" />
                 <div className="space-y-6">
                   {workout.exercises.map((exercise) => (
@@ -242,9 +317,9 @@ const Workout = () => {
                     />
                   ))}
                 </div>
-                
+
                 <div className="mt-8">
-                  <Button 
+                  <Button
                     onClick={startWorkout}
                     className="w-full md:w-2/3 mx-auto transition-all duration-200 hover:scale-105 shadow-sm hover:shadow-md focus:ring-2 focus:ring-primary/40 focus:ring-offset-2 focus:ring-offset-background"
                     size="lg"
@@ -258,8 +333,8 @@ const Workout = () => {
         ) : (
           <div className="space-y-4">
             {workout.exercises.map((exercise) => (
-              <Card 
-                key={exercise.id} 
+              <Card
+                key={exercise.id}
                 className="overflow-hidden transition-all duration-200 backdrop-blur-sm bg-card/95 dark:bg-card/90 border border-border/50 dark:border-border/30 shadow-sm hover:shadow-md dark:hover:shadow-primary/10"
               >
                 <div className="p-4">
@@ -271,14 +346,16 @@ const Workout = () => {
                     onDeactivate={deactivateExercise}
                     isStarted={workout.startedExercises.includes(exercise.id)}
                     workoutStarted={workout.isWorkoutStarted}
-                    isCompleted={workout.completedExercises.includes(exercise.id)}
+                    isCompleted={workout.completedExercises.includes(
+                      exercise.id
+                    )}
                     onReopenExercise={() => reopenExercise(exercise.id)}
                   />
                 </div>
               </Card>
             ))}
             <div className="mt-8 text-center pt-4">
-              <Button 
+              <Button
                 onClick={handleFinishWorkout}
                 className="w-full md:w-2/3 mx-auto transition-all duration-200 hover:scale-105 shadow-sm hover:shadow-md focus:ring-2 focus:ring-primary/40 focus:ring-offset-2 focus:ring-offset-background"
                 size="lg"

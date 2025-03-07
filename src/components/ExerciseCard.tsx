@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,9 +14,12 @@ interface ExerciseCardProps {
     weights: number[];
     actualReps: number[];
     previousWeight?: string;
-    form?: string;
-    equipment?: string[];
-    alternatives?: string[];
+    bodyPart: string;
+    equipment: string;
+    setupDescription: string;
+    repDescription: string;
+    type: "compound" | "isolation";
+    user: "beginner" | "intermediate" | "advanced";
   };
   isActive: boolean;
   onComplete: () => void;
@@ -29,38 +31,45 @@ interface ExerciseCardProps {
   onReopenExercise?: () => void;
 }
 
-export const ExerciseCard = ({ 
-  exercise, 
-  isActive, 
-  onComplete, 
-  onStart, 
+export const ExerciseCard = ({
+  exercise,
+  isActive,
+  onComplete,
+  onStart,
   isStarted,
   workoutStarted,
   onDeactivate,
   isCompleted: externalIsCompleted,
-  onReopenExercise
+  onReopenExercise,
 }: ExerciseCardProps) => {
   const { weightUnit, formatWeight } = useSettings();
-  const [sets, setSets] = useState(exercise.weights.map((weight, index) => ({
-    weight: weight,
-    reps: exercise.actualReps[index] || exercise.reps,
-  })));
+  const [sets, setSets] = useState(
+    exercise.weights.map((weight, index) => ({
+      weight: weight,
+      reps: exercise.actualReps[index] || exercise.reps,
+    }))
+  );
   const [currentSet, setCurrentSet] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+
   // Use the external completion state if provided
-  const exerciseCompleted = externalIsCompleted !== undefined ? externalIsCompleted : isCompleted;
+  const exerciseCompleted =
+    externalIsCompleted !== undefined ? externalIsCompleted : isCompleted;
 
   useEffect(() => {
     if (currentSet > 0) {
       const previousSet = sets[currentSet - 1];
-      setSets(prevSets => prevSets.map((set, index) => 
-        index === currentSet ? {
-          weight: previousSet.weight,
-          reps: previousSet.reps
-        } : set
-      ));
+      setSets((prevSets) =>
+        prevSets.map((set, index) =>
+          index === currentSet
+            ? {
+                weight: previousSet.weight,
+                reps: previousSet.reps,
+              }
+            : set
+        )
+      );
     }
   }, [currentSet]);
 
@@ -77,10 +86,14 @@ export const ExerciseCard = ({
     }
   };
 
-  const updateSet = (index: number, field: 'weight' | 'reps', value: number) => {
-    setSets(sets.map((set, i) => 
-      i === index ? { ...set, [field]: value } : set
-    ));
+  const updateSet = (
+    index: number,
+    field: "weight" | "reps",
+    value: number
+  ) => {
+    setSets(
+      sets.map((set, i) => (i === index ? { ...set, [field]: value } : set))
+    );
   };
 
   const isSetComplete = (set: { weight: number; reps: number }) => {
@@ -118,8 +131,8 @@ export const ExerciseCard = ({
   };
 
   // Format previous weight with current unit
-  const formattedPreviousWeight = exercise.previousWeight 
-    ? formatWeight(parseFloat(exercise.previousWeight.split(' ')[0]))
+  const formattedPreviousWeight = exercise.previousWeight
+    ? formatWeight(parseFloat(exercise.previousWeight.split(" ")[0]))
     : undefined;
 
   // Collapsed view for not started or completed exercises
@@ -128,7 +141,7 @@ export const ExerciseCard = ({
       <div className="bg-card/60 backdrop-blur-sm rounded-lg p-4 mb-4 transition-all duration-300 ease-in-out border border-border/30 shadow-sm">
         <div className="flex items-center justify-between">
           <div>
-            <h3 
+            <h3
               className="font-semibold text-lg flex items-center cursor-pointer group text-foreground"
               onClick={() => setIsModalOpen(true)}
             >
@@ -167,11 +180,9 @@ export const ExerciseCard = ({
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           exercise={{
-            name: exercise.name,
-            form: exercise.form || "Focus on proper form and controlled movement. Keep your core engaged throughout the exercise.",
-            equipment: exercise.equipment || ["Gym equipment", "Can be modified for home use"],
-            alternatives: exercise.alternatives || ["Similar exercises can be substituted based on available equipment"],
-          }}
+            ...exercise,
+            previousWeight: exercise.previousWeight || "", // Default to empty string if undefined
+          }} // Pass the full exercise object
         />
       </div>
     );
@@ -181,7 +192,7 @@ export const ExerciseCard = ({
   return (
     <div className="bg-primary text-primary-foreground rounded-lg p-6 mb-4 shadow-md border border-border/20">
       <div className="text-center mb-6">
-        <h2 
+        <h2
           className="text-primary-foreground text-xl font-bold flex items-center justify-center cursor-pointer group"
           onClick={() => setIsModalOpen(true)}
         >
@@ -196,8 +207,8 @@ export const ExerciseCard = ({
             <div
               key={index}
               className={`min-w-[80px] px-4 py-2 rounded ${
-                currentSet === index 
-                  ? "bg-accent text-accent-foreground font-medium" 
+                currentSet === index
+                  ? "bg-accent text-accent-foreground font-medium"
                   : "bg-muted/60 text-muted-foreground"
               }`}
             >
@@ -211,33 +222,41 @@ export const ExerciseCard = ({
         <div className="grid grid-cols-2 gap-4">
           <Input
             type="number"
-            value={sets[currentSet]?.reps || ''}
-            onChange={(e) => updateSet(currentSet, 'reps', Number(e.target.value))}
+            value={sets[currentSet]?.reps || ""}
+            onChange={(e) =>
+              updateSet(currentSet, "reps", Number(e.target.value))
+            }
             className="bg-background text-foreground border border-border"
-            placeholder={`Previous: ${exercise.actualReps[currentSet] || exercise.reps} reps`}
+            placeholder={`Previous: ${
+              exercise.actualReps[currentSet] || exercise.reps
+            } reps`}
           />
           <Input
             type="number"
-            value={sets[currentSet]?.weight || ''}
-            onChange={(e) => updateSet(currentSet, 'weight', Number(e.target.value))}
+            value={sets[currentSet]?.weight || ""}
+            onChange={(e) =>
+              updateSet(currentSet, "weight", Number(e.target.value))
+            }
             className="bg-background text-foreground border border-border"
-            placeholder={`Previous: ${exercise.weights[currentSet] || 0} ${weightUnit}`}
+            placeholder={`Previous: ${
+              exercise.weights[currentSet] || 0
+            } ${weightUnit}`}
           />
         </div>
       </div>
 
       <div className="flex justify-between mt-6">
         <div className="flex gap-2">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={addSet}
             className="text-primary-foreground bg-primary-foreground/20 hover:bg-primary-foreground/50"
           >
             <Plus className="h-4 w-4 mr-2" />
             Add Set
           </Button>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={removeSet}
             disabled={sets.length <= 1}
             className="text-primary-foreground bg-primary-foreground/20 hover:bg-primary-foreground/50"
@@ -248,8 +267,8 @@ export const ExerciseCard = ({
         </div>
         <div className="flex gap-2">
           {currentSet > 0 && (
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={handlePreviousSet}
               className="text-primary-foreground bg-primary-foreground/20 hover:bg-primary-foreground/50"
             >
@@ -257,11 +276,17 @@ export const ExerciseCard = ({
               Previous Set
             </Button>
           )}
-          <Button 
-            onClick={currentSet < sets.length - 1 ? handleCompleteSet : handleCompleteExercise}
+          <Button
+            onClick={
+              currentSet < sets.length - 1
+                ? handleCompleteSet
+                : handleCompleteExercise
+            }
             className="bg-accent hover:bg-accent/90 text-accent-foreground"
           >
-            {currentSet < sets.length - 1 ? 'Complete Set' : 'Complete Exercise'}
+            {currentSet < sets.length - 1
+              ? "Complete Set"
+              : "Complete Exercise"}
           </Button>
         </div>
       </div>
@@ -270,11 +295,9 @@ export const ExerciseCard = ({
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         exercise={{
-          name: exercise.name,
-          form: exercise.form || "Focus on proper form and controlled movement. Keep your core engaged throughout the exercise.",
-          equipment: exercise.equipment || ["Gym equipment", "Can be modified for home use"],
-          alternatives: exercise.alternatives || ["Similar exercises can be substituted based on available equipment"],
-        }}
+          ...exercise,
+          previousWeight: exercise.previousWeight || "", // Default to empty string if undefined
+        }} // Pass the full exercise object
       />
     </div>
   );
