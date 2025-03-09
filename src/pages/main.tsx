@@ -1,12 +1,5 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { DashboardView } from "@/components/DashboardView";
 import { ProgressSummary } from "@/components/ProgressSummary";
 import { ExerciseProgressGraph } from "@/components/ExerciseProgressGraph";
@@ -57,30 +50,13 @@ const Main = () => {
         <DashboardView />
         <ProgressSummary />
 
-        <Card className="bg-card text-card-foreground">
+        <Card className="bg-card text-card-foreground md:block hidden">
           <CardHeader>
             <CardTitle>Exercise Progress</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="md:hidden mb-4">
-              <Select
-                value={selectedExercise || undefined}
-                onValueChange={(value) => setSelectedExercise(value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select an exercise" />
-                </SelectTrigger>
-                <SelectContent>
-                  {mockPlan.exercises.map((exercise) => (
-                    <SelectItem key={exercise} value={exercise}>
-                      {exercise}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
             <div className="hidden md:grid md:grid-cols-12 gap-6">
+              {/* Exercise List Sidebar */}
               <div className="md:col-span-3">
                 <div
                   className="space-y-2 overflow-y-auto"
@@ -102,10 +78,9 @@ const Main = () => {
                 </div>
               </div>
 
+              {/* Exercise Progress Graph */}
               <div className="md:col-span-9">
-                <div
-                  className="md:col-span-9 h-full"
-                >
+                <div className="h-full">
                   {selectedExercise ? (
                     <ExerciseProgressGraph exercise={selectedExercise} />
                   ) : (
@@ -118,6 +93,20 @@ const Main = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Mobile View: Message */}
+        <div className="md:hidden">
+          <Card className="bg-card text-card-foreground">
+            <CardHeader>
+              <CardTitle>Exercise Progress</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center text-muted-foreground py-12">
+                To view your progress graphs, please use a larger screen.
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

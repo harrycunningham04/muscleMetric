@@ -143,12 +143,12 @@ export const features = [
             <p className="text-2xl font-bold">16</p>
             <p className="text-sm text-muted-foreground">This month</p>
           </div>
-          <div className="p-4 bg-primary/10 rounded">
+          <div className="p-4 pb-6 bg-primary/10 rounded">
             <h5 className="font-semibold mb-2">Time</h5>
             <p className="text-2xl font-bold">45 min</p>
             <p className="text-sm text-muted-foreground">Avg. workout</p>
           </div>
-          <div className="p-4 bg-primary/10 rounded">
+          <div className="p-4 pb-6 bg-primary/10 rounded">
             <h5 className="font-semibold mb-2">Streak</h5>
             <p className="text-2xl font-bold">5 days</p>
             <p className="text-sm text-muted-foreground">Current</p>

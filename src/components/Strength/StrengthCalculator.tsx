@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { User, UserPlus, Trophy } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -8,14 +7,14 @@ import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useSettings } from "@/context/SettingsContext";
-import { 
-  mainLifts, 
-  ageGroups, 
-  calculateOneRM, 
-  calculateStrengthLevel, 
+import {
+  mainLifts,
+  ageGroups,
+  calculateOneRM,
+  calculateStrengthLevel,
   getUserAgeGroup,
-  lbsToKg
-} from "@/data/StrengthStandards";
+  lbsToKg,
+} from "@/data/strengthStandards";
 
 export const StrengthCalculator = () => {
   const [selectedExercise, setSelectedExercise] = useState("Bench Press");
@@ -28,15 +27,18 @@ export const StrengthCalculator = () => {
   const [strengthLevel, setStrengthLevel] = useState<string | null>(null);
   const { weightUnit, formatWeight } = useSettings();
   const [selectedAgeRange, setSelectedAgeRange] = useState<string | null>(null);
-  
+
   // Set age range when age is entered
   useEffect(() => {
     if (age) {
       const ageNum = parseInt(age);
-      const ageGroup = ageGroups.find(group => ageNum >= group.min && ageNum <= group.max);
+      const ageGroup = ageGroups.find(
+        (group) => ageNum >= group.min && ageNum <= group.max
+      );
       if (ageGroup) {
         setSelectedAgeRange(ageGroup.range);
       }
+      console.log(selectedAgeRange);
     }
   }, [age]);
 
@@ -44,18 +46,29 @@ export const StrengthCalculator = () => {
     const weightNum = parseFloat(weight);
     const repsNum = parseInt(reps);
     const ageNum = parseInt(age);
-    
-    if (isNaN(weightNum) || isNaN(repsNum) || repsNum <= 0 || isNaN(ageNum) || ageNum < 15) {
+
+    if (
+      isNaN(weightNum) ||
+      isNaN(repsNum) ||
+      repsNum <= 0 ||
+      isNaN(ageNum) ||
+      ageNum < 15
+    ) {
       return;
     }
-    
+
     // Use weight directly in calculation - no need to convert here as our 1RM formula is unit-agnostic
     const oneRM = calculateOneRM(weightNum, repsNum);
     setCalculatedOneRM(oneRM);
-    
+
     // Calculate strength level and percentile
-    const oneRMInKg = weightUnit === 'lbs' ? lbsToKg(oneRM) : oneRM;
-    const result = calculateStrengthLevel(oneRMInKg, ageNum, gender, selectedExercise);
+    const oneRMInKg = weightUnit === "lbs" ? lbsToKg(oneRM) : oneRM;
+    const result = calculateStrengthLevel(
+      oneRMInKg,
+      ageNum,
+      gender,
+      selectedExercise
+    );
     setStrengthLevel(result.level);
     setPercentile(result.percentile);
   };
@@ -84,7 +97,7 @@ export const StrengthCalculator = () => {
             </div>
           </RadioGroup>
         </div>
-        
+
         <div>
           <Label htmlFor="exercise-select">Select Exercise</Label>
           <div className="grid grid-cols-3 gap-2 mt-2">
@@ -100,7 +113,7 @@ export const StrengthCalculator = () => {
             ))}
           </div>
         </div>
-        
+
         <div className="grid grid-cols-3 gap-4">
           <div>
             <Label htmlFor="weight">Weight ({weightUnit})</Label>
@@ -133,18 +146,22 @@ export const StrengthCalculator = () => {
             />
           </div>
         </div>
-        
+
         <Button onClick={handleCalculate} className="w-full">
           Calculate
         </Button>
-        
+
         {calculatedOneRM !== null && percentile !== null && (
           <div className="space-y-4 mt-6 p-4 bg-muted rounded-lg">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Estimated One-Rep Max</p>
-              <p className="text-2xl font-bold">{formatWeight(calculatedOneRM)}</p>
+              <p className="text-sm font-medium text-muted-foreground">
+                Estimated One-Rep Max
+              </p>
+              <p className="text-2xl font-bold">
+                {formatWeight(calculatedOneRM)}
+              </p>
             </div>
-            
+
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <p className="font-medium flex items-center gap-2">
@@ -155,14 +172,24 @@ export const StrengthCalculator = () => {
               </div>
               <Progress value={percentile} className="h-2" />
               <p className="text-sm text-muted-foreground">
-                You're stronger than {percentile}% of {gender === "male" ? "men" : "women"} in your age group ({getUserAgeGroup(parseInt(age))})
+                You're stronger than {percentile}% of{" "}
+                {gender === "male" ? "men" : "women"} in your age group (
+                {getUserAgeGroup(parseInt(age))})
               </p>
             </div>
-            
+
             <div className="pt-2">
-              <p className="text-sm font-medium mb-2">Strength Classification</p>
+              <p className="text-sm font-medium mb-2">
+                Strength Classification
+              </p>
               <div className="grid grid-cols-5 gap-1 text-center text-xs">
-                {["Beginner", "Novice", "Intermediate", "Advanced", "Elite"].map((level) => (
+                {[
+                  "Beginner",
+                  "Novice",
+                  "Intermediate",
+                  "Advanced",
+                  "Elite",
+                ].map((level) => (
                   <div
                     key={level}
                     className={`py-1 rounded ${

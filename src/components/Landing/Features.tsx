@@ -17,7 +17,7 @@ interface FeaturesProps {
 
 export const Features = ({ parallaxY2 }: FeaturesProps) => {
   const [showFeatureDialog, setShowFeatureDialog] = useState(false);
-  const [currentFeature, setCurrentFeature] = useState<number>(0);
+  const [currentFeature, setCurrentFeature] = useState<number | null>(null); // Ensure null safety
 
   return (
     <section className="min-h-screen relative py-20">
@@ -53,19 +53,21 @@ export const Features = ({ parallaxY2 }: FeaturesProps) => {
         </div>
       </div>
 
-      <Dialog open={showFeatureDialog} onOpenChange={setShowFeatureDialog}>
-        <DialogContent className="sm:max-w-[900px]">
-          <DialogHeader>
-            <DialogTitle>{features[currentFeature]?.title}</DialogTitle>
-            <DialogDescription>
-              {features[currentFeature]?.description}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="mt-4 min-h-[550px]">
-            {features[currentFeature]?.content}
-          </div>
-        </DialogContent>
-      </Dialog>
+      {currentFeature !== null && features[currentFeature] && (
+        <Dialog open={showFeatureDialog} onOpenChange={setShowFeatureDialog}>
+          <DialogContent className="sm:max-w-[900px]">
+            <DialogHeader>
+              <DialogTitle>{features[currentFeature].title}</DialogTitle>
+              <DialogDescription>
+                {features[currentFeature].description}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="mt-4 min-h-[750px]">
+              {features[currentFeature].content}
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </section>
   );
 };

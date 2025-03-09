@@ -214,7 +214,7 @@ const Verify = () => {
                       <Button
                         type="button"
                         variant="outline"
-                        className="w-full border-white/30 text-primary-foreground hover:bg-white/20 text-base md:text-lg p-6"
+                        className="w-full border-white/20 text-primary hover:bg-white/20 text-base md:text-lg p-6"
                         onClick={() => navigate("/")}
                       >
                         Back
