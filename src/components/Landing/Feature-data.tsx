@@ -113,7 +113,7 @@ export const features = [
         </div>
       </div>
     ),
-    type: "dialog",
+    type: "popover-left",
   },
   {
     icon: <BarChart2 className="w-8 h-8" />,
