@@ -231,7 +231,7 @@ const About = () => {
 
               <StoryBlock 
                 title="Why We Built This Platform"
-                content="We saw a gap in the market for a truly user-friendly and professional workout planning tool. Many existing solutions lacked the personalization and guidance needed to help individuals make consistent progress. By combining technology with expert insights, our platform offers a streamlined experience that adapts to your evolving fitness needs."
+                content="We saw a gap in the market for a truly user-friendly and professional workout planning tool. Many existing solutions lacked the personalisation and guidance needed to help individuals make consistent progress. By combining technology with expert insights, our platform offers a streamlined experience that adapts to your evolving fitness needs."
                 icon={Target}
                 color="bg-blue-100"
               />
@@ -265,7 +265,7 @@ const About = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-10">
             <CoreValueCard
-              title="Personalization"
+              title="Personalisation"
               description="We believe fitness is not one-size-fits-all. Our platform adapts to your unique goals and needs."
               icon={Target}
               delay={0}
@@ -331,7 +331,7 @@ const About = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <Testimonial
-              quote="This platform completely changed how I approach my workouts. The personalized plans are exactly what I needed to start seeing real progress."
+              quote="This platform completely changed how I approach my workouts. The personalised plans are exactly what I needed to start seeing real progress."
               author="Alex Thompson"
               role="Fitness Enthusiast"
               rating={5}
@@ -374,21 +374,21 @@ const About = () => {
                 <div className="space-y-6 mt-8">
                   <ProductFeature
                     title="Create Custom Workout Plans"
-                    description="Design personalized workout routines tailored to your specific goals, fitness level, and available equipment."
+                    description="Design personalised workout routines tailored to your specific goals, fitness level, and available equipment."
                     icon={Dumbbell}
                     delay={0.1}
                   />
                   
                   <ProductFeature
                     title="Schedule Your Training"
-                    description="Easily organize your workouts in a weekly calendar to maintain consistency and build healthy habits."
+                    description="Easily organise your workouts in a weekly calendar to maintain consistency and build healthy habits."
                     icon={Calendar}
                     delay={0.2}
                   />
                   
                   <ProductFeature
                     title="Track Your Progress"
-                    description="Monitor your performance with detailed metrics and visualizations to see your improvements over time."
+                    description="Monitor your performance with detailed metrics and visualisations to see your improvements over time."
                     icon={BarChart2}
                     delay={0.3}
                   />

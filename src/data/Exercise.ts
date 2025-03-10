@@ -1198,7 +1198,7 @@ export const exercises: Exercises[] = [
     setupDescription:
       "Grasp the dip bars, elevate your feet on a bench, and lift your body.",
     repDescription:
-      "Lower your body, then push back up while leaning slightly forward to emphasize your chest.",
+      "Lower your body, then push back up while leaning slightly forward to emphasise your chest.",
     type: "compound",
     user: "advanced",
   },
@@ -1450,7 +1450,7 @@ export const exercises: Exercises[] = [
     setupDescription:
       "Get into a plank position holding a dumbbell in each hand.",
     repDescription:
-      "Row one dumbbell towards your chest while stabilizing your body, then alternate arms.",
+      "Row one dumbbell towards your chest while stabilising your body, then alternate arms.",
     type: "compound",
     user: "advanced",
   },
@@ -1654,7 +1654,7 @@ export const exercises: Exercises[] = [
     setupDescription:
       "Get into a plank position holding a kettlebell in each hand.",
     repDescription:
-      "Row one kettlebell toward your torso while stabilizing your body, then alternate arms.",
+      "Row one kettlebell toward your torso while stabilising your body, then alternate arms.",
     type: "compound",
     user: "advanced",
   },

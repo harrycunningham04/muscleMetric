@@ -40,7 +40,7 @@ const Terms = () => {
 
               <h2>3. User Accounts</h2>
               <p>
-                To access certain features of our Services, you may need to create an account. You are responsible for maintaining the confidentiality of your account information, including your password, and for all activity that occurs under your account. You agree to notify us immediately of any unauthorized use of your account.
+                To access certain features of our Services, you may need to create an account. You are responsible for maintaining the confidentiality of your account information, including your password, and for all activity that occurs under your account. You agree to notify us immediately of any unauthorised use of your account.
               </p>
 
               <h2>4. User Content</h2>
@@ -56,7 +56,7 @@ const Terms = () => {
                 <li>Violating any applicable laws or regulations</li>
                 <li>Infringing on the intellectual property rights of others</li>
                 <li>Distributing malware or other harmful code</li>
-                <li>Attempting to gain unauthorized access to our Services or systems</li>
+                <li>Attempting to gain unauthorised access to our Services or systems</li>
                 <li>Interfering with or disrupting the integrity or performance of our Services</li>
                 <li>Harassing, threatening, or intimidating other users</li>
               </ul>
@@ -73,7 +73,7 @@ const Terms = () => {
 
               <h2>8. Health Disclaimer</h2>
               <p>
-                MuscleMetric is not a medical organization and our Services are not intended to diagnose, treat, cure, or prevent any disease. Always consult with a qualified healthcare professional before starting any diet, exercise program, or taking any dietary supplement.
+                MuscleMetric is not a medical organisation and our Services are not intended to diagnose, treat, cure, or prevent any disease. Always consult with a qualified healthcare professional before starting any diet, exercise program, or taking any dietary supplement.
               </p>
 
               <h2>9. Changes to Terms</h2>

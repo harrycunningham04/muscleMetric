@@ -60,11 +60,11 @@ const Privacy = () => {
                 <li>Provide, maintain, and improve our Services</li>
                 <li>Create and update your account</li>
                 <li>Process and track your fitness progress</li>
-                <li>Provide personalized recommendations and insights</li>
+                <li>Provide personalised recommendations and insights</li>
                 <li>Respond to your comments, questions, and requests</li>
                 <li>Send you technical notices, updates, security alerts, and support messages</li>
                 <li>Develop new features and services</li>
-                <li>Monitor and analyze trends, usage, and activities in connection with our Services</li>
+                <li>Monitor and analyse trends, usage, and activities in connection with our Services</li>
               </ul>
 
               <h2>3. Sharing Your Information</h2>
@@ -80,7 +80,7 @@ const Privacy = () => {
 
               <h2>4. Data Security</h2>
               <p>
-                We implement appropriate security measures to protect your personal information from unauthorized access, alteration, disclosure, or destruction. However, no internet or electronic storage system is 100% secure, and we cannot guarantee absolute security.
+                We implement appropriate security measures to protect your personal information from unauthorised access, alteration, disclosure, or destruction. However, no internet or electronic storage system is 100% secure, and we cannot guarantee absolute security.
               </p>
 
               <h2>5. Your Choices</h2>

@@ -16,7 +16,7 @@ const faqs = [
   {
     question: "How do I get started with MuscleMetric?",
     answer:
-      "Getting started is easy! Simply create an account, choose your fitness plan, and you'll get immediate access to your personalized workout routines and tracking tools.",
+      "Getting started is easy! Simply create an account, choose your fitness plan, and you'll get immediate access to your personalised workout routines and tracking tools.",
   },
   {
     question: "How quickly will I see results?",
@@ -34,9 +34,9 @@ const faqs = [
       "You can cancel your subscription at any time. We offer a full refund within the first 14 days if you're not completely satisfied with our service.",
   },
   {
-    question: "Do you offer personalized training plans?",
+    question: "Do you offer personalised training plans?",
     answer:
-      "Yes! We create custom training plans based on your goals, fitness level, and schedule. Our AI technology helps optimize your plan as you progress.",
+      "Yes! We create custom training plans based on your goals, fitness level, and schedule. Our AI technology helps optimise your plan as you progress.",
   },
 ];
 

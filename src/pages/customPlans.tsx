@@ -80,7 +80,7 @@ const CustomPlans = () => {
       selectedMuscles,
       gender
     );
-    console.log("Prioritized Muscles:", prioritizedMuscles);
+    console.log("Prioritised Muscles:", prioritizedMuscles);
 
     const workoutDays = Array.from({ length: days }).map((_, dayIndex) => {
       const exercises = getExercisesForDay(
@@ -137,7 +137,7 @@ const CustomPlans = () => {
     {
       icon: Dumbbell,
       title: "What's your gender?",
-      description: "This helps us personalize your workout plan",
+      description: "This helps us personalise your workout plan",
     },
     {
       icon: Calendar,
@@ -163,7 +163,7 @@ const CustomPlans = () => {
     {
       icon: Target,
       title: "Select your focus areas",
-      description: "Choose up to 3 muscle groups you want to prioritize",
+      description: "Choose up to 3 muscle groups you want to prioritise",
     },
   ];
 
@@ -179,7 +179,7 @@ const CustomPlans = () => {
             Create Your Custom Plan
           </h1>
           <p className="text-base md:text-lg text-muted-foreground">
-            Follow these steps to create a personalized workout plan tailored to
+            Follow these steps to create a personalised workout plan tailored to
             your goals
           </p>
         </motion.div>
@@ -287,7 +287,7 @@ const CustomPlans = () => {
                             </Label>
                           </div>
                           <div className="text-sm text-muted-foreground">
-                            Optimized for male body types
+                            Optimised for male body types
                           </div>
                         </div>
                       </motion.div>
@@ -315,7 +315,7 @@ const CustomPlans = () => {
                             </Label>
                           </div>
                           <div className="text-sm text-muted-foreground">
-                            Optimized for female body types
+                            Optimised for female body types
                           </div>
                         </div>
                       </motion.div>

@@ -14,7 +14,7 @@ import {
   calculateStrengthLevel,
   getUserAgeGroup,
   lbsToKg,
-} from "@/data/strengthStandards";
+} from "@/data/strength";
 
 export const StrengthCalculator = () => {
   const [selectedExercise, setSelectedExercise] = useState("Bench Press");

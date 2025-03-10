@@ -19,7 +19,7 @@ export const features = [
     icon: <TrendingUp className="w-8 h-8" />,
     title: "Goal Setting",
     description:
-      "Set personalized fitness goals and get guided support to achieve them.",
+      "Set personalised fitness goals and get guided support to achieve them.",
     image: Goals,
     content: (
       <div className="space-y-4">

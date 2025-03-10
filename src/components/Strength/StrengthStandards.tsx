@@ -16,7 +16,7 @@ import {
   ageGroups,
   getStrengthStandards,
   kgToLbs,
-} from "@/data/strengthStandards";
+} from "@/data/strength";
 
 export const StrengthStandards = () => {
   const [gender, setGender] = useState<"male" | "female">("male");

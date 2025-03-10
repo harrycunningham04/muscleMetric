@@ -12,7 +12,7 @@ export const Settings = () => {
       <DialogHeader>
         <DialogTitle>Settings</DialogTitle>
         <DialogDescription>
-          Customize your app preferences. Changes will be applied automatically.
+          Customise your app preferences. Changes will be applied automatically.
         </DialogDescription>
       </DialogHeader>
       
