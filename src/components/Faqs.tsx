@@ -49,7 +49,7 @@ export const Faqs = () => {
       transition={{ duration: 0.6, delay: 0.2 }}
     >
       <div className="text-center mb-12">
-        <h2 className="inline-block text-lg font-medium px-4 py-2 bg-primary/10 rounded-full text-primary mb-4">
+        <h2 className="inline-block text-lg font-medium px-4 py-2 bg-primary/10 rounded-full text-white mb-4">
           FAQ's
         </h2>
         <h3 className="text-4xl font-bold mb-4">We've got you covered</h3>
@@ -61,7 +61,7 @@ export const Faqs = () => {
       <Accordion type="single" collapsible className="w-full">
         {faqs.map((faq, index) => (
           <AccordionItem key={index} value={`item-${index}`}>
-            <AccordionTrigger className="text-lg hover:text-primary">
+            <AccordionTrigger className="text-lg hover:text-muted-foreground">
               {faq.question}
             </AccordionTrigger>
             <AccordionContent className="text-muted-foreground">

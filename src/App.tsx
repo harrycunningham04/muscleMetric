@@ -22,12 +22,15 @@ import Footer from "./components/Footer";
 import Navigation from "./components/Navigation";
 import History from "./pages/history";
 import HistoryDetails from "./pages/historyDetails";
+import Footer2 from "./components/Footer2";
 
 const queryClient = new QueryClient();
 
 const AppContent = () => {
   const location = useLocation();
   const showNav = !["/", "/verify"].includes(location.pathname);
+  const showAlternateFooter = !["/", "/verify"].includes(location.pathname);
+
   return (
     <div className="flex flex-col min-h-screen">
       {showNav && <Navigation />}
@@ -51,7 +54,7 @@ const AppContent = () => {
           <Route path="/privacy" element={<Privacy />} />
         </Routes>
       </div>
-      <Footer />
+      {showAlternateFooter ? <Footer /> : <Footer2 />}
     </div>
   );
 };
