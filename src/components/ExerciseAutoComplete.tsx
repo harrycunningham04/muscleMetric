@@ -38,10 +38,10 @@ const ExerciseAutocomplete = ({ onSelect }: { onSelect: (exercise: string) => vo
         value={query}
         onChange={handleInputChange}
         placeholder="Start typing an exercise..."
-        className="w-full p-2 border rounded"
+        className="w-full p-2 border rounded bg-white dark:bg-black"
       />
       {filteredExercises.length > 0 && (
-        <ul className="absolute w-full bg-white border border-gray-300 rounded mt-1 shadow-md z-10">
+        <ul className="absolute w-full bg-white dark:bg-black border border-gray-300 rounded mt-1 shadow-md z-10">
           {filteredExercises.map((exercise) => (
             <li
               key={exercise}
