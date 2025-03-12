@@ -120,7 +120,7 @@ export const StrengthCalculator = () => {
             <Input
               id="weight"
               type="number"
-              placeholder={`Weight in ${weightUnit}`}
+              placeholder={weightUnit}
               value={weight}
               onChange={(e) => setWeight(e.target.value)}
             />
@@ -152,7 +152,7 @@ export const StrengthCalculator = () => {
         </Button>
 
         {calculatedOneRM !== null && percentile !== null && (
-          <div className="space-y-4 mt-6 p-4 bg-muted rounded-lg">
+          <div className="space-y-4 mt-6 p-4 bg-white dark:bg-black rounded-lg">
             <div>
               <p className="text-sm font-medium text-muted-foreground">
                 Estimated One-Rep Max
