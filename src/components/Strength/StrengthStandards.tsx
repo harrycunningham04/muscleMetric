@@ -121,7 +121,7 @@ export const StrengthStandards = () => {
               <div className="text-sm">
                 {data.map((ageData) => (
                   <div key={ageData.age} className="mb-4">
-                    <h4 className="font-medium text-primary">
+                    <h4 className="font-medium">
                       {ageData.age} age group
                     </h4>
                     <div className="grid grid-cols-2 gap-x-4 gap-y-2 mt-1">
