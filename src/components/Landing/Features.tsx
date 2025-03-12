@@ -4,14 +4,11 @@ import { FeatureCard } from "./FeatureCard";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
 } from "@/components/ui/dialog";
 import { useState } from "react";
 import FeaturesBg from "@/assets/MuscleMetricLogo.png";
 
-interface FeaturesProps {
+interface FeaturesProps {      
   parallaxY2: any;
 }
 
@@ -40,14 +37,7 @@ export const Features = ({ parallaxY2 }: FeaturesProps) => {
               feature={feature}
               index={index}
               type={feature.type}
-              onClick={
-                feature.type === "dialog"
-                  ? () => {
-                      setCurrentFeature(index);
-                      setShowFeatureDialog(true);
-                    }
-                  : undefined
-              }
+              onClick={() => setCurrentFeature(index)}
             />
           ))}
         </div>
@@ -56,12 +46,6 @@ export const Features = ({ parallaxY2 }: FeaturesProps) => {
       {currentFeature !== null && features[currentFeature] && (
         <Dialog open={showFeatureDialog} onOpenChange={setShowFeatureDialog}>
           <DialogContent className="sm:max-w-[900px]">
-            <DialogHeader>
-              <DialogTitle>{features[currentFeature].title}</DialogTitle>
-              <DialogDescription>
-                {features[currentFeature].description}
-              </DialogDescription>
-            </DialogHeader>
             <div className="mt-4 min-h-[750px]">
               {features[currentFeature].content}
             </div>

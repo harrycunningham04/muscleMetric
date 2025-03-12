@@ -122,7 +122,7 @@ export const features = [
       "Track your workouts and monitor your progress with detailed analytics and charts.",
     image: ProgressTracking,
     content: <ExampleExerciseProgressGraph exercise="Bench Press" />,
-    type: "dialog",
+    type: "popover-right",
   },
   {
     icon: <Timer className="w-8 h-8" />,
