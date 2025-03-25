@@ -1,0 +1,24 @@
+List of all database connections needed:
+
+Reading from database
+
+- verify.tsx, the user management stage, use a token so user stays logged in for a day.
+
+- Main.tsx, needs to connect to the workout exercises table, to get the list of exercises for the graphing
+- DashboardView.tsx, the facts table 
+
+
+
+
+Writing to database
+
+
+
+
+
+Updating database
+
+
+
+
+Delete from database?

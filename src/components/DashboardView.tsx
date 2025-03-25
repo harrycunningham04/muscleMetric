@@ -34,6 +34,8 @@ export const DashboardView = () => {
   const { weightUnit, formatWeight } = useSettings();
   const navigate = useNavigate();
 
+  //facts table
+
   // Mock data - in a real app, this would come from your backend
   const stats = {
     streak: 5,

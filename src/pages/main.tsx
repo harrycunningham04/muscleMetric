@@ -4,6 +4,8 @@ import { DashboardView } from "@/components/DashboardView";
 import { ProgressSummary } from "@/components/ProgressSummary";
 import { ExerciseProgressGraph } from "@/components/ExerciseProgressGraph";
 
+//Workout Exercises Table
+
 const mockPlan = {
   id: 1,
   name: "Plan 1",
