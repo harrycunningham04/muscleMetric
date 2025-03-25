@@ -17,6 +17,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
+
+//plans table linking to user id, create ui for if only one plan has been made
 const mockPlans = [
   {
     id: "1",
@@ -88,6 +90,7 @@ const Plans = () => {
     }
   };
 
+  
   const handleActivatePlan = (planId: string) => {
     setActivePlanId(planId);
     toast({
@@ -111,6 +114,8 @@ const Plans = () => {
     );
   };
 
+
+  // from workouts table, first workout that is not completed, from the default plan.
   const todaysWorkout = {
     id: "today-1",
     name: "Push Day",

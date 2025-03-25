@@ -267,7 +267,7 @@ const PlanEditor = () => {
     const initialGoalValidation: ValidationState = {};
     goals.forEach((goal) => {
       initialGoalValidation[goal.id] =
-        goal.exerciseName.trim() !== "" && goal.targetWeight > 0;
+        goal.exerciseName !== "" && goal.targetWeight > 0;
     });
     setGoalValidation(initialGoalValidation);
   }, [workoutDays, goals]);

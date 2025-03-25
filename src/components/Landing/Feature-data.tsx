@@ -28,11 +28,11 @@ export const features = [
           <div className="space-y-2">
             <div className="flex justify-between items-center p-2 bg-primary/10 rounded">
               <span>Bench Press</span>
-              <span>225 lbs by June</span>
+              <span>225 kgs by June</span>
             </div>
             <div className="flex justify-between items-center p-2 bg-primary/10 rounded">
               <span>Weight Loss</span>
-              <span>15 lbs in 3 months</span>
+              <span>15 kgs in 3 months</span>
             </div>
             <div className="flex justify-between items-center p-2 bg-primary/10 rounded">
               <span>Workout Frequency</span>
@@ -135,7 +135,7 @@ export const features = [
         <div className="grid grid-cols-2 gap-4">
           <div className="p-4 bg-primary/10 rounded">
             <h5 className="font-semibold mb-2">Volume</h5>
-            <p className="text-2xl font-bold">24,560 lbs</p>
+            <p className="text-2xl font-bold">24,560 kgs</p>
             <p className="text-sm text-muted-foreground">This week</p>
           </div>
           <div className="p-4 bg-primary/10 rounded">
@@ -174,7 +174,7 @@ export const features = [
             <div>
               <p className="font-semibold">John D.</p>
               <p className="text-sm text-muted-foreground">
-                New PR: 315lb Deadlift! 💪
+                New PR: 150kg Deadlift! 💪
               </p>
             </div>
           </div>

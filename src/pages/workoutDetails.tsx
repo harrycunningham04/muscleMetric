@@ -39,6 +39,8 @@ const Workout = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  //call to workoutExercises table list of exercises, reps sets and last used weight, 
+  //call to exercises table get all information about that exercise
   const [workout, setWorkout] = useState<WorkoutState>({
     name: "Push Day",
     exercises: [

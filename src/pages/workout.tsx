@@ -3,13 +3,12 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, CheckCircle, Dumbbell } from "lucide-react";
+import { CheckCircle, Dumbbell } from "lucide-react";
 
 interface Workout {
   id: string;
   name: string;
   completed: boolean;
-  dayOfWeek: string;
   exercises: string[];
 }
 
@@ -18,36 +17,35 @@ export const Workout = () => {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
 
   useEffect(() => {
+
+    //workout table, getting the default plans workouts, 
+    //also getting the list of exercises for each workout, 
     // Mock data - replace with actual API call
     const mockWorkouts = [
       {
         id: "1",
         name: "Push Day",
         completed: false,
-        dayOfWeek: "Monday",
         exercises: ["Bench Press", "Shoulder Press", "Tricep Extensions"],
       },
       {
         id: "2",
         name: "Pull Day",
         completed: false,
-        dayOfWeek: "Wednesday",
         exercises: ["Pull-ups", "Rows", "Bicep Curls"],
       },
       {
         id: "3",
         name: "Leg Day",
         completed: false,
-        dayOfWeek: "Friday",
         exercises: ["Squats", "Romanian Deadlifts", "Calf Raises"],
       },
     ];
 
-    // Sort workouts to put today's workout at the top
-    const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+    // Sort workouts to put uncompleted workouts at the top
     const sortedWorkouts = mockWorkouts.sort((a, b) => {
-      if (a.dayOfWeek === today) return -1;
-      if (b.dayOfWeek === today) return 1;
+      if (a.completed === false) return -1;
+      if (b.completed === true) return 1;
       return 0;
     });
 
@@ -86,10 +84,6 @@ export const Workout = () => {
               <div className="flex items-center justify-between">
                 <div className="space-y-2 text-center mx-auto">
                   <h3 className="text-xl font-semibold text-foreground">{workout.name}</h3>
-                  <div className="flex items-center justify-center text-sm text-muted-foreground">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    {workout.dayOfWeek}
-                  </div>
                   <p className="text-sm text-muted-foreground">
                     {workout.exercises.join(" • ")}
                   </p>
