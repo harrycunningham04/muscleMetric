@@ -8,6 +8,7 @@ Reading from database
 - DashboardView.tsx, the facts table 
 - plans.tsx, two different connections, plans table, linking to user id that is active, showing the default one as the big plan and the other plans below
                                         workouts table, for the default plan the first workout that is not completes
+                                        also the history calls
 - workout.tsx, two calls in one, first to the workout table getting all workouts for the default plan,
                                             to the exercise table getting all the exercise names for each workout
 - workoutDetails.tsx, two calls workout exercises to get all information about each workout
