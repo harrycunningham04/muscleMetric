@@ -16,19 +16,17 @@ import { useSettings } from "@/context/SettingsContext";
 interface UserData {
   name: string;
   email: string;
-  heightFeet: string;
-  heightInches: string;
-  weight: string;
+  height: number;
+  weight: number;
   dateOfBirth: string;
 }
 
 const initialUserData: UserData = {
-  name: "John Doe",
-  email: "john@example.com",
-  heightFeet: "5",
-  heightInches: "10",
-  weight: "75",
-  dateOfBirth: "1990-01-01",
+  name: "",
+  email: "",
+  height: 0,
+  weight: 0,
+  dateOfBirth: "",
 };
 
 export const UserProfile: React.FC = () => {
@@ -38,22 +36,71 @@ export const UserProfile: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
   const { weightUnit } = useSettings();
 
+    // Fetch user data from the backend
+    React.useEffect(() => {
+      const fetchUserData = async () => {
+        try {
+          const response = await fetch("https://hc920.brighton.domains/muscleMetric/php/user/getUser.php?user_id=2");
+          const data = await response.json();
+          
+          if (data.message) {
+            console.error("Error:", data.message);
+          } else {
+            setUserData({
+              name: data.Name,
+              email: data.Email,
+              height: Number(data.Height),  // Ensure it's a number
+              weight: Number(data.Weight),  // Ensure it's a number
+              dateOfBirth: data.DateOfBirth,
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
+      };
+  
+      fetchUserData();
+    }, []); // Runs only once when the component mounts
+
   React.useEffect(() => {
     if (!isProfileOpen) {
-      setUserData(initialUserData);
       setIsEditing(false);
     }
   }, [isProfileOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+  
     try {
-      console.log("User data updated successfully");
+      const response = await fetch("https://hc920.brighton.domains/muscleMetric/php/user/updateUser.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user_id: 2,  // Change this dynamically based on logged-in user
+          name: userData.name,
+          email: userData.email,
+          height: userData.height,
+          weight: userData.weight,
+          dateOfBirth: userData.dateOfBirth,
+        }),
+      });
+  
+      const data = await response.json();
+  
+      if (data.message === "User updated successfully") {
+        console.log("User data updated successfully");
+      } else {
+        console.error("Error:", data.message);
+      }
     } catch (error) {
       console.error("Failed to update user data:", error);
     }
+  
     setIsEditing(false);
   };
+  
 
 
   return (
@@ -126,27 +173,17 @@ export const UserProfile: React.FC = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="heightFeet">Height</Label>
+                <Label htmlFor="height">Height</Label>
                 <div className="flex gap-2">
                   <Input
-                    id="heightFeet"
+                    id="height"
                     type="number"
-                    value={userData.heightFeet}
+                    value={userData.height}
                     onChange={(e) =>
-                      setUserData({ ...userData, heightFeet: e.target.value })
+                      setUserData({ ...userData, height: Number(e.target.value) })
                     }
                     disabled={!isEditing}
-                    placeholder="Feet"
-                  />
-                  <Input
-                    id="heightInches"
-                    type="number"
-                    value={userData.heightInches}
-                    onChange={(e) =>
-                      setUserData({ ...userData, heightInches: e.target.value })
-                    }
-                    disabled={!isEditing}
-                    placeholder="Inches"
+                    placeholder="Height"
                   />
                 </div>
               </div>
@@ -157,7 +194,7 @@ export const UserProfile: React.FC = () => {
                   type="number"
                   value={userData.weight}
                   onChange={(e) =>
-                    setUserData({ ...userData, weight: e.target.value })
+                    setUserData({ ...userData, weight:  Number(e.target.value) })
                   }
                   disabled={!isEditing}
                 />
