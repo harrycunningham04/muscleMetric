@@ -34,16 +34,13 @@ export const DashboardView = () => {
   const { weightUnit, formatWeight } = useSettings();
   const navigate = useNavigate();
 
-  //facts table
-
-  // Mock data - in a real app, this would come from your backend
-  const stats = {
-    streak: 5,
-    totalVolume: 24560,
-    workoutsCompleted: 32,
-    setsCompleted: 486,
-    averageWorkoutDuration: "45min",
-  };
+  const [stats, setStats] = useState({
+    streak: 0,
+    totalVolume: 0,
+    workoutsCompleted: 0,
+    setsCompleted: 0,
+    averageWorkoutDuration: "0",
+  });
 
   const [dailyQuote, setDailyQuote] = useState("");
 
@@ -59,6 +56,39 @@ export const DashboardView = () => {
     );
     const quoteIndex = dayOfYear % quotes.length;
     setDailyQuote(quotes[quoteIndex]);
+
+  // Fetch stats from PHP backend (facts.php) with user ID (2)
+  const fetchStats = async () => {
+    try {
+      const userId = 2; // Static user ID for now
+      const response = await fetch(
+        `https://hc920.brighton.domains/muscleMetric/php/dashboard/facts.php?user_id=${userId}`,
+        {
+          method: 'GET', // Using GET request since user_id is passed as a query parameter
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      const data = await response.json();
+      if (response.ok) {
+        setStats({
+          streak: data.WeeklyStreak || 0,
+          totalVolume: data.TotalWeight || 0,
+          workoutsCompleted: data.WorkoutsComplete || 0,
+          setsCompleted: data.SetsCompleted || 0,
+          averageWorkoutDuration: data.AvgWorkoutTime || "0",
+        });
+      } else {
+        console.error(data.message); // Log the error message if there is one
+      }
+    } catch (error) {
+      console.error("Error fetching stats:", error);
+    }
+  };
+
+  fetchStats(); // Call the function to fetch stats
   }, []);
 
   const handleWorkoutClick = () => {
@@ -69,7 +99,6 @@ export const DashboardView = () => {
   const formattedTotalWeight = stats.totalVolume
     ? formatWeight(stats.totalVolume, weightUnit)
     : undefined;
-
 
   return (
     <Card className="w-full hover:shadow-lg transition-all">
@@ -95,7 +124,7 @@ export const DashboardView = () => {
             <div className="p-4 rounded-lg bg-gradient-to-br from-orange-500/10 to-red-500/10 hover:from-orange-500/20 hover:to-red-500/20 transition-all flex flex-col items-center justify-center text-center space-y-2 hover:scale-105 cursor-default">
               <ActivitySquare className="w-8 h-8 text-orange-600" />
               <div className="text-2xl font-bold">{stats.streak} 🔥</div>
-              <div className="text-sm text-muted-foreground">Day Streak</div>
+              <div className="text-sm text-muted-foreground">Week Streak</div>
             </div>
 
             {/* Total Volume */}

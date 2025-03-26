@@ -13,7 +13,8 @@ Reading from database
                                             to the exercise table getting all the exercise names for each workout
 - workoutDetails.tsx, two calls workout exercises to get all information about each workout
                                 exercises table to get safety information about the exercises
-- userProfile.tsx, user information, name age height weight etc
+- userProfile.tsx, user information, name age height weight etc ✅
+
 
 Writing to database
 
@@ -22,7 +23,7 @@ Writing to database
 
 
 Updating database
-
+- userProfile.tsx, update info about the user whenever they want ✅
 
 
 
