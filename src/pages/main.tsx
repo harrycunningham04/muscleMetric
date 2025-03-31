@@ -19,7 +19,7 @@ const Main = () => {
         const data = await response.json();
 
         if (response.ok && data.exercises) {
-          setExercises(data.exercises);
+          setExercises(data.exercises.map((exercise: { name: string; }) => exercise.name));
         } else {
           console.error("Error fetching exercises:", data.message);
         }
