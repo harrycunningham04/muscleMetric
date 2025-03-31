@@ -1,50 +1,35 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DashboardView } from "@/components/DashboardView";
 import { ProgressSummary } from "@/components/ProgressSummary";
 import { ExerciseProgressGraph } from "@/components/ExerciseProgressGraph";
 
-//Workout Exercises Table
-
-const mockPlan = {
-  id: 1,
-  name: "Plan 1",
-  exercises: [
-    "Bench Press",
-    "Squats",
-    "Deadlifts",
-    "Pull-Ups",
-    "Push-Ups",
-    "Overhead Press",
-    "Bent-Over Rows",
-    "Lat Pulldown",
-    "Leg Press",
-    "Lunges",
-    "Dumbbell Curls",
-    "Tricep Dips",
-    "Hammer Curls",
-    "Tricep Pushdowns",
-    "Calf Raises",
-    "Romanian Deadlifts",
-    "Glute Bridges",
-    "Hip Thrusts",
-    "Seated Shoulder Press",
-    "Face Pulls",
-    "Cable Flys",
-    "Chest Flys",
-    "Front Squats",
-    "Barbell Shrugs",
-    "Reverse Lunges",
-    "Sumo Deadlifts",
-    "Leg Curls",
-    "Leg Extensions",
-    "Incline Bench Press",
-    "Arnold Press",
-  ],
-};
-
 const Main = () => {
   const [selectedExercise, setSelectedExercise] = useState<string | null>(null);
+  const [exercises, setExercises] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchExercises = async () => {
+      try {
+        const userId = 2; // Static user ID for now
+        const response = await fetch(
+          `https://hc920.brighton.domains/muscleMetric/php/dashboard/exercises.php?user_id=${userId}`
+        );
+
+        const data = await response.json();
+
+        if (response.ok && data.exercises) {
+          setExercises(data.exercises);
+        } else {
+          console.error("Error fetching exercises:", data.message);
+        }
+      } catch (error) {
+        console.error("Error fetching exercises:", error);
+      }
+    };
+
+    fetchExercises();
+  }, []);
 
   return (
     <div className="container py-8 bg-background text-foreground min-h-screen">
@@ -64,19 +49,25 @@ const Main = () => {
                   className="space-y-2 overflow-y-auto"
                   style={{ maxHeight: "500px" }}
                 >
-                  {mockPlan.exercises.map((exercise) => (
-                    <button
-                      key={exercise}
-                      onClick={() => setSelectedExercise(exercise)}
-                      className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
-                        selectedExercise === exercise
-                          ? "bg-primary text-primary-foreground"
-                          : "hover:bg-accent"
-                      }`}
-                    >
-                      {exercise}
-                    </button>
-                  ))}
+                  {exercises.length > 0 ? (
+                    exercises.map((exercise) => (
+                      <button
+                        key={exercise}
+                        onClick={() => setSelectedExercise(exercise)}
+                        className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
+                          selectedExercise === exercise
+                            ? "bg-primary text-primary-foreground"
+                            : "hover:bg-accent"
+                        }`}
+                      >
+                        {exercise}
+                      </button>
+                    ))
+                  ) : (
+                    <div className="text-center text-muted-foreground py-4">
+                      Loading exercises...
+                    </div>
+                  )}
                 </div>
               </div>
 
