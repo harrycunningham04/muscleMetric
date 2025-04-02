@@ -1,5 +1,10 @@
 List of all database connections needed:
 
+Function:
+- Monday at midnight of the morning,
+            checks each user to see if they have completed all workouts for that week, if yes add 1 to their weekly streak if no set streak to 0
+            all completed workouts get set to not completed, 
+
 Reading from database
 
 - verify.tsx, the user management stage, use a token so user stays logged in for a day.
@@ -12,18 +17,20 @@ Reading from database
                                         workouts table, for the default plan the first workout that is not completes
                                         also the history calls
 
+- history.tsx, getting all data from the history table, so each workout is labeled with each exercise completed with the number of sets done, then history details is with reps and weight for each set
+
 Can I combine these two and pass the data to workoutDetails when it is called, then in workout Details getting the info about each exercise when needed.
 - workout.tsx, two calls in one, first to the workout table getting all workouts for the default plan,
                                             to the exercise table getting all the exercise names for each workout ✅
 
 - workoutDetails.tsx, two calls workout exercises to get all information about each workout
-                                exercises table to get safety information about the exercises
+                                exercises table to get safety information about the exercises  ✅
 
 - userProfile.tsx, user information, name age height weight etc ✅
 
 
 Writing to database
-
+- workoutDetails.tsx, gonna be for when they complete each workout it gets added to history and that workout for the week is completed.
 
 
 
