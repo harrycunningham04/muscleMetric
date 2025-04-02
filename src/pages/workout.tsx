@@ -1,12 +1,17 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Dumbbell } from "lucide-react";
 
+interface Exercise {
+  id: number;
+  WorkoutId: number;
+  Name: string;
+}
+
 interface Workout {
-  id: string;
+  id: number;
   name: string;
   completed: boolean;
   exercises: string[];
@@ -15,42 +20,47 @@ interface Workout {
 export const Workout = () => {
   const navigate = useNavigate();
   const [workouts, setWorkouts] = useState<Workout[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const fetchWorkouts = async () => {
+      try {
+        let USER_ID = 2
+        setLoading(true);
+        const response = await fetch(`https://hc920.brighton.domains/muscleMetric/php/workout/workout.php?user_id=${USER_ID}`);
+        const data = await response.json();
 
-    //workout table, getting the default plans workouts, 
-    //also getting the list of exercises for each workout, 
-    // Mock data - replace with actual API call
-    const mockWorkouts = [
-      {
-        id: "1",
-        name: "Push Day",
-        completed: false,
-        exercises: ["Bench Press", "Shoulder Press", "Tricep Extensions"],
-      },
-      {
-        id: "2",
-        name: "Pull Day",
-        completed: false,
-        exercises: ["Pull-ups", "Rows", "Bicep Curls"],
-      },
-      {
-        id: "3",
-        name: "Leg Day",
-        completed: false,
-        exercises: ["Squats", "Romanian Deadlifts", "Calf Raises"],
-      },
-    ];
+        if (data.error) {
+          throw new Error(data.error);
+        }
 
-    // Sort workouts to put uncompleted workouts at the top
-    const sortedWorkouts = mockWorkouts.sort((a, b) => {
-      if (a.completed === false) return -1;
-      if (b.completed === true) return 1;
-      return 0;
-    });
+        // Transform workouts data
+        const transformedWorkouts = data.workouts.map((workout: any) => ({
+          id: workout.id,
+          name: workout.Name,
+          completed: workout.Completed === 1, // Convert 1/0 to true/false
+          exercises: data.exercises
+            .filter((exercise: Exercise) => exercise.WorkoutId === workout.id)
+            .map((exercise: Exercise) => exercise.Name),
+        }));
 
-    setWorkouts(sortedWorkouts);
+        // Sort workouts to put uncompleted ones at the top
+        transformedWorkouts.sort((a: { completed: any; }, b: { completed: any; }) => Number(a.completed) - Number(b.completed));
+
+        setWorkouts(transformedWorkouts);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWorkouts();
   }, []);
+
+  if (loading) return <p className="text-center text-foreground">Loading...</p>;
+  if (error) return <p className="text-center text-red-500">{error}</p>;
 
   return (
     <div className="relative min-h-screen bg-background">
@@ -75,9 +85,9 @@ export const Workout = () => {
             <Card
               key={workout.id}
               className={`p-6 cursor-pointer transition-all duration-300 hover:shadow-lg ${
-                workout.completed 
-                  ? 'bg-emerald-500/10 dark:bg-emerald-500/20' 
-                  : 'bg-card hover:bg-accent'
+                workout.completed
+                  ? "bg-emerald-500/10 dark:bg-emerald-500/20"
+                  : "bg-card hover:bg-accent"
               }`}
               onClick={() => navigate(`/workout/${workout.id}`)}
             >
@@ -92,10 +102,7 @@ export const Workout = () => {
                   {workout.completed ? (
                     <CheckCircle className="w-6 h-6 text-emerald-500 dark:text-emerald-400" />
                   ) : (
-                    <Button
-                      variant="secondary"
-                      className="hover:bg-accent"
-                    >
+                    <Button variant="secondary" className="hover:bg-accent">
                       Start Workout
                     </Button>
                   )}

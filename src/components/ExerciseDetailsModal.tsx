@@ -15,7 +15,6 @@ interface ExerciseDetailsModalProps {
     sets: number;
     reps: number;
     weights: number[];
-    actualReps: number[];
     previousWeight: string;
     bodyPart: string;
     equipment: string;
@@ -58,9 +57,6 @@ export const ExerciseDetailsModal = ({
             </h3>
             <p className="text-muted-foreground text-sm">
               Sets: {exercise.sets} | Reps per Set: {exercise.reps}
-            </p>
-            <p className="text-muted-foreground text-sm">
-              Actual Reps: {exercise.actualReps.join(", ")}
             </p>
             <p className="text-muted-foreground text-sm">
               Previous Weight: {exercise.previousWeight}

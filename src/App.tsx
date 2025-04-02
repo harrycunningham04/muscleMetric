@@ -40,11 +40,11 @@ const AppContent = () => {
           <Route path="/dashboard" element={<Main />} />
           <Route path="/plans" element={<Plans />} />
           <Route path="/workout" element={<Workout />} />
-          <Route path="/workout/:id" element={<WorkoutDetails />} />
+          <Route path="/workout/:workoutid" element={<WorkoutDetails />} />
           <Route path="/custom-plans" element={<CustomPlans />} />
           <Route path="/plans/new" element={<PlanEditor />} />
-          <Route path="/plans/:id/edit" element={<PlanEditor />} />
-          <Route path="/plans/:id" element={<PlanDetails />} />
+          <Route path="/plans/:planid/edit" element={<PlanEditor />} />
+          <Route path="/plans/:planid" element={<PlanDetails />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/history" element={<History />} />
           <Route path="/history/:id" element={<HistoryDetails />} />

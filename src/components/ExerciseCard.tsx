@@ -12,7 +12,6 @@ interface ExerciseCardProps {
     sets: number;
     reps: number;
     weights: number[];
-    actualReps: number[];
     previousWeight?: string;
     bodyPart: string;
     equipment: string;
@@ -44,9 +43,9 @@ export const ExerciseCard = ({
 }: ExerciseCardProps) => {
   const { weightUnit, formatWeight } = useSettings();
   const [sets, setSets] = useState(
-    exercise.weights.map((weight, index) => ({
+    exercise.weights.map((weight) => ({
       weight: weight,
-      reps: exercise.actualReps[index] || exercise.reps,
+      reps: exercise.reps,
     }))
   );
   const [currentSet, setCurrentSet] = useState(0);
@@ -227,9 +226,7 @@ export const ExerciseCard = ({
               updateSet(currentSet, "reps", Number(e.target.value))
             }
             className="bg-background text-foreground border border-border"
-            placeholder={`Previous: ${
-              exercise.actualReps[currentSet] || exercise.reps
-            } reps`}
+            placeholder={`Previous: ${exercise.reps} reps`}
           />
           <Input
             type="number"

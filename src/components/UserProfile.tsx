@@ -173,7 +173,7 @@ export const UserProfile: React.FC = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="height">Height</Label>
+                <Label htmlFor="height">Height (cm)</Label>
                 <div className="flex gap-2">
                   <Input
                     id="height"
