@@ -17,7 +17,7 @@ Reading from database
                                         workouts table, for the default plan the first workout that is not completes  ✅
                                         also the history calls  ✅
 
-- history.tsx, getting all data from the history table, so each workout is labeled with each exercise completed with the number of sets done, then history details is with reps and weight for each set
+- history.tsx, getting all data from the history table, so each workout is labeled with each exercise completed with the number of sets done, then history details is with reps and weight for each set ✅
 
 - historyDetails.tsx, getting the details of each set, so user can see the weight and reps in more depth ✅
 
