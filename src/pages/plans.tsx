@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Plus,
@@ -17,33 +17,38 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
+type Plan = {
+  id: string;
+  title: string;
+  duration: number;
+  workoutDays: number;
+  UserID: number;
+  isDefault: number;
+  created_at: string;
+  updated_at: string;
+  goals: number;
+};
 
-//plans table linking to user id, create ui for if only one plan has been made
-const mockPlans = [
-  {
-    id: "1",
-    title: "8-Week Strength Program",
-    duration: "8 weeks",
-    workoutDays: 4,
-    goals: 3,
-    progress: 65,
-    startDate: "2024-01-01",
-    endDate: "2024-02-28",
-  },
-  {
-    id: "2",
-    title: "Summer Shred",
-    duration: "12 weeks",
-    workoutDays: 5,
-    goals: 4,
-    progress: 30,
-    startDate: "2024-03-01",
-    endDate: "2024-05-31",
-  },
-];
+// Plans API call with fetch
+const fetchPlans = async () => {
+  try {
+    let userId = 2;
+    const response = await fetch(
+      `https://hc920.brighton.domains/muscleMetric/php/plans/plansData.php?user_id=${userId}`
+    ); // Make sure to update this with the correct API endpoint
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    const data = await response.json();
+    console.log("plansData:", data.plans); // Log plansData to verify the response
+    return data.plans; // assuming the structure returns an array of plans
+  } catch (error) {
+    console.error("Error fetching plans:", error);
+    throw new Error("Error fetching plans");
+  }
+};
 
-
-//history call
+// History fetch function remains the same
 const fetchWorkouts = async ({ pageParam = 0 }) => {
   const pageSize = 5;
   const allWorkouts = Array.from({ length: 50 }, (_, i) => ({
@@ -70,8 +75,49 @@ const Plans = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [activePlanId, setActivePlanId] = useState<string>("1");
+  const [plans, setPlans] = useState<Plan[]>([]);
   const [currentPlanIndex, setCurrentPlanIndex] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Fetch plans data on mount
+  useEffect(() => {
+    const loadPlans = async () => {
+      try {
+        const planData = await fetchPlans();
+        // Transform the planData to match the PlanCardProps structure
+        const transformedPlans = planData.map((plan: any) => {
+          const startDate = new Date(plan.created_at);
+
+          const endDate = new Date(startDate);
+          endDate.setDate(startDate.getDate() + plan.Duration * 7); 
+
+          const endDateStr = endDate.toISOString().split("T")[0]; 
+
+          return {
+            id: plan.id,
+            title: plan.Title,
+            duration: plan.Duration, 
+            workoutDays: plan.DaysPerWeek,
+            goals: plan.goals || 3, 
+            isDefault: plan.isDefault === 1, 
+            progress: plan.progress || 0,
+            startDate: startDate.toISOString().split("T")[0], 
+            endDate: endDateStr, 
+          };
+        });
+
+        setPlans(transformedPlans);
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Could not load workout plans.",
+          variant: "destructive",
+        });
+      }
+    };
+
+    loadPlans();
+  }, []);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
     useInfiniteQuery({
@@ -92,7 +138,6 @@ const Plans = () => {
     }
   };
 
-  
   const handleActivatePlan = (planId: string) => {
     setActivePlanId(planId);
     toast({
@@ -101,8 +146,8 @@ const Plans = () => {
     });
   };
 
-  const activePlan = mockPlans.find((plan) => plan.id === activePlanId);
-  const inactivePlans = mockPlans.filter((plan) => plan.id !== activePlanId);
+  const activePlan = plans.find((plan) => plan.isDefault);
+  const inactivePlans = plans.filter((plan) => plan.id !== activePlanId);
 
   const nextPlan = () => {
     setCurrentPlanIndex((prev) =>
@@ -116,7 +161,6 @@ const Plans = () => {
     );
   };
 
-
   // from workouts table, first workout that is not completed, from the default plan.
   const todaysWorkout = {
     id: "today-1",
@@ -128,13 +172,13 @@ const Plans = () => {
 
   return (
     <div className="container py-8 relative min-h-screen">
-      {mockPlans.length === 0 ? (
+      {plans.length === 0 ? (
         <EmptyState />
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="space-y-8">
             <div>
-              <h2 className="text-xl font-semibold mb-4">Today's Workout</h2>
+              <h2 className="text-xl font-semibold mb-4">Next Workout</h2>
               <Card
                 className="p-6 cursor-pointer transition-all duration-300 hover:shadow-lg bg-primary text-primary-foreground"
                 onClick={() => navigate(`/workout/${todaysWorkout.id}`)}
@@ -186,7 +230,7 @@ const Plans = () => {
               </div>
             )}
 
-            {inactivePlans.length > 0 && (
+            {inactivePlans.length > 1 && (
               <div className="relative">
                 <h2 className="text-xl font-semibold mb-4">Other Plans</h2>
                 <div className="relative">

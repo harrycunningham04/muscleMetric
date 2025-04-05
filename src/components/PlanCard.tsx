@@ -3,7 +3,6 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CalendarDays, Dumbbell, Target } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { Progress } from '@/components/ui/progress';
 import {
   Dialog,
   DialogContent,
@@ -16,11 +15,10 @@ import {
 interface PlanCardProps {
   id: string;
   title: string;
-  duration: string;
+  duration: number;
   workoutDays: number;
   goals: number;
   isActive?: boolean;
-  progress?: number;
   startDate?: string;
   endDate?: string;
   onActivate?: (id: string) => void;
@@ -33,7 +31,6 @@ const PlanCard = ({
   workoutDays, 
   goals,
   isActive = false,
-  progress = 0,
   startDate,
   endDate,
   onActivate 
@@ -68,9 +65,7 @@ const PlanCard = ({
           <div className="mb-4">
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm text-primary font-medium">Active Plan</span>
-              <span className="text-sm text-muted-foreground">{progress}% Complete</span>
             </div>
-            <Progress value={progress} className="h-2" />
           </div>
         )}
 
@@ -81,7 +76,7 @@ const PlanCard = ({
         <div className="space-y-3 mb-6">
           <div className="flex items-center text-muted-foreground">
             <CalendarDays className="w-4 h-4 mr-2" />
-            <span>{duration}</span>
+            <span>{duration} Weeks</span>
           </div>
           <div className="flex items-center text-muted-foreground">
             <Dumbbell className="w-4 h-4 mr-2" />

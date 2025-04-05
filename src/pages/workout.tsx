@@ -39,7 +39,7 @@ export const Workout = () => {
         const transformedWorkouts = data.workouts.map((workout: any) => ({
           id: workout.id,
           name: workout.Name,
-          completed: workout.Completed === 1, // Convert 1/0 to true/false
+          completed: workout.Completed === 1, 
           exercises: data.exercises
             .filter((exercise: Exercise) => exercise.WorkoutId === workout.id)
             .map((exercise: Exercise) => exercise.Name),
