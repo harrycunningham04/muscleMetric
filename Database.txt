@@ -13,9 +13,9 @@ Reading from database
 
 - DashboardView.tsx, the facts table ✅
 
-- plans.tsx, two different connections, plans table, linking to user id that is active, showing the default one as the big plan and the other plans below
-                                        workouts table, for the default plan the first workout that is not completes
-                                        also the history calls
+- plans.tsx, two different connections, plans table, linking to user id that is active, showing the default one as the big plan and the other plans below ✅
+                                        workouts table, for the default plan the first workout that is not completes  ✅
+                                        also the history calls  ✅
 
 - history.tsx, getting all data from the history table, so each workout is labeled with each exercise completed with the number of sets done, then history details is with reps and weight for each set
 

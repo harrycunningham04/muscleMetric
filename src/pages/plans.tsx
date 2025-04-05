@@ -29,6 +29,13 @@ type Plan = {
   goals: number;
 };
 
+type WorkoutType = {
+  id: string;
+  name: string;
+  exercises: string[];
+  planName: string;
+};
+
 // Plans API call with fetch
 const fetchPlans = async () => {
   try {
@@ -48,25 +55,29 @@ const fetchPlans = async () => {
   }
 };
 
-// History fetch function remains the same
+// History data
 const fetchWorkouts = async ({ pageParam = 0 }) => {
   const pageSize = 5;
-  const allWorkouts = Array.from({ length: 50 }, (_, i) => ({
-    id: `${i + 1}`,
-    date: new Date(2024, 2, 15 - i).toISOString(),
-    duration: `${30 + Math.floor(Math.random() * 30)} minutes`,
-    exercises: ["Bench Press", "Squats", "Deadlifts"],
-    planName: "8-Week Strength Program",
-  }));
 
+  let Userid = 2;
+  const res = await fetch(
+    `https://hc920.brighton.domains/muscleMetric/php/plans/historyData.php?user_id=${Userid}`
+  );
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch history data");
+  }
+
+  const data = await res.json();
+
+  // Simulate pagination
   const start = pageParam * pageSize;
   const end = start + pageSize;
-  const hasMore = end < allWorkouts.length;
-
-  await new Promise((resolve) => setTimeout(resolve, 500));
+  const workouts = data.slice(start, end);
+  const hasMore = end < data.length;
 
   return {
-    workouts: allWorkouts.slice(start, end),
+    workouts,
     nextPage: hasMore ? pageParam + 1 : undefined,
   };
 };
@@ -76,6 +87,7 @@ const Plans = () => {
   const { toast } = useToast();
   const [activePlanId, setActivePlanId] = useState<string>("1");
   const [plans, setPlans] = useState<Plan[]>([]);
+  const [todaysWorkout, setTodaysWorkout] = useState<WorkoutType | null>(null);
   const [currentPlanIndex, setCurrentPlanIndex] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -89,20 +101,20 @@ const Plans = () => {
           const startDate = new Date(plan.created_at);
 
           const endDate = new Date(startDate);
-          endDate.setDate(startDate.getDate() + plan.Duration * 7); 
+          endDate.setDate(startDate.getDate() + plan.Duration * 7);
 
-          const endDateStr = endDate.toISOString().split("T")[0]; 
+          const endDateStr = endDate.toISOString().split("T")[0];
 
           return {
             id: plan.id,
             title: plan.Title,
-            duration: plan.Duration, 
+            duration: plan.Duration,
             workoutDays: plan.DaysPerWeek,
-            goals: plan.goals || 3, 
-            isDefault: plan.isDefault === 1, 
+            goals: plan.goals || 3,
+            isDefault: plan.isDefault === 1,
             progress: plan.progress || 0,
-            startDate: startDate.toISOString().split("T")[0], 
-            endDate: endDateStr, 
+            startDate: startDate.toISOString().split("T")[0],
+            endDate: endDateStr,
           };
         });
 
@@ -161,14 +173,43 @@ const Plans = () => {
     );
   };
 
-  // from workouts table, first workout that is not completed, from the default plan.
-  const todaysWorkout = {
-    id: "today-1",
-    name: "Push Day",
-    exercises: ["Bench Press", "Shoulder Press", "Tricep Extensions"],
-    duration: "45 minutes",
-    planName: activePlan?.title || "Default Plan",
-  };
+  useEffect(() => {
+    const fetchTodaysWorkout = async () => {
+      try {
+        let UserID = 2;
+        const res = await fetch(
+          `https://hc920.brighton.domains/muscleMetric/php/plans/workoutData.php?user_id=${UserID}`
+        );
+        const data = await res.json();
+
+        console.log("Raw response from workoutData.php:", data);
+
+        if (data.error) {
+          console.error(data.error);
+          return;
+        }
+
+        const { id, name, exercises, planName } = data;
+
+        setTodaysWorkout({
+          id: id.toString(),
+          name: name,
+          exercises: exercises,
+          planName: planName || "Default Plan",
+        });
+      } catch (err) {
+        console.error("Failed to fetch workout:", err);
+      }
+    };
+
+    fetchTodaysWorkout();
+  }, []);
+
+  useEffect(() => {
+    if (todaysWorkout) {
+      console.log("Updated todaysWorkout:", todaysWorkout);
+    }
+  }, [todaysWorkout]);
 
   return (
     <div className="container py-8 relative min-h-screen">
@@ -177,47 +218,43 @@ const Plans = () => {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="space-y-8">
-            <div>
-              <h2 className="text-xl font-semibold mb-4">Next Workout</h2>
-              <Card
-                className="p-6 cursor-pointer transition-all duration-300 hover:shadow-lg bg-primary text-primary-foreground"
-                onClick={() => navigate(`/workout/${todaysWorkout.id}`)}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <CalendarCheck className="w-5 h-5" />
-                      <h3 className="text-xl font-semibold">
-                        {todaysWorkout.name}
-                      </h3>
-                    </div>
-                    <p className="text-primary-foreground/80">
-                      {todaysWorkout.exercises.join(" • ")}
-                    </p>
-                    <div className="flex items-center gap-4">
+            {todaysWorkout && (
+              <div>
+                <h2 className="text-xl font-semibold mb-4">Next Workout</h2>
+                <Card
+                  className="p-6 cursor-pointer transition-all duration-300 hover:shadow-lg bg-primary text-primary-foreground"
+                  onClick={() => navigate(`/workout/${todaysWorkout.id}`)}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-2">
                       <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4" />
-                        <span className="text-sm">
-                          {todaysWorkout.duration}
-                        </span>
+                        <CalendarCheck className="w-5 h-5" />
+                        <h3 className="text-xl font-semibold">
+                          {todaysWorkout.name}
+                        </h3>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Dumbbell className="w-4 h-4" />
-                        <span className="text-sm">
-                          {todaysWorkout.exercises.length} exercises
-                        </span>
+                      <p className="text-primary-foreground/80">
+                        {todaysWorkout.exercises.join(" • ")}
+                      </p>
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                          <Dumbbell className="w-4 h-4" />
+                          <span className="text-sm">
+                            {todaysWorkout.exercises.length} exercises
+                          </span>
+                        </div>
                       </div>
                     </div>
+                    <Button
+                      variant="secondary"
+                      className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+                    >
+                      Start Workout
+                    </Button>
                   </div>
-                  <Button
-                    variant="secondary"
-                    className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
-                  >
-                    Start Workout
-                  </Button>
-                </div>
-              </Card>
-            </div>
+                </Card>
+              </div>
+            )}
 
             {activePlan && (
               <div>
@@ -299,31 +336,64 @@ const Plans = () => {
                   <>
                     {data.pages.map((page, i) => (
                       <React.Fragment key={i}>
-                        {page.workouts.map((workout) => (
-                          <Card
-                            key={workout.id}
-                            className="p-4 hover:shadow-lg transition-all cursor-pointer"
-                            onClick={() => navigate(`/history/${workout.id}`)}
-                          >
-                            <div className="flex justify-between items-start">
-                              <div>
-                                <h3 className="font-semibold text-lg mb-2">
-                                  {workout.planName}
-                                </h3>
-                                <div className="flex items-center text-muted-foreground mb-1">
-                                  <Clock className="w-4 h-4 mr-2" />
-                                  <span>{workout.duration}</span>
+                        {page.workouts.map(
+                          (workout: {
+                            id: number;
+                            planName: string;
+                            workoutName: string,
+                            duration: string;
+                            date: string;
+                            exercises: string[];
+                          }) => (
+                            <Card
+                              key={workout.id}
+                              className="p-4 hover:shadow-lg transition-all cursor-pointer"
+                              onClick={() => navigate(`/history/${workout.id}`)}
+                            >
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <h3 className="font-semibold text-lg mb-2">
+                                    {workout.planName}
+                                  </h3>
+                                  <h4 className="font-semibold text-lg mb-2">
+                                    {workout.workoutName}
+                                  </h4>
+                                  <div className="flex items-center text-muted-foreground mb-1">
+                                    <Clock className="w-4 h-4 mr-2" />
+                                    <span>{workout.duration}</span>
+                                  </div>
                                 </div>
+                                <span className="text-sm text-muted-foreground">
+                                  {new Date(workout.date).toLocaleDateString()}
+                                </span>
                               </div>
-                              <span className="text-sm text-muted-foreground">
-                                {new Date(workout.date).toLocaleDateString()}
-                              </span>
-                            </div>
-                            <div className="mt-2 text-sm text-muted-foreground">
-                              {workout.exercises.join(", ")}
-                            </div>
-                          </Card>
-                        ))}
+                              <div className="mt-2 text-sm text-muted-foreground">
+                                {Object.entries(
+                                  workout.exercises.reduce(
+                                    (
+                                      acc: Record<string, number>,
+                                      exercise: string
+                                    ) => {
+                                      acc[exercise] = (acc[exercise] || 0) + 1;
+                                      return acc;
+                                    },
+                                    {}
+                                  )
+                                ).map(
+                                  (
+                                    [exercise, count]: [string, number],
+                                    index: number
+                                  ) => (
+                                    <div key={index}>
+                                      • {exercise} ({count}{" "}
+                                      {count > 1 ? "sets" : "set"})
+                                    </div>
+                                  )
+                                )}
+                              </div>
+                            </Card>
+                          )
+                        )}
                       </React.Fragment>
                     ))}
                     {isFetchingNextPage && (
