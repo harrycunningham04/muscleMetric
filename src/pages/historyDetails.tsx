@@ -24,7 +24,7 @@ interface HistoryDetails {
 }
 
 const HistoryDetails = () => {
-  const { id } = useParams();
+  const { historyid } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [workout, setWorkout] = useState<HistoryDetails | null>(null);
@@ -33,120 +33,65 @@ const HistoryDetails = () => {
   useEffect(() => {
     const fetchWorkout = async () => {
       setLoading(true);
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      try {
+        const response = await fetch(
+          `https://hc920.brighton.domains/muscleMetric/php/history/historyDetails.php?history_id=${historyid}`
+        );
+        const data = await response.json();
 
-      // Mock data - replace with actual API call
-      const mockWorkouts: HistoryDetails[] = [
-        {
-          id: "1",
-          date: "27 February 2023",
-          duration: "1 hr 10 mins",
-          planName: "SEMESTER 2",
-          workoutName: "DAY 4 : LEGS2 THURSDAY",
-          exercises: [
-            {
-              name: "BARBELL BACK SQUAT",
-              sets: 5,
-              reps: [8, 8, 8, 8, 8],
-              weights: [60, 70, 80, 80, 80],
-            },
-            {
-              name: "MACHINE PRONE HAMSTRING CURL",
-              sets: 3,
-              reps: [12, 12, 12],
-              weights: [50, 55, 55],
-            },
-            {
-              name: "DUMBBELL STANDING CALF RAISE",
-              sets: 3,
-              reps: [15, 15, 15],
-              weights: [20, 20, 20],
-            },
-            {
-              name: "45 DEGREE LEG PRESS",
-              sets: 3,
-              reps: [12, 12, 12],
-              weights: [120, 140, 160],
-            },
-            {
-              name: "SEATED LEG EXTENSION",
-              sets: 2,
-              reps: [15, 15],
-              weights: [40, 45],
-            },
-          ],
-        },
-        {
-          id: "2",
-          date: "25 February 2023",
-          duration: "55 mins",
-          planName: "SEMESTER 2",
-          workoutName: "DAY 3 : PUSH2 TUESDAY",
-          exercises: [
-            {
-              name: "INCLINE BENCH PRESS",
-              sets: 4,
-              reps: [8, 8, 8, 8],
-              weights: [60, 65, 70, 70],
-            },
-            {
-              name: "SEATED DUMBBELL PRESS",
-              sets: 3,
-              reps: [10, 10, 10],
-              weights: [20, 22, 24],
-            },
-            {
-              name: "TRICEP PUSHDOWN",
-              sets: 3,
-              reps: [12, 12, 12],
-              weights: [25, 30, 30],
-            },
-            {
-              name: "LATERAL RAISE",
-              sets: 3,
-              reps: [15, 15, 15],
-              weights: [10, 10, 10],
-            },
-          ],
-        },
-        {
-          id: "3",
-          date: "23 February 2023",
-          duration: "1 hr 5 mins",
-          planName: "SEMESTER 2",
-          workoutName: "DAY 2 : PULL1 SUNDAY",
-          exercises: [
-            {
-              name: "DEADLIFT",
-              sets: 4,
-              reps: [6, 6, 6, 6],
-              weights: [100, 120, 130, 130],
-            },
-            { name: "PULL-UPS", sets: 3, reps: [8, 8, 6], weights: [0, 0, 0] },
-            {
-              name: "BARBELL ROW",
-              sets: 3,
-              reps: [10, 10, 10],
-              weights: [60, 65, 70],
-            },
-            {
-              name: "BICEP CURL",
-              sets: 3,
-              reps: [12, 12, 12],
-              weights: [15, 17.5, 17.5],
-            },
-          ],
-        },
-      ];
+        if (data.error) {
+          toast({
+            title: "Error",
+            description: data.error,
+            variant: "destructive",
+          });
+          setWorkout(null);
+        } else {
+          // Group sets by exercise
+          const exerciseMap: { [key: string]: Exercise } = {};
 
-      const workoutData = mockWorkouts.find((w) => w.id === id) || null;
-      setWorkout(workoutData);
-      setLoading(false);
+          data.sets.forEach((set: any) => {
+            const exerciseName = set.ExerciseName;
+            if (!exerciseMap[exerciseName]) {
+              exerciseMap[exerciseName] = {
+                name: exerciseName,
+                sets: 0,
+                reps: [],
+                weights: [],
+              };
+            }
+
+            exerciseMap[exerciseName].sets += 1;
+            exerciseMap[exerciseName].reps.push(set.Reps);
+            exerciseMap[exerciseName].weights.push(parseFloat(set.Weight));
+          });
+
+          const workoutData: HistoryDetails = {
+            id: data.history.id,
+            date: data.history.Date,
+            duration: data.history.Duration,
+            planName: data.planTitle || "Unknown Plan",
+            workoutName: data.workoutName,
+            exercises: Object.values(exerciseMap),
+          };
+
+          setWorkout(workoutData);
+        }
+      } catch (error) {
+        console.error("Failed to fetch workout data", error);
+        toast({
+          title: "Error",
+          description: "Failed to load workout data.",
+          variant: "destructive",
+        });
+        setWorkout(null);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchWorkout();
-  }, [id]);
+  }, [historyid]);
 
   const generatePDF = () => {
     if (!workout) return;

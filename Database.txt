@@ -19,6 +19,8 @@ Reading from database
 
 - history.tsx, getting all data from the history table, so each workout is labeled with each exercise completed with the number of sets done, then history details is with reps and weight for each set
 
+- historyDetails.tsx, getting the details of each set, so user can see the weight and reps in more depth ✅
+
 Can I combine these two and pass the data to workoutDetails when it is called, then in workout Details getting the info about each exercise when needed.
 - workout.tsx, two calls in one, first to the workout table getting all workouts for the default plan,
                                             to the exercise table getting all the exercise names for each workout ✅

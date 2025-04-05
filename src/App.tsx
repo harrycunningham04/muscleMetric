@@ -47,7 +47,7 @@ const AppContent = () => {
           <Route path="/plans/:planid" element={<PlanDetails />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/history" element={<History />} />
-          <Route path="/history/:id" element={<HistoryDetails />} />
+          <Route path="/history/:historyid" element={<HistoryDetails />} />
           <Route path="/verify" element={<Verify />} />
           <Route path="/about" element={<About />} />
           <Route path="/terms" element={<Terms />} />
