@@ -6,7 +6,6 @@ Function:
             all completed workouts get set to not completed, 
 
 Reading from database
-
 - verify.tsx, the user management stage, use a token so user stays logged in for a day.
 
 - Main.tsx, needs to connect to the workout exercises table, to get the list of exercises for the graphing ✅
@@ -32,6 +31,12 @@ Can I combine these two and pass the data to workoutDetails when it is called, t
 
 
 Writing to database
+- planEditor.tsx, creating a new workout, so needs to store title duration userId isDefault, 
+                then workouts linking to this plan id creating each workout separately storing name and setting completed to 0 
+                workout exercises are stored with the sets reps and weight
+                goals stored so each exercise id and the weight they would like to reach with it is stored
+                starting weight placing the planId exerciseId with the users starting weight 
+
 - workoutDetails.tsx, gonna be for when they complete each workout it gets added to history and that workout for the week is completed.
 
 

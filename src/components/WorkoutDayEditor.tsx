@@ -19,7 +19,7 @@ interface WorkoutDayProps {
     name: string;
     exercises: Exercise[];
   };
-  onUpdate: (dayId: string, exercises: Exercise[]) => void;
+  onUpdate: (dayId: string, exercises: Exercise[], workoutName?: string) => void;
   onValidationChange: (dayId: string, isValid: boolean) => void;
 }
 
@@ -30,33 +30,28 @@ export const WorkoutDayEditor = ({
 }: WorkoutDayProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [workoutName, setWorkoutName] = useState(day.name);
-  const [isValid, setIsValid] = useState(false);
 
-  // Validate if all exercises have starting weights set
-  const validateExercises = (exercises: Exercise[]) => {
-    const areAllExercisesValid = exercises.every(
-      (ex) =>
-        ex.startingWeight !== undefined &&
-        ex.startingWeight !== null &&
-        ex.startingWeight.toString() !== ""
+  const isValidExercise = (exercise: Exercise) => {
+    return (
+      exercise.startingWeight !== undefined &&
+      exercise.startingWeight !== null &&
+      exercise.startingWeight.toString() !== ""
     );
-    setIsValid(areAllExercisesValid);
-    onValidationChange(day.id, areAllExercisesValid);
-    return areAllExercisesValid;
   };
 
-  // Initial validation and re-validation when exercises change
+  const validate = (exercises: Exercise[], name: string) => {
+    const validExercises = exercises.every(isValidExercise);
+    const validName = name.trim().length > 0;
+    const allValid = validExercises && validName;
+    onValidationChange(day.id, allValid);
+    return allValid;
+  };
+
   useEffect(() => {
-    const newValidationState = validateExercises(day.exercises);
-    if (newValidationState !== isValid) {
-      setIsValid(newValidationState);
-      onValidationChange(day.id, newValidationState);
-    }
-  }, [day.exercises, isValid]);
+    validate(day.exercises, workoutName);
+  }, [day.exercises, workoutName]);
 
-  const handleAddExercise = () => {
-    setIsModalOpen(true);
-  };
+  const handleAddExercise = () => setIsModalOpen(true);
 
   const handleExerciseSelect = (
     selectedExercises: Array<{ id: string; name: string }>
@@ -68,13 +63,14 @@ export const WorkoutDayEditor = ({
       reps: 10,
       startingWeight: undefined,
     }));
-    onUpdate(day.id, [...day.exercises, ...newExercises]);
+    onUpdate(day.id, [...day.exercises, ...newExercises], workoutName);
   };
 
   const handleRemoveExercise = (exerciseId: string) => {
     onUpdate(
       day.id,
-      day.exercises.filter((ex) => ex.id !== exerciseId)
+      day.exercises.filter((ex) => ex.id !== exerciseId),
+      workoutName
     );
   };
 
@@ -87,34 +83,31 @@ export const WorkoutDayEditor = ({
       day.id,
       day.exercises.map((ex) =>
         ex.id === exerciseId ? { ...ex, [field]: value } : ex
-      )
+      ),
+      workoutName
     );
   };
 
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
-
     const items = Array.from(day.exercises);
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
-
-    onUpdate(day.id, items);
-  };
-
-  const isValidExercise = (exercise: Exercise) => {
-    return (
-      exercise.startingWeight !== undefined &&
-      exercise.startingWeight !== null &&
-      exercise.startingWeight.toString() !== ""
-    );
+    onUpdate(day.id, items, workoutName);
   };
 
   const handleWorkoutNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setWorkoutName(e.target.value);
   };
 
-  const handleBlur = () => {
-    onUpdate(day.id, day.exercises); // Updates parent state only when input loses focus
+  const handleWorkoutNameBlur = () => {
+    onUpdate(day.id, day.exercises, workoutName);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      (e.target as HTMLInputElement).blur();
+    }
   };
 
   return (
@@ -123,8 +116,11 @@ export const WorkoutDayEditor = ({
         <Input
           value={workoutName}
           onChange={handleWorkoutNameChange}
-          onBlur={handleBlur}
-          className="font-medium w-auto"
+          onBlur={handleWorkoutNameBlur}
+          onKeyDown={handleKeyDown}
+          className={`font-medium w-auto ${
+            workoutName.trim() === "" ? "border-red-500" : ""
+          }`}
         />
         <Button variant="outline" onClick={handleAddExercise}>
           <Plus className="w-4 h-4 mr-2" />
@@ -171,6 +167,7 @@ export const WorkoutDayEditor = ({
                               parseInt(e.target.value)
                             )
                           }
+                          onKeyDown={handleKeyDown}
                           className="w-16"
                         />
                         <p>Reps</p>
@@ -185,27 +182,33 @@ export const WorkoutDayEditor = ({
                               parseInt(e.target.value)
                             )
                           }
+                          onKeyDown={handleKeyDown}
                           className="w-16"
                         />
                         <p>Starting Weight</p>
-                        <Input
-                          type="number"
-                          placeholder={"Kgs"}
-                          value={exercise.startingWeight ?? ""}
-                          onChange={(e) =>
-                            handleExerciseChange(
-                              exercise.id,
-                              "startingWeight",
-                              parseFloat(e.target.value)
-                            )
-                          }
-                          className={`w-20 ${
-                            !isValidExercise(exercise) ? "border-red-500" : ""
-                          }`}
-                        />
-                        {!isValidExercise(exercise) && (
-                          <AlertCircle className="h-4 w-4 text-red-500 absolute right-2 top-3" />
-                        )}
+                        <div className="relative">
+                          <Input
+                            type="number"
+                            placeholder="Kgs"
+                            value={exercise.startingWeight ?? ""}
+                            onChange={(e) =>
+                              handleExerciseChange(
+                                exercise.id,
+                                "startingWeight",
+                                parseFloat(e.target.value)
+                              )
+                            }
+                            onKeyDown={handleKeyDown}
+                            className={`w-20 ${
+                              !isValidExercise(exercise)
+                                ? "border-red-500"
+                                : ""
+                            }`}
+                          />
+                          {!isValidExercise(exercise) && (
+                            <AlertCircle className="h-4 w-4 text-red-500 absolute right-2 top-3" />
+                          )}
+                        </div>
                         <Button
                           variant="ghost"
                           size="icon"

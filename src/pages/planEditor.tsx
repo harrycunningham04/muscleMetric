@@ -188,23 +188,68 @@ const PlanEditor = () => {
       });
       return;
     }
-
+  
+    // Section 1 - Plan Details
+    const planData = {
+      title,
+      duration,
+      DaysPerWeek: workoutDays.length, // Assuming the number of workout days represents days per week
+      isDefault,
+      userId: 2, // Hardcoded for now as requested
+    };
+    console.log("Section 1 - Plan Details:", planData);
+  
+    // Section 2 - Workout Names
+    const workoutNames = workoutDays.map((day) => day.name);
+    console.log("Section 2 - Workout Names:", workoutNames);
+  
+    // Section 3 - Exercises in each workout (id, sets, reps, weight)
+    const exercises = workoutDays.flatMap((day) =>
+      day.exercises.map((exercise) => ({
+        workoutId: day.id,
+        exerciseId: exercise.id,
+        sets: exercise.sets,
+        reps: exercise.reps,
+        startingWeight: exercise.startingWeight,
+      }))
+    );
+    console.log("Section 3 - Exercises:", exercises);
+  
+    // Section 4 - Goals (exercise ids and weights)
+    const goalsData = goals.map((goal) => ({
+      exerciseId: goal.id, // This assumes goal.id is the exerciseId or modify as per your structure
+      weight: goal.targetWeight, // Assuming targetWeight is the weight for the goal
+    }));
+    console.log("Section 4 - Goals:", goalsData);
+  
+    // Section 5 - Exercise Weights for each exercise
+    const exerciseWeights = exercises.map((exercise) => ({
+      exerciseId: exercise.exerciseId,
+      weight: exercise.startingWeight,
+    }));
+    console.log("Section 5 - Exercise Weights:", exerciseWeights);
+  
+    // Show success toast
     toast({
-      title: isNew
-        ? "Plan created successfully!"
-        : "Plan updated successfully!",
+      title: isNew ? "Plan created successfully!" : "Plan updated successfully!",
       description: `Your workout plan "${title}" has been ${
         isNew ? "created" : "updated"
       }.`,
     });
+  
+    // If set as default, show another toast
     if (isDefault) {
       toast({
         title: "Default Plan Set",
         description: "This plan has been set as your default workout plan.",
       });
     }
+  
+    // Navigate to plans page
     navigate("/plans");
   };
+  
+  
 
   const ensureThreeGoals = () => {
     setGoals((prevGoals) => {
@@ -240,12 +285,6 @@ const PlanEditor = () => {
     const isValid = areWorkoutDaysValid && areGoalsValid && hasExercises;
 
     setIsFormValid(isValid);
-    console.log("Form validation:", {
-      areWorkoutDaysValid,
-      areGoalsValid,
-      hasExercises,
-      isValid,
-    });
   }, [workoutValidation, goalValidation, workoutDays, goals.length]);
 
   useEffect(() => {
