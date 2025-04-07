@@ -30,8 +30,11 @@ interface WorkoutDay {
 }
 
 interface Goal {
-  id: string;
-  exerciseName: string;
+  description: string;
+  exercise: {
+    id: string;
+    name: string;
+  };
   targetWeight: number;
 }
 
@@ -98,57 +101,64 @@ const PlanEditor = () => {
     );
   };
 
+  const roundToNearest = (num: number) => Math.round(num * 4) / 4;
+
   const handleUpdateGoal = (
     goalId: string,
     field: keyof Goal,
     value: string | number
   ) => {
+    // Early update for non-weight fields
+    if (field !== "targetWeight") {
+      setGoals((prevGoals) =>
+        prevGoals.map((goal) =>
+          goal.exercise.id === goalId ? { ...goal, [field]: value } : goal
+        )
+      );
+      return;
+    }
+
     setGoals((prevGoals) =>
       prevGoals.map((goal) => {
-        if (goal.id === goalId) {
-          let updatedValue = value;
+        if (goal.exercise.id !== goalId) return goal;
 
-          if (field === "targetWeight" && typeof value === "number") {
-            const exercise = workoutDays
-              .flatMap((day) => day.exercises)
-              .find((ex) => ex.name === goal.exerciseName);
+        let updatedValue =
+          typeof value === "number" ? value : parseFloat(value as string);
 
-            if (exercise && exercise.startingWeight) {
-              const startingWeight = exercise.startingWeight;
-              const weeks = parseInt(duration, 10);
+        if (typeof updatedValue === "number") {
+          const exercise = workoutDays
+            .flatMap((day) => day.exercises)
+            .find((ex) => ex.name === goal.exercise.name);
 
-              const minWeight = startingWeight * 1.02 ** weeks; // 2% increase per week
-              const maxWeight = startingWeight * 1.1 ** weeks; // 10% increase per week
+          if (exercise?.startingWeight) {
+            const startingWeight = exercise.startingWeight;
+            const weeks = Math.max(1, parseInt(duration, 10) || 1);
 
-              // Round to nearest 0.25
-              const roundToNearest = (num: number) => Math.round(num * 4) / 4;
-              const roundedMinWeight = roundToNearest(minWeight);
-              const roundedMaxWeight = roundToNearest(maxWeight);
-              const roundedValue = roundToNearest(value);
+            const minWeight = roundToNearest(startingWeight * 1.02 ** weeks);
+            const maxWeight = roundToNearest(startingWeight * 1.1 ** weeks);
+            const roundedValue = roundToNearest(updatedValue);
 
-              if (roundedValue < roundedMinWeight) {
-                toast({
-                  title: "Goal Weight Too Low",
-                  description: `The target weight for ${goal.exerciseName} should be at least ${roundedMinWeight}kg over ${weeks} weeks.`,
-                  variant: "destructive",
-                });
-                updatedValue = roundedMinWeight;
-              } else if (roundedValue > roundedMaxWeight) {
-                toast({
-                  title: "Goal Weight Too High",
-                  description: `The target weight for ${goal.exerciseName} should not exceed ${roundedMaxWeight}kg over ${weeks} weeks.`,
-                  variant: "destructive",
-                });
-                updatedValue = roundedMaxWeight;
-              } else {
-                updatedValue = roundedValue;
-              }
+            if (roundedValue < minWeight) {
+              toast({
+                title: "Goal Weight Too Low",
+                description: `The target weight for ${goal.exercise.name} should be at least ${minWeight}kg over ${weeks} weeks.`,
+                variant: "destructive",
+              });
+              updatedValue = minWeight;
+            } else if (roundedValue > maxWeight) {
+              toast({
+                title: "Goal Weight Too High",
+                description: `The target weight for ${goal.exercise.name} should not exceed ${maxWeight}kg over ${weeks} weeks.`,
+                variant: "destructive",
+              });
+              updatedValue = maxWeight;
+            } else {
+              updatedValue = roundedValue;
             }
           }
-
-          return { ...goal, [field]: updatedValue };
         }
-        return goal;
+
+        return { ...goal, [field]: updatedValue };
       })
     );
   };
@@ -188,7 +198,7 @@ const PlanEditor = () => {
       });
       return;
     }
-  
+
     // Section 1 - Plan Details
     const planData = {
       title,
@@ -198,11 +208,11 @@ const PlanEditor = () => {
       userId: 2, // Hardcoded for now as requested
     };
     console.log("Section 1 - Plan Details:", planData);
-  
+
     // Section 2 - Workout Names
     const workoutNames = workoutDays.map((day) => day.name);
     console.log("Section 2 - Workout Names:", workoutNames);
-  
+
     // Section 3 - Exercises in each workout (id, sets, reps, weight)
     const exercises = workoutDays.flatMap((day) =>
       day.exercises.map((exercise) => ({
@@ -214,29 +224,31 @@ const PlanEditor = () => {
       }))
     );
     console.log("Section 3 - Exercises:", exercises);
-  
+
     // Section 4 - Goals (exercise ids and weights)
     const goalsData = goals.map((goal) => ({
-      exerciseId: goal.id, // This assumes goal.id is the exerciseId or modify as per your structure
+      exerciseId: goal.exercise.id, // This assumes goal.id is the exerciseId or modify as per your structure
       weight: goal.targetWeight, // Assuming targetWeight is the weight for the goal
     }));
     console.log("Section 4 - Goals:", goalsData);
-  
+
     // Section 5 - Exercise Weights for each exercise
     const exerciseWeights = exercises.map((exercise) => ({
       exerciseId: exercise.exerciseId,
       weight: exercise.startingWeight,
     }));
     console.log("Section 5 - Exercise Weights:", exerciseWeights);
-  
+
     // Show success toast
     toast({
-      title: isNew ? "Plan created successfully!" : "Plan updated successfully!",
+      title: isNew
+        ? "Plan created successfully!"
+        : "Plan updated successfully!",
       description: `Your workout plan "${title}" has been ${
         isNew ? "created" : "updated"
       }.`,
     });
-  
+
     // If set as default, show another toast
     if (isDefault) {
       toast({
@@ -244,12 +256,10 @@ const PlanEditor = () => {
         description: "This plan has been set as your default workout plan.",
       });
     }
-  
+
     // Navigate to plans page
     navigate("/plans");
   };
-  
-  
 
   const ensureThreeGoals = () => {
     setGoals((prevGoals) => {
@@ -257,9 +267,12 @@ const PlanEditor = () => {
 
       while (updatedGoals.length < 3) {
         updatedGoals.push({
-          id: `goal-${updatedGoals.length + 1}`,
-          exerciseName: "",
-          targetWeight: 0,
+          description: "", // Empty string as a placeholder
+          exercise: {
+            id: `exercise-${updatedGoals.length + 1}`, // Unique ID for exercise
+            name: "", // Empty name as a placeholder
+          },
+          targetWeight: 0, // Default target weight
         });
       }
 
@@ -305,8 +318,8 @@ const PlanEditor = () => {
 
     const initialGoalValidation: ValidationState = {};
     goals.forEach((goal) => {
-      initialGoalValidation[goal.id] =
-        goal.exerciseName !== "" && goal.targetWeight > 0;
+      initialGoalValidation[goal.exercise.id] =
+        goal.exercise.name !== "" && goal.targetWeight > 0;
     });
     setGoalValidation(initialGoalValidation);
   }, [workoutDays, goals]);
@@ -428,10 +441,10 @@ const PlanEditor = () => {
           <div className="space-y-4">
             {goals.map((goal) => (
               <GoalEditor
-                key={goal.id}
+                key={goal.exercise.id}
                 goal={goal}
                 exercises={getPlanExercises()}
-                onChange={handleUpdateGoal}
+                onChange={handleUpdateGoal} // Ensure handleUpdateGoal is correctly typed
               />
             ))}
           </div>

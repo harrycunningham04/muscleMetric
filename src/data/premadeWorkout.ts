@@ -26,6 +26,7 @@ export const MuscleGroupArray: MuscleGroup[] = [
 ];
 
 export interface Exercise {
+  id: string;
   name: string;
   sets: number;
   reps: number;
@@ -175,6 +176,7 @@ const getExercisesForDay = (
       }
 
       selectedExercises.push({
+        id: exercise.id,
         name: exercise.name,
         sets: isCompound
           ? Math.floor(Math.random() * 2) + 3

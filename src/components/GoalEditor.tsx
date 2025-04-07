@@ -9,14 +9,17 @@ import {
 import { useSettings } from "@/context/SettingsContext";
 
 interface Goal {
-  id: string;
-  exerciseName: string;
+  description: string;
+  exercise: {
+    id: string;
+    name: string;
+  };
   targetWeight: number;
 }
 
 interface GoalEditorProps {
   goal: Goal;
-  onChange: (goalId: string, field: keyof Goal, value: string | number) => void;
+  onChange: (goalId: string, field: keyof Goal, value: string | number) => void; // Update type here
   exercises: string[];
 }
 
@@ -26,8 +29,8 @@ export const GoalEditor = ({ goal, onChange, exercises }: GoalEditorProps) => {
   return (
     <div className="flex space-x-4 border p-3 rounded-lg bg-gray-50">
       <Select
-        value={goal.exerciseName}
-        onValueChange={(value) => onChange(goal.id, "exerciseName", value)}
+        value={goal.exercise.name}
+        onValueChange={(value) => onChange(goal.exercise.id, "exercise", value)} // Only pass the string value
         disabled={exercises.length === 0}
       >
         <SelectTrigger aria-label="Select an exercise">
@@ -51,8 +54,8 @@ export const GoalEditor = ({ goal, onChange, exercises }: GoalEditorProps) => {
         }
         onChange={(e) =>
           onChange(
-            goal.id,
-            "targetWeight",
+            goal.exercise.id,
+            "targetWeight", // field here is 'targetWeight'
             e.target.value === "" ? "" : Math.max(0, Number(e.target.value))
           )
         }

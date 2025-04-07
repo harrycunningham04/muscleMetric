@@ -113,7 +113,7 @@ const CustomPlans = () => {
       targetMuscles: selectedMuscles,
       daysPerWeek: days,
       workoutDays,
-      recommendedWeeks: 4,
+      duration: workoutDuration,
       goals,
     };
 
