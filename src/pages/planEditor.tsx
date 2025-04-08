@@ -30,11 +30,8 @@ interface WorkoutDay {
 }
 
 interface Goal {
-  description: string;
-  exercise: {
-    id: string;
-    name: string;
-  };
+  id: string;
+  exerciseName: string;
   targetWeight: number;
 }
 
@@ -81,13 +78,15 @@ const PlanEditor = () => {
 
   const handleUpdateWorkoutDay = (
     dayId: string,
-    exercises: WorkoutDay["exercises"]
+    exercises: WorkoutDay["exercises"],
+    workoutName?: string
   ) => {
     setWorkoutDays(
       workoutDays.map((day) =>
         day.id === dayId
           ? {
               ...day,
+              name: workoutName ?? day.name, // fallback if undefined
               exercises: exercises.map((ex) => ({
                 ...ex,
                 startingWeight:
@@ -101,64 +100,57 @@ const PlanEditor = () => {
     );
   };
 
-  const roundToNearest = (num: number) => Math.round(num * 4) / 4;
-
   const handleUpdateGoal = (
     goalId: string,
     field: keyof Goal,
     value: string | number
   ) => {
-    // Early update for non-weight fields
-    if (field !== "targetWeight") {
-      setGoals((prevGoals) =>
-        prevGoals.map((goal) =>
-          goal.exercise.id === goalId ? { ...goal, [field]: value } : goal
-        )
-      );
-      return;
-    }
-
     setGoals((prevGoals) =>
       prevGoals.map((goal) => {
-        if (goal.exercise.id !== goalId) return goal;
+        if (goal.id === goalId) {
+          let updatedValue = value;
 
-        let updatedValue =
-          typeof value === "number" ? value : parseFloat(value as string);
+          if (field === "targetWeight" && typeof value === "number") {
+            const exercise = workoutDays
+              .flatMap((day) => day.exercises)
+              .find((ex) => ex.name === goal.exerciseName);
 
-        if (typeof updatedValue === "number") {
-          const exercise = workoutDays
-            .flatMap((day) => day.exercises)
-            .find((ex) => ex.name === goal.exercise.name);
+            if (exercise && exercise.startingWeight) {
+              const startingWeight = exercise.startingWeight;
+              const weeks = parseInt(duration, 10);
 
-          if (exercise?.startingWeight) {
-            const startingWeight = exercise.startingWeight;
-            const weeks = Math.max(1, parseInt(duration, 10) || 1);
+              const minWeight = startingWeight * 1.02 ** weeks; // 2% increase per week
+              const maxWeight = startingWeight * 1.1 ** weeks; // 10% increase per week
 
-            const minWeight = roundToNearest(startingWeight * 1.02 ** weeks);
-            const maxWeight = roundToNearest(startingWeight * 1.1 ** weeks);
-            const roundedValue = roundToNearest(updatedValue);
+              // Round to nearest 0.25
+              const roundToNearest = (num: number) => Math.round(num * 4) / 4;
+              const roundedMinWeight = roundToNearest(minWeight);
+              const roundedMaxWeight = roundToNearest(maxWeight);
+              const roundedValue = roundToNearest(value);
 
-            if (roundedValue < minWeight) {
-              toast({
-                title: "Goal Weight Too Low",
-                description: `The target weight for ${goal.exercise.name} should be at least ${minWeight}kg over ${weeks} weeks.`,
-                variant: "destructive",
-              });
-              updatedValue = minWeight;
-            } else if (roundedValue > maxWeight) {
-              toast({
-                title: "Goal Weight Too High",
-                description: `The target weight for ${goal.exercise.name} should not exceed ${maxWeight}kg over ${weeks} weeks.`,
-                variant: "destructive",
-              });
-              updatedValue = maxWeight;
-            } else {
-              updatedValue = roundedValue;
+              if (roundedValue < roundedMinWeight) {
+                toast({
+                  title: "Goal Weight Too Low",
+                  description: `The target weight for ${goal.exerciseName} should be at least ${roundedMinWeight}kg over ${weeks} weeks.`,
+                  variant: "destructive",
+                });
+                updatedValue = roundedMinWeight;
+              } else if (roundedValue > roundedMaxWeight) {
+                toast({
+                  title: "Goal Weight Too High",
+                  description: `The target weight for ${goal.exerciseName} should not exceed ${roundedMaxWeight}kg over ${weeks} weeks.`,
+                  variant: "destructive",
+                });
+                updatedValue = roundedMaxWeight;
+              } else {
+                updatedValue = roundedValue;
+              }
             }
           }
-        }
 
-        return { ...goal, [field]: updatedValue };
+          return { ...goal, [field]: updatedValue };
+        }
+        return goal;
       })
     );
   };
@@ -189,7 +181,7 @@ const PlanEditor = () => {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!isFormValid) {
       toast({
         title: "Validation Error",
@@ -203,62 +195,236 @@ const PlanEditor = () => {
     const planData = {
       title,
       duration,
-      DaysPerWeek: workoutDays.length, // Assuming the number of workout days represents days per week
-      isDefault,
-      userId: 2, // Hardcoded for now as requested
+      DaysPerWeek: workoutDays.length.toString(),
+      isDefault: isDefault.toString(),
+      userId: "2",
     };
     console.log("Section 1 - Plan Details:", planData);
 
-    // Section 2 - Workout Names
-    const workoutNames = workoutDays.map((day) => day.name);
-    console.log("Section 2 - Workout Names:", workoutNames);
+    try {
+      const planResponse = await fetch(
+        "https://hc920.brighton.domains/muscleMetric/php/plans/write/section1.php",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams(planData).toString(),
+        }
+      );
+      const planDataResponse = await planResponse.json();
 
-    // Section 3 - Exercises in each workout (id, sets, reps, weight)
-    const exercises = workoutDays.flatMap((day) =>
-      day.exercises.map((exercise) => ({
-        workoutId: day.id,
-        exerciseId: exercise.id,
-        sets: exercise.sets,
-        reps: exercise.reps,
-        startingWeight: exercise.startingWeight,
-      }))
-    );
-    console.log("Section 3 - Exercises:", exercises);
+      if (!planDataResponse.success) {
+        toast({
+          title: "Section 1 Error",
+          description:
+            planDataResponse.error ||
+            "An error occurred while saving the plan.",
+          variant: "destructive",
+        });
+        return;
+      }
 
-    // Section 4 - Goals (exercise ids and weights)
-    const goalsData = goals.map((goal) => ({
-      exerciseId: goal.exercise.id, // This assumes goal.id is the exerciseId or modify as per your structure
-      weight: goal.targetWeight, // Assuming targetWeight is the weight for the goal
-    }));
-    console.log("Section 4 - Goals:", goalsData);
-
-    // Section 5 - Exercise Weights for each exercise
-    const exerciseWeights = exercises.map((exercise) => ({
-      exerciseId: exercise.exerciseId,
-      weight: exercise.startingWeight,
-    }));
-    console.log("Section 5 - Exercise Weights:", exerciseWeights);
-
-    // Show success toast
-    toast({
-      title: isNew
-        ? "Plan created successfully!"
-        : "Plan updated successfully!",
-      description: `Your workout plan "${title}" has been ${
-        isNew ? "created" : "updated"
-      }.`,
-    });
-
-    // If set as default, show another toast
-    if (isDefault) {
       toast({
-        title: "Default Plan Set",
-        description: "This plan has been set as your default workout plan.",
+        title: "Plan saved successfully!",
+        description: `Your workout plan "${title}" has been saved.`,
+      });
+
+      // Section 2 - Workout Names
+      const workoutNames = workoutDays.map((day) => day.name);
+      const workoutData = {
+        planId: planDataResponse.planId,
+        workoutNames: JSON.stringify(workoutNames),
+      };
+
+      try {
+        const workoutResponse = await fetch(
+          "https://hc920.brighton.domains/muscleMetric/php/plans/write/section2.php",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams(workoutData).toString(),
+          }
+        );
+        const workoutDataResponse = await workoutResponse.json();
+
+        if (!workoutDataResponse.success) {
+          toast({
+            title: "Section 2 Error",
+            description:
+              workoutDataResponse.error ||
+              "An error occurred while saving the workouts.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        if (isDefault) {
+          toast({
+            title: "Default Plan Set",
+            description: "This plan has been set as your default workout plan.",
+          });
+        }
+
+        // Section 3 - Exercises
+        const exercises = workoutDays.flatMap((day, index) =>
+          day.exercises.map((exercise) => ({
+            workoutId: workoutDataResponse.workoutIds[index],
+            exerciseId: exercise.id,
+            sets: exercise.sets,
+            reps: exercise.reps,
+            startingWeight: exercise.startingWeight,
+          }))
+        );
+
+        try {
+          const exercisesResponse = await fetch(
+            "https://hc920.brighton.domains/muscleMetric/php/plans/write/section3.php",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
+              body: new URLSearchParams({
+                workoutExercises: JSON.stringify(exercises),
+              }).toString(),
+            }
+          );
+
+          const exercisesDataResponse = await exercisesResponse.json();
+
+          if (!exercisesDataResponse.success) {
+            toast({
+              title: "Section 3 Error",
+              description:
+                exercisesDataResponse.error ||
+                "An error occurred while saving the exercises.",
+              variant: "destructive",
+            });
+            return;
+          }
+
+          // Section 4 - Goals
+          const goalsData = goals.map((goal) => ({
+            exerciseName: goal.exerciseName,
+            weight: goal.targetWeight,
+          }));
+
+          try {
+            const goalsResponse = await fetch(
+              "https://hc920.brighton.domains/muscleMetric/php/plans/write/section4.php",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: new URLSearchParams({
+                  goals: JSON.stringify(goalsData),
+                  planId: planDataResponse.planId,
+                }).toString(),
+              }
+            );
+
+            const goalsDataResponse = await goalsResponse.json();
+
+            if (!goalsDataResponse.success) {
+              toast({
+                title: "Section 4 Error",
+                description:
+                  goalsDataResponse.error ||
+                  "An error occurred while saving the goals.",
+                variant: "destructive",
+              });
+              return;
+            }
+
+            // Section 5 - Starting Weights
+            const allExerciseWeights = workoutDays
+              .flatMap((day) => day.exercises)
+              .reduce((uniqueExercises, exercise) => {
+                if (!uniqueExercises.has(exercise.id)) {
+                  uniqueExercises.set(exercise.id, {
+                    exerciseId: exercise.id,
+                    weight: exercise.startingWeight,
+                  });
+                }
+                return uniqueExercises;
+              }, new Map());
+
+            const weightsData = {
+              planId: planDataResponse.planId,
+              exerciseWeights: JSON.stringify(
+                Array.from(allExerciseWeights.values())
+              ),
+            };
+
+            try {
+              console.log("Sending to Section 5:", {
+                planId: planDataResponse.planId,
+                exerciseWeights: Array.from(allExerciseWeights.values()),
+              });
+
+              const weightsResponse = await fetch(
+                "https://hc920.brighton.domains/muscleMetric/php/plans/write/section5.php",
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                  },
+                  body: new URLSearchParams(weightsData).toString(),
+                }
+              );
+
+              const weightsResponseData = await weightsResponse.json();
+
+              if (!weightsResponseData.success) {
+                toast({
+                  title: "Section 5 Error",
+                  description:
+                    weightsResponseData.error ||
+                    "An error occurred while saving the starting weights.",
+                  variant: "destructive",
+                });
+                return;
+              }
+
+              // Navigate to plans page
+              navigate("/plans");
+            } catch (error) {
+              toast({
+                title: "Section 5 Network Error",
+                description:
+                  "There was a network issue while saving the starting weights.",
+                variant: "destructive",
+              });
+            }
+          } catch (error) {
+            toast({
+              title: "Section 4 Network Error",
+              description:
+                "There was a network issue while saving the goals section.",
+              variant: "destructive",
+            });
+          }
+        } catch (error) {
+          toast({
+            title: "Section 3 Network Error",
+            description:
+              "There was a network issue while saving the exercises section.",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        toast({
+          title: "Section 2 Network Error",
+          description:
+            "There was a network issue while saving the workout names.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Section 1 Network Error",
+        description: "There was a network issue while saving the plan.",
+        variant: "destructive",
       });
     }
-
-    // Navigate to plans page
-    navigate("/plans");
   };
 
   const ensureThreeGoals = () => {
@@ -267,12 +433,9 @@ const PlanEditor = () => {
 
       while (updatedGoals.length < 3) {
         updatedGoals.push({
-          description: "", // Empty string as a placeholder
-          exercise: {
-            id: `exercise-${updatedGoals.length + 1}`, // Unique ID for exercise
-            name: "", // Empty name as a placeholder
-          },
-          targetWeight: 0, // Default target weight
+          id: `goal-${updatedGoals.length + 1}`,
+          exerciseName: "",
+          targetWeight: 0,
         });
       }
 
@@ -318,8 +481,8 @@ const PlanEditor = () => {
 
     const initialGoalValidation: ValidationState = {};
     goals.forEach((goal) => {
-      initialGoalValidation[goal.exercise.id] =
-        goal.exercise.name !== "" && goal.targetWeight > 0;
+      initialGoalValidation[goal.id] =
+        goal.exerciseName !== "" && goal.targetWeight > 0;
     });
     setGoalValidation(initialGoalValidation);
   }, [workoutDays, goals]);
@@ -441,10 +604,10 @@ const PlanEditor = () => {
           <div className="space-y-4">
             {goals.map((goal) => (
               <GoalEditor
-                key={goal.exercise.id}
+                key={goal.id}
                 goal={goal}
                 exercises={getPlanExercises()}
-                onChange={handleUpdateGoal} // Ensure handleUpdateGoal is correctly typed
+                onChange={handleUpdateGoal}
               />
             ))}
           </div>
