@@ -280,12 +280,11 @@ const PlanEditor = () => {
             "https://hc920.brighton.domains/muscleMetric/php/plans/write/section3.php",
             {
               method: "POST",
-              headers: { "Content-Type": "application/x-www-form-urlencoded" },
-              body: new URLSearchParams({
-                workoutExercises: JSON.stringify(exercises),
-              }).toString(),
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ workoutExercises: exercises }),
             }
           );
+          
 
           const exercisesDataResponse = await exercisesResponse.json();
 
