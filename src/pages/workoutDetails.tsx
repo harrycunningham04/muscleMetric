@@ -72,7 +72,7 @@ const Workout = () => {
       try {
         const response = await fetch(
           `https://hc920.brighton.domains/muscleMetric/php/workout/workoutDetails.php?id=${workoutid}`
-        ); // Replace with your actual API endpoint
+        );
         if (!response.ok) {
           throw new Error("Failed to fetch workout data");
         }
@@ -223,7 +223,55 @@ const Workout = () => {
   };
 
   const handleFinishWorkout = () => {
-    if (workout?.completedExercises.length === workout?.exercises.length) {
+    if (!workout) return;
+
+    const now = new Date();
+    const formattedDate = now.toISOString().split("T")[0]; // YYYY-MM-DD
+    const formattedTime = new Date(workout.timerSeconds * 1000)
+      .toISOString()
+      .substr(11, 8); // HH:MM:SS
+
+    // WorkoutHistory info
+    const workoutHistoryData = {
+      WorkoutId: workoutid,
+      WorkoutTime: formattedTime,
+      Date: formattedDate,
+    };
+
+    // HistorySets info
+    const historySetsData = workout.exercises
+      .filter((ex) => workout.completedExercises.includes(ex.id))
+      .flatMap((ex) =>
+        ex.weights.map((weight, index) => ({
+          ExerciseId: ex.id,
+          SetNumber: index + 1,
+          Reps: ex.reps,
+          Weight: weight,
+        }))
+      );
+
+    // Facts info (totals)
+    const totalWeight = historySetsData.reduce(
+      (sum, s) => sum + s.Weight * s.Reps,
+      0
+    );
+    const totalSets = historySetsData.length;
+
+    const factsUpdate = {
+      UserId: "TODO", // Replace with actual user ID
+      TotalWeight: totalWeight,
+      SetsCompleted: totalSets,
+      WorkoutsComplete: 1,
+      WorkoutTime: formattedTime,
+      Date: formattedDate,
+    };
+
+    console.log("🔍 Workout History:", workoutHistoryData);
+    console.log("📊 History Sets:", historySetsData);
+    console.log("📈 Facts Update:", factsUpdate);
+
+    // Now optionally prompt or save
+    if (workout.completedExercises.length === workout.exercises.length) {
       toast({
         title: "Workout completed! 🎉",
         description: "Amazing work! Your progress has been saved.",

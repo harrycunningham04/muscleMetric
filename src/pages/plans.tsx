@@ -7,6 +7,7 @@ import {
   Clock,
   Dumbbell,
   CalendarCheck,
+  Activity,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import PlanCard from "@/components/PlanCard";
@@ -150,12 +151,45 @@ const Plans = () => {
     }
   };
 
-  const handleActivatePlan = (planId: string) => {
-    setActivePlanId(planId);
-    toast({
-      title: "Plan Activated",
-      description: "Your active plan has been updated successfully.",
-    });
+  const handleActivatePlan = async (planId: string) => {
+    try {
+      const response = await fetch(
+        "https://hc920.brighton.domains/muscleMetric/php/plans/update/activePlan.php",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: "2", // Replace this with dynamic user ID if available
+            planId: planId,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        setActivePlanId(planId);
+        toast({
+          title: "Plan Activated",
+          description: "Your active plan has been updated successfully.",
+        });
+      } else {
+        toast({
+          title: "Activation Failed",
+          description:
+            data.error || "Something went wrong while activating the plan.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Network Error",
+        description: "Could not reach the server. Please try again later.",
+        variant: "destructive",
+      });
+    }
   };
 
   const activePlan = plans.find((plan) => plan.isDefault);
@@ -311,7 +345,8 @@ const Plans = () => {
             )}
           </div>
 
-          <div>
+          {data?.pages[0]?.workouts?.length > 0 ? (
+            <div> 
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">Recent Workouts</h2>
               <Button
@@ -340,7 +375,7 @@ const Plans = () => {
                           (workout: {
                             id: number;
                             planName: string;
-                            workoutName: string,
+                            workoutName: string;
                             duration: string;
                             date: string;
                             exercises: string[];
@@ -404,6 +439,15 @@ const Plans = () => {
               </div>
             </ScrollArea>
           </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center h-64 text-center text-muted-foreground">
+              <Activity className="w-12 h-12 mb-4 opacity-75" />
+              <h3 className="text-lg font-semibold">No workouts yet</h3>
+              <p className="text-sm">
+                Once you complete a workout, it’ll show up here. Let’s get moving!
+              </p>
+            </div>
+          )}
         </div>
       )}
 
