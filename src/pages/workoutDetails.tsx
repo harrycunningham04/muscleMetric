@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Timer, ChevronLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -53,9 +53,6 @@ const Workout = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { workoutid } = useParams();
-
-  //call to workoutExercises table list of exercises, reps sets and last used weight,
-  //call to exercises table get all information about that exercise
 
   const [workout, setWorkout] = useState<WorkoutState | null>(null);
   const [loading, setLoading] = useState(true);
@@ -210,84 +207,144 @@ const Workout = () => {
     }));
   };
 
-  const completeExercise = (exerciseId: string) => {
-    setWorkout((prev) => ({
-      ...prev!,
-      completedExercises: [...prev!.completedExercises, exerciseId],
-      activeExerciseId: null,
-    }));
+  const handleCompletedExercise = (
+    exerciseId: string,
+    sets: { weight: number; reps: number }[]  // reps as a single number now
+  ) => {
+    console.log("Received sets for", exerciseId, sets);
+  
+    setWorkout((prev) => {
+      if (!prev) return prev;
+  
+      const updatedExercises = prev.exercises.map((ex) =>
+        ex.id === exerciseId
+          ? {
+              ...ex,
+              sets: sets.length,  // Keep this as the number of sets
+              weights: sets.map((set) => set.weight),  // Array of weights
+              reps: sets[sets.length - 1].reps,  
+            }
+          : ex
+      );
+  
+      return {
+        ...prev,
+        completedExercises: [
+          ...new Set([...prev.completedExercises, exerciseId]),
+        ],
+        exercises: updatedExercises,
+      };
+    });
+  
     toast({
       title: "Exercise Completed",
       description: "Great job! Keep going! 🎯",
     });
   };
 
-  const handleFinishWorkout = () => {
+    // Calculate historySetsData using useMemo
+    const historySetsData = useMemo(() => {
+      if (!workout) return [];
+      return workout.exercises
+        .filter((ex) => workout.completedExercises.includes(ex.id))
+        .flatMap((ex) =>
+          ex.weights.map((weight, index) => ({
+            ExerciseId: ex.id,
+            SetNumber: index + 1,
+            Reps: ex.reps,
+            Weight: weight,
+          }))
+        );
+    }, [workout]);
+
+  const handleFinishWorkout = async () => {
     if (!workout) return;
 
     const now = new Date();
-    const formattedDate = now.toISOString().split("T")[0]; // YYYY-MM-DD
+    const formattedDate = now.toISOString().split("T")[0];
     const formattedTime = new Date(workout.timerSeconds * 1000)
       .toISOString()
-      .substr(11, 8); // HH:MM:SS
+      .substr(11, 8);
 
-    // WorkoutHistory info
     const workoutHistoryData = {
       WorkoutId: workoutid,
       WorkoutTime: formattedTime,
       Date: formattedDate,
     };
 
-    // HistorySets info
-    const historySetsData = workout.exercises
-      .filter((ex) => workout.completedExercises.includes(ex.id))
-      .flatMap((ex) =>
-        ex.weights.map((weight, index) => ({
-          ExerciseId: ex.id,
-          SetNumber: index + 1,
-          Reps: ex.reps,
-          Weight: weight,
-        }))
+    try {
+      console.log("🟡 Sending workout history:", workoutHistoryData);
+
+      const historyRes = await fetch(
+        "https://hc920.brighton.domains/muscleMetric/php/workout/write/section1.php",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(workoutHistoryData),
+        }
       );
 
-    // Facts info (totals)
-    const totalWeight = historySetsData.reduce(
-      (sum, s) => sum + s.Weight * s.Reps,
-      0
-    );
-    const totalSets = historySetsData.length;
+      const historyResult = await historyRes.json();
+      console.log("🟢 Received history result:", historyResult);
 
-    const factsUpdate = {
-      UserId: "TODO", // Replace with actual user ID
-      TotalWeight: totalWeight,
-      SetsCompleted: totalSets,
-      WorkoutsComplete: 1,
-      WorkoutTime: formattedTime,
-      Date: formattedDate,
-    };
+      if (!historyResult.success) {
+        throw new Error("❌ Failed to save workout history");
+      }
 
-    console.log("🔍 Workout History:", workoutHistoryData);
-    console.log("📊 History Sets:", historySetsData);
-    console.log("📈 Facts Update:", factsUpdate);
+      const historyId = historyResult.historyId;
+      console.log("✅ WorkoutHistory saved with historyId:", historyId);
 
-    // Now optionally prompt or save
-    if (workout.completedExercises.length === workout.exercises.length) {
-      toast({
-        title: "Workout completed! 🎉",
-        description: "Amazing work! Your progress has been saved.",
-      });
-      navigate("/dashboard");
-    } else {
-      const confirmed = window.confirm(
-        "You haven't completed all exercises. Are you sure you want to finish the workout?"
+      const setsData = {
+        historyId: historyId,
+        sets: historySetsData, 
+      };
+
+      console.log("🟡 Sending sets data:", setsData);
+
+      const setsRes = await fetch(
+        "https://hc920.brighton.domains/muscleMetric/php/workout/write/section2.php",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(setsData),
+        }
       );
-      if (confirmed) {
+
+      const setsResult = await setsRes.json();
+      console.log("🟢 Received sets result:", setsResult);
+
+      if (!setsResult.success) {
+        throw new Error("❌ Failed to save history sets");
+      }
+
+      console.log("✅ History sets saved.");
+
+      // Notifications and navigation
+      if (workout.completedExercises.length === workout.exercises.length) {
         toast({
-          title: "Workout saved",
-          description: "Your partial progress has been saved.",
+          title: "Workout completed! 🎉",
+          description: "Amazing work! Your progress has been saved.",
         });
         navigate("/dashboard");
+      } else {
+        const confirmed = window.confirm(
+          "You haven't completed all exercises. Are you sure you want to finish the workout?"
+        );
+        if (confirmed) {
+          toast({
+            title: "Workout saved",
+            description: "Your partial progress has been saved.",
+          });
+          navigate("/dashboard");
+        }
       }
+    } catch (error) {
+      console.error("❌ Error saving workout:", error);
+      toast({
+        title: "Save failed",
+        description: "Something went wrong while saving your workout.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -392,9 +449,10 @@ const Workout = () => {
                 >
                   <div className="p-4">
                     <ExerciseCard
+                      key={exercise.id}
                       exercise={exercise}
                       isActive={workout.activeExerciseId === exercise.id}
-                      onComplete={() => completeExercise(exercise.id)}
+                      onComplete={(sets) => handleCompletedExercise(exercise.id, sets)} 
                       onStart={() => startExercise(exercise.id)}
                       onDeactivate={deactivateExercise}
                       isStarted={workout.startedExercises.includes(exercise.id)}

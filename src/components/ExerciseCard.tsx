@@ -21,7 +21,7 @@ interface ExerciseCardProps {
     user: "beginner" | "intermediate" | "advanced";
   };
   isActive: boolean;
-  onComplete: () => void;
+  onComplete: (sets: { weight: number; reps: number }[]) => void;
   onStart?: () => void;
   isStarted?: boolean;
   workoutStarted?: boolean;
@@ -122,7 +122,8 @@ export const ExerciseCard = ({
   const handleCompleteExercise = () => {
     if (areAllSetsComplete()) {
       setIsCompleted(true);
-      onComplete();
+      onComplete(sets);
+  
       if (onDeactivate) {
         onDeactivate();
       }
