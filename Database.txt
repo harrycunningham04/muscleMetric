@@ -40,6 +40,8 @@ Writing to database
 - workoutDetails.tsx, gonna be for when they complete each workout it gets added to history and that workout for the week is completed. ✅
  i am so good
 
+ - verify.tsx, create user or log in
+
 
 
 
