@@ -37,7 +37,8 @@ Writing to database
                 goals stored so each exercise id and the weight they would like to reach with it is stored ✅
                 starting weight placing the planId exerciseId with the users starting weight ✅
 
-- workoutDetails.tsx, gonna be for when they complete each workout it gets added to history and that workout for the week is completed.
+- workoutDetails.tsx, gonna be for when they complete each workout it gets added to history and that workout for the week is completed. ✅
+ i am so good
 
 
 

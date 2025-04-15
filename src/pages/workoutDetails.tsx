@@ -209,24 +209,24 @@ const Workout = () => {
 
   const handleCompletedExercise = (
     exerciseId: string,
-    sets: { weight: number; reps: number }[]  // reps as a single number now
+    sets: { weight: number; reps: number }[] // reps as a single number now
   ) => {
     console.log("Received sets for", exerciseId, sets);
-  
+
     setWorkout((prev) => {
       if (!prev) return prev;
-  
+
       const updatedExercises = prev.exercises.map((ex) =>
         ex.id === exerciseId
           ? {
               ...ex,
-              sets: sets.length,  // Keep this as the number of sets
-              weights: sets.map((set) => set.weight),  // Array of weights
-              reps: sets[sets.length - 1].reps,  
+              sets: sets.length, // Keep this as the number of sets
+              weights: sets.map((set) => set.weight), // Array of weights
+              reps: sets[sets.length - 1].reps,
             }
           : ex
       );
-  
+
       return {
         ...prev,
         completedExercises: [
@@ -235,29 +235,63 @@ const Workout = () => {
         exercises: updatedExercises,
       };
     });
-  
+
     toast({
       title: "Exercise Completed",
       description: "Great job! Keep going! 🎯",
     });
   };
 
-    // Calculate historySetsData using useMemo
-    const historySetsData = useMemo(() => {
-      if (!workout) return [];
-      return workout.exercises
-        .filter((ex) => workout.completedExercises.includes(ex.id))
-        .flatMap((ex) =>
-          ex.weights.map((weight, index) => ({
-            ExerciseId: ex.id,
-            SetNumber: index + 1,
-            Reps: ex.reps,
-            Weight: weight,
-          }))
-        );
-    }, [workout]);
+  // Calculate historySetsData using useMemo
+  const historySetsData = useMemo(() => {
+    if (!workout) return [];
+    return workout.exercises
+      .filter((ex) => workout.completedExercises.includes(ex.id))
+      .flatMap((ex) =>
+        ex.weights.map((weight, index) => ({
+          ExerciseId: ex.id,
+          SetNumber: index + 1,
+          Reps: ex.reps,
+          Weight: weight,
+        }))
+      );
+  }, [workout]);
+
+  function calculateNewAverageTime(
+    oldTime: string,
+    workoutCount: number,
+    newWorkoutSeconds: number
+  ): string {
+    // Check if oldTime is valid
+    if (!oldTime || oldTime === "00:00:00") {
+      console.log("🟡 Invalid or default oldTime, using fallback.");
+      oldTime = "00:00:00"; // Set a default value if oldTime is invalid
+    }
+
+    const [hours, minutes, seconds] = oldTime.split(":").map(Number);
+    const oldSeconds = hours * 3600 + minutes * 60 + seconds;
+
+    const totalTime =
+      (oldSeconds * workoutCount + newWorkoutSeconds) / (workoutCount + 1);
+
+    const h = String(Math.floor(totalTime / 3600)).padStart(2, "0");
+    const m = String(Math.floor((totalTime % 3600) / 60)).padStart(2, "0");
+    const s = String(Math.floor(totalTime % 60)).padStart(2, "0");
+
+    console.log("🟡 oldTime value:", oldTime);
+    return `${h}:${m}:${s}`;
+  }
 
   const handleFinishWorkout = async () => {
+    let userid = 2;
+
+    const totalSetsThisWorkout = historySetsData.length;
+
+    const totalWeightThisWorkout = historySetsData.reduce(
+      (total, set) => total + set.Weight,
+      0
+    );
+
     if (!workout) return;
 
     const now = new Date();
@@ -295,8 +329,8 @@ const Workout = () => {
       console.log("✅ WorkoutHistory saved with historyId:", historyId);
 
       const setsData = {
-        historyId: historyId,
-        sets: historySetsData, 
+        historyId,
+        sets: historySetsData,
       };
 
       console.log("🟡 Sending sets data:", setsData);
@@ -319,7 +353,103 @@ const Workout = () => {
 
       console.log("✅ History sets saved.");
 
-      // Notifications and navigation
+      // 🟡 Send userId to section 3
+      const section3Data = {
+        userId: userid,
+      };
+
+      console.log("🟡 Sending section 3 data:", section3Data);
+
+      const section3Res = await fetch(
+        "https://hc920.brighton.domains/muscleMetric/php/workout/write/section3.php",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(section3Data),
+        }
+      );
+
+      const section3Result = await section3Res.json();
+      console.log("🟢 Received section 3 result:", section3Result);
+
+      console.log("Section data 3 test1:", section3Result.SetsCompleted);
+      console.log(
+        "Section data 3 test2:",
+        section3Result.data[0].SetsCompleted
+      );
+
+      if (!section3Result.success) {
+        throw new Error("❌ Failed to save section 3 data");
+      }
+
+      console.log("✅ Section 3 data saved.");
+
+      //updated fact to section 4
+      const updatedFacts = {
+        userid,
+        newWorkoutCount: section3Result.data[0].WorkoutsComplete + 1,
+        newSetsCompleted:
+          section3Result.data[0].SetsCompleted + totalSetsThisWorkout,
+        newTotalWeight:
+          section3Result.data[0].TotalWeight + totalWeightThisWorkout,
+        newAvgWorkoutTime: calculateNewAverageTime(
+          section3Result.data[0].AvgWorkoutTime,
+          section3Result.data[0].WorkoutsComplete,
+          workout.timerSeconds
+        ),
+      };
+
+      console.log(
+        "✅ Section 3 succeeded, preparing to send section 4 data..."
+      );
+      console.log("📦 Updated facts payload:", updatedFacts);
+
+      const section4Res = await fetch(
+        "https://hc920.brighton.domains/muscleMetric/php/workout/write/section4.php",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updatedFacts),
+        }
+      );
+
+      console.log("🟢 Section 4 request completed, parsing response...");
+
+      const section4Result = await section4Res.json();
+      console.log("📩 Section 4 response:", section4Result);
+
+      if (!section4Result.success) {
+        throw new Error("❌ Failed to save section 4 data");
+      }
+
+      console.log("✅ Section 4 data saved.");
+
+      console.log("Section 5 starting");
+
+      //section 5, updating Workouts table
+      const section5Res = await fetch(
+        "https://hc920.brighton.domains/muscleMetric/php/workout/write/section5.php",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ WorkoutId: workoutid }),
+        }
+      );
+
+      const section5Result = await section5Res.json();
+      console.log("Section 5 response:", section5Result);
+
+      if(!section5Result.success) {
+        throw new Error("❌ Failed to save section 5 data");
+      }
+
+      console.log("Section 5 data saved");
+
+      // 🎉 Final toast/redirect
       if (workout.completedExercises.length === workout.exercises.length) {
         toast({
           title: "Workout completed! 🎉",
@@ -452,7 +582,9 @@ const Workout = () => {
                       key={exercise.id}
                       exercise={exercise}
                       isActive={workout.activeExerciseId === exercise.id}
-                      onComplete={(sets) => handleCompletedExercise(exercise.id, sets)} 
+                      onComplete={(sets) =>
+                        handleCompletedExercise(exercise.id, sets)
+                      }
                       onStart={() => startExercise(exercise.id)}
                       onDeactivate={deactivateExercise}
                       isStarted={workout.startedExercises.includes(exercise.id)}
