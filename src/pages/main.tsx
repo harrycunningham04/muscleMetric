@@ -5,8 +5,10 @@ import { ProgressSummary } from "@/components/ProgressSummary";
 import { ExerciseProgressGraph } from "@/components/ExerciseProgressGraph";
 
 const Main = () => {
-  const [selectedExercise, setSelectedExercise] = useState<string | null>(null);
-  const [exercises, setExercises] = useState<string[]>([]);
+  const [selectedExercise, setSelectedExercise] = useState<number | null>(null);
+  const [exercises, setExercises] = useState<{ id: number; name: string }[]>(
+    []
+  );
 
   useEffect(() => {
     const fetchExercises = async () => {
@@ -19,7 +21,12 @@ const Main = () => {
         const data = await response.json();
 
         if (response.ok && data.exercises) {
-          setExercises(data.exercises.map((exercise: { name: string; }) => exercise.name));
+          setExercises(
+            data.exercises.map((exercise: { id: number; name: string }) => ({
+              id: exercise.id,
+              name: exercise.name,
+            }))
+          );
         } else {
           console.error("Error fetching exercises:", data.message);
         }
@@ -52,15 +59,18 @@ const Main = () => {
                   {exercises.length > 0 ? (
                     exercises.map((exercise) => (
                       <button
-                        key={exercise}
-                        onClick={() => setSelectedExercise(exercise)}
+                        key={exercise.id}
+                        onClick={() => {
+                          setSelectedExercise(exercise.id);
+                          console.log("Selected exercise ID:", exercise.id);
+                        }}
                         className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
-                          selectedExercise === exercise
+                          selectedExercise === exercise.id
                             ? "bg-primary text-primary-foreground"
                             : "hover:bg-accent"
                         }`}
                       >
-                        {exercise}
+                        {exercise.name}
                       </button>
                     ))
                   ) : (
@@ -75,7 +85,10 @@ const Main = () => {
               <div className="md:col-span-9">
                 <div className="h-full">
                   {selectedExercise ? (
-                    <ExerciseProgressGraph exercise={selectedExercise} />
+                    <ExerciseProgressGraph
+                      exerciseId={selectedExercise}
+                      userId={2}
+                    />
                   ) : (
                     <div className="text-center text-muted-foreground py-12">
                       Select an exercise from the list to view your progress

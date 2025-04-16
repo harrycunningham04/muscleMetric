@@ -81,14 +81,14 @@ export const DashboardView = () => {
           averageWorkoutDuration: data.AvgWorkoutTime || "0",
         });
       } else {
-        console.error(data.message); // Log the error message if there is one
+        console.error(data.message); 
       }
     } catch (error) {
       console.error("Error fetching stats:", error);
     }
   };
 
-  fetchStats(); // Call the function to fetch stats
+  fetchStats(); 
   }, []);
 
   const handleWorkoutClick = () => {

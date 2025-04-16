@@ -3,7 +3,7 @@ List of all database connections needed:
 Function:
 - Monday at midnight of the morning,
             checks each user to see if they have completed all workouts for that week, if yes add 1 to their weekly streak if no set streak to 0
-            all completed workouts get set to not completed, 
+            all completed workouts get set to not completed,  ✅
 
 Reading from database
 - verify.tsx, the user management stage, use a token so user stays logged in for a day.
@@ -52,3 +52,13 @@ Updating database
 
 
 Delete from database?
+
+
+
+//notes 
+Purple is a bit lost in the dark mode
+header text a bit big, 2 size smaller, maybe spacing as well
+active plan in other plans section
+ui issue on workout active  ✅
+faq box too light
+male and female icons

@@ -70,7 +70,7 @@ export const FeatureCard = ({ feature, index, type }: FeatureCardProps) => {
         />
       )}
       <div className="flex items-center text-blue-400 hover:text-blue-300">
-        <span className="mr-2">Learn more</span>
+        <span className="mr-2">Click to Learn more</span>
         <ChevronRight className="w-4 h-4" />
       </div>
     </motion.div>

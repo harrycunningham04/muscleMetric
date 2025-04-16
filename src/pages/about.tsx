@@ -265,7 +265,7 @@ const About = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-10">
             <CoreValueCard
-              title="Personalization"
+              title="Personalisation"
               description="We believe fitness is not one-size-fits-all. Our platform adapts to your unique goals and needs."
               icon={Target}
               delay={0}
@@ -366,7 +366,7 @@ const About = () => {
                 transition={{ duration: 0.6 }}
                 className="space-y-6"
               >
-                <h2 className="text-4xl font-bold text-primary dark:text-white">How Muscle Metric Works For You</h2>
+                <h2 className="text-3xl font-bold text-primary dark:text-white">How Muscle Metric Works For You</h2>
                 <p className="text-lg text-muted-foreground dark:text-gray-300">
                   Our intuitive platform makes it simple to plan, track, and achieve your fitness goals with features designed for real results.
                 </p>
@@ -374,14 +374,14 @@ const About = () => {
                 <div className="space-y-6 mt-8">
                   <ProductFeature
                     title="Create Custom Workout Plans"
-                    description="Design personalized workout routines tailored to your specific goals, fitness level, and available equipment."
+                    description="Design personalised workout routines tailored to your specific goals, fitness level, and available equipment."
                     icon={Dumbbell}
                     delay={0.1}
                   />
                   
                   <ProductFeature
                     title="Schedule Your Training"
-                    description="Easily organize your workouts in a weekly calendar to maintain consistency and build healthy habits."
+                    description="Easily organise your workouts in a weekly calendar to maintain consistency and build healthy habits."
                     icon={Calendar}
                     delay={0.2}
                   />
@@ -434,7 +434,7 @@ const About = () => {
                 Ready to Transform Your Fitness Journey?
               </h2>
               <p className="text-xl text-white/80">
-                Join thousands of users who are already achieving their fitness goals with our platform.
+                Join 1000+ of users who are already achieving their fitness goals with our platform.
               </p>
             </motion.div>
           </div>

@@ -123,7 +123,7 @@ export const ExerciseCard = ({
     if (areAllSetsComplete()) {
       setIsCompleted(true);
       onComplete(sets);
-  
+
       if (onDeactivate) {
         onDeactivate();
       }
@@ -190,7 +190,7 @@ export const ExerciseCard = ({
 
   // Active exercise view
   return (
-    <div className="bg-primary text-primary-foreground rounded-lg p-6 mb-4 shadow-md border border-border/20">
+    <div className="w-full max-w-md mx-auto bg-primary text-primary-foreground rounded-lg px-4 py-6 mb-4 shadow-md border border-border/20">
       <div className="text-center mb-6">
         <h2
           className="text-primary-foreground text-xl font-bold flex items-center justify-center cursor-pointer group"
@@ -206,7 +206,7 @@ export const ExerciseCard = ({
           {sets.map((_, index) => (
             <div
               key={index}
-              className={`min-w-[80px] px-4 py-2 rounded ${
+              className={`min-w-[72px] px-3 py-2 rounded text-center text-sm ${
                 currentSet === index
                   ? "bg-accent text-accent-foreground font-medium"
                   : "bg-muted/60 text-muted-foreground"
@@ -219,7 +219,7 @@ export const ExerciseCard = ({
       </div>
 
       <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
             type="number"
             value={sets[currentSet]?.reps || ""}
@@ -227,9 +227,8 @@ export const ExerciseCard = ({
               updateSet(currentSet, "reps", Number(e.target.value))
             }
             className="bg-background text-foreground border border-border"
-            placeholder={`Previous: ${exercise.reps} reps`} 
+            placeholder={`Previous: ${exercise.reps} reps`}
           />
-
           <Input
             type="number"
             value={sets[currentSet]?.weight || ""}
@@ -244,12 +243,13 @@ export const ExerciseCard = ({
         </div>
       </div>
 
-      <div className="flex justify-between mt-6">
-        <div className="flex gap-2">
+      <div className="flex flex-col sm:flex-row justify-between mt-6 gap-4">
+        {/* Add/Remove Set Buttons */}
+        <div className="flex gap-2 justify-center sm:justify-start w-full sm:w-auto flex-wrap">
           <Button
             variant="outline"
             onClick={addSet}
-            className="text-primary-foreground bg-primary-foreground/20 hover:bg-primary-foreground/50"
+            className="flex-1 sm:flex-none text-primary-foreground bg-primary-foreground/20 hover:bg-primary-foreground/50"
           >
             <Plus className="h-4 w-4 mr-2" />
             Add Set
@@ -258,18 +258,20 @@ export const ExerciseCard = ({
             variant="outline"
             onClick={removeSet}
             disabled={sets.length <= 1}
-            className="text-primary-foreground bg-primary-foreground/20 hover:bg-primary-foreground/50"
+            className="flex-1 sm:flex-none text-primary-foreground bg-primary-foreground/20 hover:bg-primary-foreground/50"
           >
             <Minus className="h-4 w-4 mr-2" />
             Remove
           </Button>
         </div>
-        <div className="flex gap-2">
+
+        {/* Navigation Buttons */}
+        <div className="flex gap-2 justify-center sm:justify-end w-full sm:w-auto flex-wrap">
           {currentSet > 0 && (
             <Button
               variant="outline"
               onClick={handlePreviousSet}
-              className="text-primary-foreground bg-primary-foreground/20 hover:bg-primary-foreground/50"
+              className="flex-1 sm:flex-none text-primary-foreground bg-primary-foreground/20 hover:bg-primary-foreground/50"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Previous Set
@@ -281,7 +283,7 @@ export const ExerciseCard = ({
                 ? handleCompleteSet
                 : handleCompleteExercise
             }
-            className="bg-accent hover:bg-accent/90 text-accent-foreground"
+            className="flex-1 sm:flex-none bg-accent hover:bg-accent/90 text-accent-foreground"
           >
             {currentSet < sets.length - 1
               ? "Complete Set"
@@ -295,8 +297,8 @@ export const ExerciseCard = ({
         onClose={() => setIsModalOpen(false)}
         exercise={{
           ...exercise,
-          previousWeight: exercise.previousWeight || "", // Default to empty string if undefined
-        }} // Pass the full exercise object
+          previousWeight: exercise.previousWeight || "",
+        }}
       />
     </div>
   );
