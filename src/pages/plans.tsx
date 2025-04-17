@@ -175,6 +175,7 @@ const Plans = () => {
           title: "Plan Activated",
           description: "Your active plan has been updated successfully.",
         });
+        window.location.reload();
       } else {
         toast({
           title: "Activation Failed",

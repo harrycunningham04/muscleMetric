@@ -29,6 +29,8 @@ Can I combine these two and pass the data to workoutDetails when it is called, t
 
 - userProfile.tsx, user information, name age height weight etc ✅
 
+- viewing current plan information.
+
 
 Writing to database
 - planEditor.tsx, creating a new workout, so needs to store title duration userId isDefault, ✅
@@ -48,6 +50,7 @@ Writing to database
 Updating database
 - userProfile.tsx, update info about the user whenever they want ✅
 - plans.tsx, update the active plan ✅
+- edit plan
 
 
 
@@ -57,7 +60,7 @@ Delete from database?
 
 //notes 
 Purple is a bit lost in the dark mode
-header text a bit big, 2 size smaller, maybe spacing as well
+header text a bit big, 2 size smaller, maybe spacing as well ✅
 active plan in other plans section
 ui issue on workout active  ✅
 faq box too light

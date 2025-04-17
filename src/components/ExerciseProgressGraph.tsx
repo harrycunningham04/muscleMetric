@@ -29,7 +29,6 @@ export const ExerciseProgressGraph = ({
   const [goalData, setGoalData] = useState<
     { date: string; goal: number; goalDisplay: number }[]
   >([]);
-  const [progressPercent, setProgressPercent] = useState<number | null>(null);
   const [isGoalExercise, setIsGoalExercise] = useState(false);
 
   useEffect(() => {
@@ -106,15 +105,6 @@ export const ExerciseProgressGraph = ({
         });
 
         setGoalData(weeklyGoals);
-
-        if (data.length > 0) {
-          const latestActual = data[data.length - 1].actual;
-          const percent =
-            ((latestActual - startingWeight) /
-              (targetWeight - startingWeight)) *
-            100;
-          setProgressPercent(Math.min(100, Math.max(0, percent)));
-        }
       } catch (err) {
         console.error("Error fetching goal data", err);
       }
@@ -123,11 +113,6 @@ export const ExerciseProgressGraph = ({
     fetchData();
     fetchGoalData();
   }, [exerciseId, userId]);
-
-  const isOnTrack =
-    data.length > 0 &&
-    goalData.length > 0 &&
-    data[data.length - 1].actual >= goalData[goalData.length - 1].goal;
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -170,23 +155,6 @@ export const ExerciseProgressGraph = ({
             {data.length > 0 ? formatWeight(data[data.length - 1].actual) : "-"}
           </p>
         </div>
-        {isGoalExercise && progressPercent !== null && (
-          <p className="text-sm text-muted-foreground">
-            Progress: {progressPercent.toFixed(1)}%
-          </p>
-        )}
-
-        {isGoalExercise && (
-          <div
-            className={`px-3 py-1 rounded-full text-sm font-medium ${
-              isOnTrack
-                ? "bg-green-100 text-green-800"
-                : "bg-yellow-100 text-yellow-800"
-            }`}
-          >
-            {isOnTrack ? "On Track" : "Needs Improvement"}
-          </div>
-        )}
       </div>
 
       <div className="w-full h-[400px]">
