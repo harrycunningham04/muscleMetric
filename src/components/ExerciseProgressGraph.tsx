@@ -29,6 +29,8 @@ export const ExerciseProgressGraph = ({
   const [goalData, setGoalData] = useState<
     { date: string; goal: number; goalDisplay: number }[]
   >([]);
+  const [progressPercent, setProgressPercent] = useState<number | null>(null);
+  const [isGoalExercise, setIsGoalExercise] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -70,7 +72,12 @@ export const ExerciseProgressGraph = ({
           }
         );
 
-        if (res.data.message === "Not a goal exercise") return;
+        if (res.data.message === "Not a goal exercise") {
+          setIsGoalExercise(false);
+          return;
+        }
+
+        setIsGoalExercise(true);
 
         const {
           date: endDateStr,
@@ -94,10 +101,20 @@ export const ExerciseProgressGraph = ({
             date: format(date, "MMM dd"),
             goal: weight,
             goalDisplay: convertWeight(weight),
+            label: `Week ${i + 1}`,
           };
         });
 
         setGoalData(weeklyGoals);
+
+        if (data.length > 0) {
+          const latestActual = data[data.length - 1].actual;
+          const percent =
+            ((latestActual - startingWeight) /
+              (targetWeight - startingWeight)) *
+            100;
+          setProgressPercent(Math.min(100, Math.max(0, percent)));
+        }
       } catch (err) {
         console.error("Error fetching goal data", err);
       }
@@ -126,7 +143,13 @@ export const ExerciseProgressGraph = ({
                 className="w-2 h-2 rounded-full"
                 style={{ backgroundColor: entry.color }}
               />
-              <span className="text-muted-foreground">{entry.name}:</span>
+              {entry.name === "Goal" ? (
+                <p className="text-xs text-muted-foreground italic">
+                  {entry.payload.label}
+                </p>
+              ) : (
+                <span className="text-muted-foreground">{entry.name}:</span>
+              )}
               <span className="font-medium">
                 {formatWeight(entry.payload.actual ?? entry.payload.goal)}
               </span>
@@ -142,20 +165,28 @@ export const ExerciseProgressGraph = ({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="space-y-1">
-          <p className="text-sm font-medium">Progress</p>
+          <p className="text-sm font-medium">Current Weight</p>
           <p className="text-2xl font-bold">
             {data.length > 0 ? formatWeight(data[data.length - 1].actual) : "-"}
           </p>
         </div>
-        <div
-          className={`px-3 py-1 rounded-full text-sm font-medium ${
-            isOnTrack
-              ? "bg-green-100 text-green-800"
-              : "bg-yellow-100 text-yellow-800"
-          }`}
-        >
-          {isOnTrack ? "On Track" : "Needs Improvement"}
-        </div>
+        {isGoalExercise && progressPercent !== null && (
+          <p className="text-sm text-muted-foreground">
+            Progress: {progressPercent.toFixed(1)}%
+          </p>
+        )}
+
+        {isGoalExercise && (
+          <div
+            className={`px-3 py-1 rounded-full text-sm font-medium ${
+              isOnTrack
+                ? "bg-green-100 text-green-800"
+                : "bg-yellow-100 text-yellow-800"
+            }`}
+          >
+            {isOnTrack ? "On Track" : "Needs Improvement"}
+          </div>
+        )}
       </div>
 
       <div className="w-full h-[400px]">
@@ -183,12 +214,12 @@ export const ExerciseProgressGraph = ({
             <Line
               type="monotone"
               dataKey="actualDisplay"
-              name="Max Weight"
+              name="Your Weight"
               stroke="#0EA5E9"
               strokeWidth={2}
               dot={{ fill: "#0EA5E9", r: 3 }}
             />
-            {goalData.length > 0 && (
+            {isGoalExercise && goalData.length > 0 && (
               <Line
                 type="monotone"
                 dataKey="goalDisplay"

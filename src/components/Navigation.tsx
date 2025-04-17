@@ -90,12 +90,12 @@ const Navigation = () => {
 
         {/* Desktop Menu */}
         <nav className="hidden md:flex md:flex-1 md:items-center md:justify-between">
-          <div className="flex items-center space-x-8">
+          <div className="flex items-center space-x-6">
             {links.map((link) => (
               <Link
                 key={link.href}
                 to={link.href}
-                className={`text-2xl font-medium transition-colors hover:text-primary ${
+                className={`text-xl font-medium transition-colors hover:text-primary ${
                   isActive(link.href) ? "text-primary" : "text-muted-foreground"
                 }`}
               >
