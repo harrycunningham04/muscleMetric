@@ -8,7 +8,10 @@ import Icon from "@/assets/MuscleMetricIcon.png";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [theme, setTheme] = useState(() => {
+    const savedTheme = localStorage.getItem("theme");
+    return savedTheme ? savedTheme : "light";
+  });
   const [shrink, setShrink] = useState(false);
   const location = useLocation();
 
@@ -21,6 +24,14 @@ const Navigation = () => {
   ];
 
   const isActive = (path: string) => location.pathname === path;
+
+  useEffect(() => {
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [theme]);
 
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
@@ -65,10 +76,7 @@ const Navigation = () => {
           <SheetContent side="left" className="w-full sm:w-[300px]">
             <nav className="flex flex-col gap-4">
               <Link to="/" className="text-4xl font-bold">
-                <img
-                  src={Icon}
-                  className="h-16 w-16 rounded-xl"
-                />
+                <img src={Icon} className="h-16 w-16 rounded-xl" />
               </Link>
               {links.map((link) => (
                 <Link
