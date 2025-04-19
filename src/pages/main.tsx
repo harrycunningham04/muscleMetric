@@ -83,7 +83,7 @@ const Main = () => {
                     ))
                   ) : (
                     <div className="text-center text-muted-foreground py-4">
-                      Loading exercises...
+                      Create a plan and you will see your exercises here.
                     </div>
                   )}
                 </div>

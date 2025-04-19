@@ -140,11 +140,7 @@ const Plans = () => {
 
         setPlans(transformedPlans);
       } catch (error) {
-        toast({
-          title: "Error",
-          description: "Could not load workout plans.",
-          variant: "destructive",
-        });
+        console.log(error);
       }
     };
 
