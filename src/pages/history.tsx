@@ -24,12 +24,19 @@ interface WorkoutHistory {
 }
 
 const fetchWorkoutHistory = async (): Promise<WorkoutHistory[]> => {
-  const userId = 2; // Replace this with dynamic user ID if needed
+  const sessionData = localStorage.getItem("session");
+  if (!sessionData) {
+    throw new Error("Session not found in local storage.");
+  }
+
+  const session = JSON.parse(sessionData);
+  const userId = session.userId;
+
   const url = `https://hc920.brighton.domains/muscleMetric/php/history/history.php?user_id=${userId}`;
 
   const response = await fetch(url);
   if (!response.ok) {
-    throw new Error('Error fetching workout history');
+    throw new Error("Error fetching workout history");
   }
 
   const data = await response.json();
@@ -63,19 +70,25 @@ const countExercises = (exercises: string[]) => {
   }));
 };
 
-
-
 const History = () => {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const workoutsPerPage = 5;
 
-  const { data, status }: { data?: WorkoutHistory[], status: "pending" | "error" | "success" } = useQuery<WorkoutHistory[]>({
-    queryKey: ["workoutHistory"],
-    queryFn: fetchWorkoutHistory,
-  });
+  const {
+    data,
+    status,
+  }: { data?: WorkoutHistory[]; status: "pending" | "error" | "success" } =
+    useQuery<WorkoutHistory[]>({
+      queryKey: ["workoutHistory"],
+      queryFn: fetchWorkoutHistory,
+    });
 
-  const sortedWorkouts = data?.sort((a: WorkoutHistory, b: WorkoutHistory) => b.dateObj.getTime() - a.dateObj.getTime()) || [];
+  const sortedWorkouts =
+    data?.sort(
+      (a: WorkoutHistory, b: WorkoutHistory) =>
+        b.dateObj.getTime() - a.dateObj.getTime()
+    ) || [];
 
   const workoutsToDisplay = sortedWorkouts.slice(
     (currentPage - 1) * workoutsPerPage,
@@ -91,7 +104,9 @@ const History = () => {
   return (
     <div className="container max-w-2xl mx-auto py-8">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-foreground text-center">Workout History</h1>
+        <h1 className="text-2xl font-bold text-foreground text-center">
+          Workout History
+        </h1>
       </div>
 
       <div className="space-y-4">
@@ -105,18 +120,24 @@ const History = () => {
           </p>
         ) : sortedWorkouts.length === 0 ? (
           <div className="text-center py-16 bg-card rounded-lg border">
-            <p className="text-muted-foreground">
-              No workouts found.
-            </p>
+            <p className="text-muted-foreground">No workouts found.</p>
           </div>
         ) : (
           <>
             {workoutsToDisplay.map((workout) => (
-              <Card key={workout.id} className="p-4 hover:shadow-lg transition-all cursor-pointer bg-card hover:bg-accent/50" onClick={() => goToWorkoutDetails(workout.id)}>
+              <Card
+                key={workout.id}
+                className="p-4 hover:shadow-lg transition-all cursor-pointer bg-card hover:bg-accent/50"
+                onClick={() => goToWorkoutDetails(workout.id)}
+              >
                 <CardContent className="p-0">
                   <div className="mb-2">
-                    <div className="text-lg font-bold text-foreground">{workout.planName}</div>
-                    <div className="text-base font-semibold text-foreground">{workout.workoutName}</div>
+                    <div className="text-lg font-bold text-foreground">
+                      {workout.planName}
+                    </div>
+                    <div className="text-base font-semibold text-foreground">
+                      {workout.workoutName}
+                    </div>
                     <div className="flex items-center text-sm text-muted-foreground space-x-4 mt-1 mb-3">
                       <div className="flex items-center">
                         <Calendar className="w-4 h-4 mr-1" />
@@ -130,12 +151,18 @@ const History = () => {
                   </div>
                   <Separator />
                   <div className="flex flex-col space-y-2 mt-4">
-                    {workout.exercises.slice(0, 3).map((exercise: Exercise, idx: number) => (
-                      <div key={idx}>
-                        <div className="text-sm font-semibold">{exercise.name}</div>
-                        <div className="text-xs text-muted-foreground">{exercise.sets} sets</div>
-                      </div>
-                    ))}
+                    {workout.exercises
+                      .slice(0, 3)
+                      .map((exercise: Exercise, idx: number) => (
+                        <div key={idx}>
+                          <div className="text-sm font-semibold">
+                            {exercise.name}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {exercise.sets} sets
+                          </div>
+                        </div>
+                      ))}
                   </div>
                 </CardContent>
               </Card>
@@ -152,7 +179,9 @@ const History = () => {
                 Page {currentPage} of {totalPages}
               </span>
               <Button
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
                 disabled={currentPage === totalPages}
               >
                 Next

@@ -57,38 +57,46 @@ export const DashboardView = () => {
     const quoteIndex = dayOfYear % quotes.length;
     setDailyQuote(quotes[quoteIndex]);
 
-  // Fetch stats from PHP backend (facts.php) with user ID (2)
-  const fetchStats = async () => {
-    try {
-      const userId = 2; // Static user ID for now
-      const response = await fetch(
-        `https://hc920.brighton.domains/muscleMetric/php/dashboard/facts.php?user_id=${userId}`,
-        {
-          method: 'GET', // Using GET request since user_id is passed as a query parameter
-          headers: {
-            'Content-Type': 'application/json',
-          },
+    // Fetch stats from PHP backend (facts.php) with user ID (2)
+    const fetchStats = async () => {
+      try {
+        const sessionData = localStorage.getItem("session");
+        if (sessionData) {
+          const session = JSON.parse(sessionData); // Parse the string into an object
+          const userId = session.userId;
+          console.log("User ID:", userId);
+
+          const response = await fetch(
+            `https://hc920.brighton.domains/muscleMetric/php/dashboard/facts.php?user_id=${userId}`,
+            {
+              method: "GET", // Using GET request since user_id is passed as a query parameter
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          const data = await response.json();
+          if (response.ok) {
+            setStats({
+              streak: data.WeeklyStreak || 0,
+              totalVolume: data.TotalWeight || 0,
+              workoutsCompleted: data.WorkoutsComplete || 0,
+              setsCompleted: data.SetsCompleted || 0,
+              averageWorkoutDuration: data.AvgWorkoutTime || "0",
+            });
+          } else {
+            console.error(data.message);
+          }
+        } else {
+          console.log("Session not found in local storage.");
         }
-      );
-
-      const data = await response.json();
-      if (response.ok) {
-        setStats({
-          streak: data.WeeklyStreak || 0,
-          totalVolume: data.TotalWeight || 0,
-          workoutsCompleted: data.WorkoutsComplete || 0,
-          setsCompleted: data.SetsCompleted || 0,
-          averageWorkoutDuration: data.AvgWorkoutTime || "0",
-        });
-      } else {
-        console.error(data.message); 
+      } catch (error) {
+        console.error("Error fetching stats:", error);
       }
-    } catch (error) {
-      console.error("Error fetching stats:", error);
-    }
-  };
+    };
 
-  fetchStats(); 
+    fetchStats();
   }, []);
 
   const handleWorkoutClick = () => {

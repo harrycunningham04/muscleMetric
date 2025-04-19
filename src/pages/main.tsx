@@ -13,22 +13,30 @@ const Main = () => {
   useEffect(() => {
     const fetchExercises = async () => {
       try {
-        const userId = 2; // Static user ID for now
-        const response = await fetch(
-          `https://hc920.brighton.domains/muscleMetric/php/dashboard/exercises.php?user_id=${userId}`
-        );
+        const sessionData = localStorage.getItem("session");
+        if (sessionData) {
+          const session = JSON.parse(sessionData); // Parse the string into an object
+          const userId = session.userId;
+          console.log("User ID:", userId);
 
-        const data = await response.json();
-
-        if (response.ok && data.exercises) {
-          setExercises(
-            data.exercises.map((exercise: { id: number; name: string }) => ({
-              id: exercise.id,
-              name: exercise.name,
-            }))
+          const response = await fetch(
+            `https://hc920.brighton.domains/muscleMetric/php/dashboard/exercises.php?user_id=${userId}`
           );
+
+          const data = await response.json();
+
+          if (response.ok && data.exercises) {
+            setExercises(
+              data.exercises.map((exercise: { id: number; name: string }) => ({
+                id: exercise.id,
+                name: exercise.name,
+              }))
+            );
+          } else {
+            console.error("Error fetching exercises:", data.message);
+          }
         } else {
-          console.error("Error fetching exercises:", data.message);
+          console.log("Session not found in local storage.");
         }
       } catch (error) {
         console.error("Error fetching exercises:", error);

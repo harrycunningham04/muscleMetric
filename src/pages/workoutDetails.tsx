@@ -283,7 +283,13 @@ const Workout = () => {
   }
 
   const handleFinishWorkout = async () => {
-    let userid = 2;
+    const sessionData = localStorage.getItem("session");
+    if (!sessionData) {
+      throw new Error("Session not found in local storage.");
+    }
+
+    const session = JSON.parse(sessionData);
+    const userid = session.userId;
 
     const totalSetsThisWorkout = historySetsData.length;
 
@@ -443,7 +449,7 @@ const Workout = () => {
       const section5Result = await section5Res.json();
       console.log("Section 5 response:", section5Result);
 
-      if(!section5Result.success) {
+      if (!section5Result.success) {
         throw new Error("❌ Failed to save section 5 data");
       }
 

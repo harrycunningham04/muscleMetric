@@ -40,29 +40,48 @@ type WorkoutType = {
 // Plans API call with fetch
 const fetchPlans = async () => {
   try {
-    let userId = 2;
-    const response = await fetch(
-      `https://hc920.brighton.domains/muscleMetric/php/plans/plansData.php?user_id=${userId}`
-    ); // Make sure to update this with the correct API endpoint
-    if (!response.ok) {
-      throw new Error("Network response was not ok");
+    const sessionData = localStorage.getItem("session");
+    if (sessionData) {
+      const session = JSON.parse(sessionData); // Parse the string into an object
+      const userId = session.userId;
+      console.log("User ID:", userId);
+
+      const response = await fetch(
+        `https://hc920.brighton.domains/muscleMetric/php/plans/plansData.php?user_id=${userId}`
+      ); // Make sure to update this with the correct API endpoint
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const data = await response.json();
+      console.log("plansData:", data.plans); // Log plansData to verify the response
+      return data.plans; // assuming the structure returns an array of plans
+    } else {
+      console.log("Session not found in local storage.");
     }
-    const data = await response.json();
-    console.log("plansData:", data.plans); // Log plansData to verify the response
-    return data.plans; // assuming the structure returns an array of plans
   } catch (error) {
     console.error("Error fetching plans:", error);
     throw new Error("Error fetching plans");
   }
 };
 
-// History data
 const fetchWorkouts = async ({ pageParam = 0 }) => {
   const pageSize = 5;
 
-  let Userid = 2;
+  const sessionData = localStorage.getItem("session");
+  if (!sessionData) {
+    console.warn("Session not found in local storage.");
+    return {
+      workouts: [],
+      nextPage: undefined,
+    };
+  }
+
+  const session = JSON.parse(sessionData);
+  const userId = session.userId;
+  console.log("User ID:", userId);
+
   const res = await fetch(
-    `https://hc920.brighton.domains/muscleMetric/php/plans/historyData.php?user_id=${Userid}`
+    `https://hc920.brighton.domains/muscleMetric/php/plans/historyData.php?user_id=${userId}`
   );
 
   if (!res.ok) {
@@ -347,105 +366,113 @@ const Plans = () => {
           </div>
 
           {data?.pages[0]?.workouts?.length > 0 ? (
-            <div> 
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Recent Workouts</h2>
-              <Button
-                variant="ghost"
-                onClick={() => navigate("/history")}
-                className="text-sm"
-              >
-                View All History
-              </Button>
-            </div>
-            <ScrollArea
-              className="h-[600px] rounded-md border p-4"
-              onScrollCapture={handleScroll}
-              ref={scrollRef}
-            >
-              <div className="space-y-4">
-                {status === "pending" ? (
-                  <div className="text-center py-4">Loading...</div>
-                ) : status === "error" ? (
-                  <div className="text-center py-4">Error loading workouts</div>
-                ) : (
-                  <>
-                    {data.pages.map((page, i) => (
-                      <React.Fragment key={i}>
-                        {page.workouts.map(
-                          (workout: {
-                            id: number;
-                            planName: string;
-                            workoutName: string;
-                            duration: string;
-                            date: string;
-                            exercises: string[];
-                          }) => (
-                            <Card
-                              key={workout.id}
-                              className="p-4 hover:shadow-lg transition-all cursor-pointer"
-                              onClick={() => navigate(`/history/${workout.id}`)}
-                            >
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <h3 className="font-semibold text-lg mb-2">
-                                    {workout.planName}
-                                  </h3>
-                                  <h4 className="font-semibold text-lg mb-2">
-                                    {workout.workoutName}
-                                  </h4>
-                                  <div className="flex items-center text-muted-foreground mb-1">
-                                    <Clock className="w-4 h-4 mr-2" />
-                                    <span>{workout.duration}</span>
-                                  </div>
-                                </div>
-                                <span className="text-sm text-muted-foreground">
-                                  {new Date(workout.date).toLocaleDateString()}
-                                </span>
-                              </div>
-                              <div className="mt-2 text-sm text-muted-foreground">
-                                {Object.entries(
-                                  workout.exercises.reduce(
-                                    (
-                                      acc: Record<string, number>,
-                                      exercise: string
-                                    ) => {
-                                      acc[exercise] = (acc[exercise] || 0) + 1;
-                                      return acc;
-                                    },
-                                    {}
-                                  )
-                                ).map(
-                                  (
-                                    [exercise, count]: [string, number],
-                                    index: number
-                                  ) => (
-                                    <div key={index}>
-                                      • {exercise} ({count}{" "}
-                                      {count > 1 ? "sets" : "set"})
-                                    </div>
-                                  )
-                                )}
-                              </div>
-                            </Card>
-                          )
-                        )}
-                      </React.Fragment>
-                    ))}
-                    {isFetchingNextPage && (
-                      <div className="text-center py-4">Loading more...</div>
-                    )}
-                  </>
-                )}
+            <div>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold">Recent Workouts</h2>
+                <Button
+                  variant="ghost"
+                  onClick={() => navigate("/history")}
+                  className="text-sm"
+                >
+                  View All History
+                </Button>
               </div>
-            </ScrollArea>
-          </div>
+              <ScrollArea
+                className="h-[600px] rounded-md border p-4"
+                onScrollCapture={handleScroll}
+                ref={scrollRef}
+              >
+                <div className="space-y-4">
+                  {status === "pending" ? (
+                    <div className="text-center py-4">Loading...</div>
+                  ) : status === "error" ? (
+                    <div className="text-center py-4">
+                      Error loading workouts
+                    </div>
+                  ) : (
+                    <>
+                      {data.pages.map((page, i) => (
+                        <React.Fragment key={i}>
+                          {page.workouts.map(
+                            (workout: {
+                              id: number;
+                              planName: string;
+                              workoutName: string;
+                              duration: string;
+                              date: string;
+                              exercises: string[];
+                            }) => (
+                              <Card
+                                key={workout.id}
+                                className="p-4 hover:shadow-lg transition-all cursor-pointer"
+                                onClick={() =>
+                                  navigate(`/history/${workout.id}`)
+                                }
+                              >
+                                <div className="flex justify-between items-start">
+                                  <div>
+                                    <h3 className="font-semibold text-lg mb-2">
+                                      {workout.planName}
+                                    </h3>
+                                    <h4 className="font-semibold text-lg mb-2">
+                                      {workout.workoutName}
+                                    </h4>
+                                    <div className="flex items-center text-muted-foreground mb-1">
+                                      <Clock className="w-4 h-4 mr-2" />
+                                      <span>{workout.duration}</span>
+                                    </div>
+                                  </div>
+                                  <span className="text-sm text-muted-foreground">
+                                    {new Date(
+                                      workout.date
+                                    ).toLocaleDateString()}
+                                  </span>
+                                </div>
+                                <div className="mt-2 text-sm text-muted-foreground">
+                                  {Object.entries(
+                                    workout.exercises.reduce(
+                                      (
+                                        acc: Record<string, number>,
+                                        exercise: string
+                                      ) => {
+                                        acc[exercise] =
+                                          (acc[exercise] || 0) + 1;
+                                        return acc;
+                                      },
+                                      {}
+                                    )
+                                  ).map(
+                                    (
+                                      [exercise, count]: [string, number],
+                                      index: number
+                                    ) => (
+                                      <div key={index}>
+                                        • {exercise} ({count}{" "}
+                                        {count > 1 ? "sets" : "set"})
+                                      </div>
+                                    )
+                                  )}
+                                </div>
+                              </Card>
+                            )
+                          )}
+                        </React.Fragment>
+                      ))}
+                      {isFetchingNextPage && (
+                        <div className="text-center py-4">Loading more...</div>
+                      )}
+                    </>
+                  )}
+                </div>
+              </ScrollArea>
+            </div>
           ) : (
             <div className="flex flex-col items-center justify-center h-64 text-center text-muted-foreground">
               <Activity className="w-12 h-12 mb-4 opacity-75" />
               <h3 className="text-lg font-semibold">No workouts yet</h3>
               <p className="text-sm">
-                Once you complete a workout, it’ll show up here. Let’s get moving!
+                Once you complete a workout, it’ll show up here. Let’s get
+                moving!
               </p>
             </div>
           )}

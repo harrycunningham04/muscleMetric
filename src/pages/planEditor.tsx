@@ -191,13 +191,21 @@ const PlanEditor = () => {
       return;
     }
 
+    const sessionData = localStorage.getItem("session");
+    if (!sessionData) {
+      throw new Error("Session not found in local storage.");
+    }
+  
+    const session = JSON.parse(sessionData);
+    const USER_ID = session.userId;
+
     // Section 1 - Plan Details
     const planData = {
       title,
       duration,
       DaysPerWeek: workoutDays.length.toString(),
       isDefault: isDefault.toString(),
-      userId: "2",
+      userId: USER_ID,
     };
     console.log("Section 1 - Plan Details:", planData);
 

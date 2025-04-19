@@ -36,31 +36,42 @@ export const UserProfile: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
   const { weightUnit } = useSettings();
 
-    // Fetch user data from the backend
-    React.useEffect(() => {
-      const fetchUserData = async () => {
-        try {
-          const response = await fetch("https://hc920.brighton.domains/muscleMetric/php/user/getUser.php?user_id=2");
+  // Fetch user data from the backend
+  React.useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const sessionData = localStorage.getItem("session");
+        if (sessionData) {
+          const session = JSON.parse(sessionData); // Parse the string into an object
+          const userId = session.userId;
+          console.log("User ID:", userId);
+
+          const response = await fetch(
+            `https://hc920.brighton.domains/muscleMetric/php/user/getUser.php?user_id=${userId}`
+          );
           const data = await response.json();
-          
+
           if (data.message) {
             console.error("Error:", data.message);
           } else {
             setUserData({
               name: data.Name,
               email: data.Email,
-              height: Number(data.Height),  // Ensure it's a number
-              weight: Number(data.Weight),  // Ensure it's a number
+              height: Number(data.Height), // Ensure it's a number
+              weight: Number(data.Weight), // Ensure it's a number
               dateOfBirth: data.DateOfBirth,
             });
           }
-        } catch (error) {
-          console.error("Error fetching user data:", error);
+        } else {
+          console.log("Session not found in local storage.");
         }
-      };
-  
-      fetchUserData();
-    }, []); // Runs only once when the component mounts
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, []); // Runs only once when the component mounts
 
   React.useEffect(() => {
     if (!isProfileOpen) {
@@ -70,25 +81,36 @@ export const UserProfile: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+
     try {
-      const response = await fetch("https://hc920.brighton.domains/muscleMetric/php/user/updateUser.php", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          user_id: 2,  // Change this dynamically based on logged-in user
-          name: userData.name,
-          email: userData.email,
-          height: userData.height,
-          weight: userData.weight,
-          dateOfBirth: userData.dateOfBirth,
-        }),
-      });
-  
+      const sessionData = localStorage.getItem("session");
+      if (!sessionData) {
+        throw new Error("Session not found in local storage.");
+      }
+
+      const session = JSON.parse(sessionData);
+      const USER_ID = session.userId;
+
+      const response = await fetch(
+        "https://hc920.brighton.domains/muscleMetric/php/user/updateUser.php",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            user_id: USER_ID,
+            name: userData.name,
+            email: userData.email,
+            height: userData.height,
+            weight: userData.weight,
+            dateOfBirth: userData.dateOfBirth,
+          }),
+        }
+      );
+
       const data = await response.json();
-  
+
       if (data.message === "User updated successfully") {
         console.log("User data updated successfully");
       } else {
@@ -97,11 +119,14 @@ export const UserProfile: React.FC = () => {
     } catch (error) {
       console.error("Failed to update user data:", error);
     }
-  
+
     setIsEditing(false);
   };
-  
 
+  const handleLogout = () => {
+    localStorage.removeItem("session");
+    window.location.href = "/muscleMetric/frontend"; // Redirect to home page or login
+  };
 
   return (
     <>
@@ -180,7 +205,10 @@ export const UserProfile: React.FC = () => {
                     type="number"
                     value={userData.height}
                     onChange={(e) =>
-                      setUserData({ ...userData, height: Number(e.target.value) })
+                      setUserData({
+                        ...userData,
+                        height: Number(e.target.value),
+                      })
                     }
                     disabled={!isEditing}
                     placeholder="Height"
@@ -194,7 +222,7 @@ export const UserProfile: React.FC = () => {
                   type="number"
                   value={userData.weight}
                   onChange={(e) =>
-                    setUserData({ ...userData, weight:  Number(e.target.value) })
+                    setUserData({ ...userData, weight: Number(e.target.value) })
                   }
                   disabled={!isEditing}
                 />
@@ -213,6 +241,15 @@ export const UserProfile: React.FC = () => {
               </div>
             </div>
           </form>
+
+          <Button
+            variant="destructive"
+            className="w-full mt-4"
+            onClick={handleLogout}
+          >
+            Logout
+          </Button>
+
           {isEditing && (
             <DialogFooter>
               <Button

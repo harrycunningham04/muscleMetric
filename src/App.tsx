@@ -23,6 +23,7 @@ import Navigation from "./components/Navigation";
 import History from "./pages/history";
 import HistoryDetails from "./pages/historyDetails";
 import Footer2 from "./components/Footer2";
+import PrivateRoute from "./components/PrivateRoute";
 
 const queryClient = new QueryClient();
 
@@ -37,21 +38,120 @@ const AppContent = () => {
       <div className="flex-grow">
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/dashboard" element={<Main />} />
-          <Route path="/plans" element={<Plans />} />
-          <Route path="/workout" element={<Workout />} />
-          <Route path="/workout/:workoutid" element={<WorkoutDetails />} />
-          <Route path="/custom-plans" element={<CustomPlans />} />
-          <Route path="/plans/new" element={<PlanEditor />} />
-          <Route path="/plans/:planid/edit" element={<PlanEditor />} />
-          <Route path="/plans/:planid" element={<PlanDetails />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/history" element={<History />} />
-          <Route path="/history/:historyid" element={<HistoryDetails />} />
           <Route path="/verify" element={<Verify />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/terms" element={<Terms />} />
-          <Route path="/privacy" element={<Privacy />} />
+
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute>
+                <Main />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/plans"
+            element={
+              <PrivateRoute>
+                <Plans />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/workout"
+            element={
+              <PrivateRoute>
+                <Workout />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/workout/:workoutid"
+            element={
+              <PrivateRoute>
+                <WorkoutDetails />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/custom-plans"
+            element={
+              <PrivateRoute>
+                <CustomPlans />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/plans/new"
+            element={
+              <PrivateRoute>
+                <PlanEditor />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/plans/:planid/edit"
+            element={
+              <PrivateRoute>
+                <PlanEditor />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/plans/:planid"
+            element={
+              <PrivateRoute>
+                <PlanDetails />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/contact"
+            element={
+              <PrivateRoute>
+                <Contact />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/history"
+            element={
+              <PrivateRoute>
+                <History />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/history/:historyid"
+            element={
+              <PrivateRoute>
+                <HistoryDetails />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/about"
+            element={
+              <PrivateRoute>
+                <About />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/terms"
+            element={
+              <PrivateRoute>
+                <Terms />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/privacy"
+            element={
+              <PrivateRoute>
+                <Privacy />
+              </PrivateRoute>
+            }
+          />
         </Routes>
       </div>
       {showAlternateFooter ? <Footer /> : <Footer2 />}

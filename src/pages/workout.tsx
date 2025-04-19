@@ -26,7 +26,13 @@ export const Workout = () => {
   useEffect(() => {
     const fetchWorkouts = async () => {
       try {
-        let USER_ID = 2
+        const sessionData = localStorage.getItem("session");
+        if (!sessionData) {
+          throw new Error("Session not found in local storage.");
+        }
+      
+        const session = JSON.parse(sessionData);
+        const USER_ID = session.userId;
         setLoading(true);
         const response = await fetch(`https://hc920.brighton.domains/muscleMetric/php/workout/workout.php?user_id=${USER_ID}`);
         const data = await response.json();

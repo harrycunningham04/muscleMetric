@@ -6,7 +6,7 @@ Function:
             all completed workouts get set to not completed,  ✅
 
 Reading from database
-- verify.tsx, the user management stage, use a token so user stays logged in for a day.
+- verify.tsx, the user management stage, use a token so user stays logged in for a day. ✅
 
 - Main.tsx, needs to connect to the workout exercises table, to get the list of exercises for the graphing ✅
 
