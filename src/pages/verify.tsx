@@ -15,6 +15,7 @@ interface VerifyFormData {
   height: string;
   weight: string;
   password: string;
+  gender: string;
 }
 
 const Verify = () => {
@@ -30,13 +31,16 @@ const Verify = () => {
     height: "",
     weight: "",
     password: "",
+    gender: "",
   });
 
   const validateEmail = (email: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const validatePassword = (password: string) =>
-    /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(password); // At least 8 chars, letters + numbers
+    /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+{}\[\]:;<>,.?~\-=/\\]{8,}$/.test(
+      password
+    );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,6 +80,12 @@ const Verify = () => {
         toast.error("Please provide your date of birth.");
         return;
       }
+
+      if (!formData.gender) {
+        toast.error("Please select a gender.");
+        return;
+      }
+      
     } else {
       // Login validations
       if (!validateEmail(formData.email)) {
@@ -301,6 +311,38 @@ const Verify = () => {
 
                         <div className="space-y-2">
                           <Label
+                            htmlFor="gender"
+                            className="text-primary-foreground text-base"
+                          >
+                            Gender
+                          </Label>
+                          <div className="flex gap-4">
+                            {["Male", "Female", "Other"].map((option) => (
+                              <label
+                                key={option}
+                                className="flex items-center gap-2 text-primary-foreground"
+                              >
+                                <input
+                                  type="radio"
+                                  name="gender"
+                                  value={option}
+                                  checked={formData.gender === option}
+                                  onChange={(e) =>
+                                    setFormData({
+                                      ...formData,
+                                      gender: e.target.value,
+                                    })
+                                  }
+                                  className="accent-primary"
+                                />
+                                {option}
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label
                             htmlFor="height"
                             className="text-primary-foreground text-base"
                           >
@@ -325,7 +367,7 @@ const Verify = () => {
                             htmlFor="weight"
                             className="text-primary-foreground text-base"
                           >
-                            Weight (lbs)
+                            Weight (kgs)
                           </Label>
                           <Input
                             id="weight"
@@ -337,7 +379,7 @@ const Verify = () => {
                                 weight: e.target.value,
                               })
                             }
-                            placeholder="170"
+                            placeholder="70"
                             className="bg-white/20 border-white/30 text-primary-foreground placeholder:text-primary-foreground/50 text-base md:text-lg p-6"
                           />
                         </div>

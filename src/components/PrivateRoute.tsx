@@ -1,5 +1,4 @@
-import { toast } from "@/hooks/use-toast";
-import { ReactNode, useEffect } from "react";
+import { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 
 interface PrivateRouteProps {
@@ -22,17 +21,6 @@ const isSessionValid = () => {
 
 const PrivateRoute = ({ children }: PrivateRouteProps) => {
   const isLoggedIn = isSessionValid();
-
-  useEffect(() => {
-    if (!isLoggedIn) {
-      toast({
-        title: "Login Required",
-        description: "Please log in to access this page.",
-        variant: "destructive",
-      });
-    }
-  }, [isLoggedIn]);
-
   return isLoggedIn ? children : <Navigate to="/" replace />;
 };
 
