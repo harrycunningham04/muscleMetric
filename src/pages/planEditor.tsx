@@ -50,7 +50,7 @@ const PlanEditor = () => {
 
   const [title, setTitle] = useState("8-Week Strength Program");
   const [duration, setDuration] = useState("8");
-  const [isDefault, setIsDefault] = useState(false);
+  const [isDefault, setIsDefault] = useState(true);
   const [workoutDays, setWorkoutDays] = useState<WorkoutDay[]>([]);
   const [goals, setGoals] = useState<Goal[]>([]);
 
@@ -110,6 +110,25 @@ const PlanEditor = () => {
         if (goal.id === goalId) {
           let updatedValue = value;
 
+          // Ensure exerciseName is unique when updating goals
+          if (field === "exerciseName" && typeof value === "string") {
+            // Ensure that exerciseName is unique across all goals
+            const existingExercises = prevGoals
+              .filter((g) => g.id !== goalId)
+              .map((g) => g.exerciseName);
+
+            if (existingExercises.includes(value)) {
+              toast({
+                title: "Exercise Already Assigned",
+                description:
+                  "This exercise is already assigned to another goal.",
+                variant: "destructive",
+              });
+              return goal; // Return the goal as is if duplicate exercise is selected
+            }
+          }
+
+          // Handle targetWeight updates
           if (field === "targetWeight" && typeof value === "number") {
             const exercise = workoutDays
               .flatMap((day) => day.exercises)
@@ -119,10 +138,9 @@ const PlanEditor = () => {
               const startingWeight = exercise.startingWeight;
               const weeks = parseInt(duration, 10);
 
-              const minWeight = startingWeight * 1.02 ** weeks; // 2% increase per week
-              const maxWeight = startingWeight * 1.1 ** weeks; // 10% increase per week
+              const minWeight = startingWeight * 1.02 ** weeks;
+              const maxWeight = startingWeight * 1.1 ** weeks;
 
-              // Round to nearest 0.25
               const roundToNearest = (num: number) => Math.round(num * 4) / 4;
               const roundedMinWeight = roundToNearest(minWeight);
               const roundedMaxWeight = roundToNearest(maxWeight);
@@ -195,7 +213,7 @@ const PlanEditor = () => {
     if (!sessionData) {
       throw new Error("Session not found in local storage.");
     }
-  
+
     const session = JSON.parse(sessionData);
     const USER_ID = session.userId;
 
@@ -292,7 +310,6 @@ const PlanEditor = () => {
               body: JSON.stringify({ workoutExercises: exercises }),
             }
           );
-          
 
           const exercisesDataResponse = await exercisesResponse.json();
 
@@ -437,7 +454,6 @@ const PlanEditor = () => {
   const ensureThreeGoals = () => {
     setGoals((prevGoals) => {
       const updatedGoals = [...prevGoals];
-
       while (updatedGoals.length < 3) {
         updatedGoals.push({
           id: `goal-${updatedGoals.length + 1}`,
@@ -445,8 +461,7 @@ const PlanEditor = () => {
           targetWeight: 0,
         });
       }
-
-      return updatedGoals.slice(0, 3); // Ensure exactly 3 goals
+      return updatedGoals.slice(0, 3);
     });
   };
 
@@ -495,15 +510,15 @@ const PlanEditor = () => {
   }, [workoutDays, goals]);
 
   const getPlanExercises = () => {
-    const exerciseSet = new Set<string>();
+    const exerciseSet = new Set<string>(); // Explicitly declare the type as string
 
     workoutDays.forEach((day) => {
       day.exercises.forEach((exercise) => {
-        exerciseSet.add(exercise.name);
+        exerciseSet.add(exercise.name); // Ensure uniqueness
       });
     });
 
-    return Array.from(exerciseSet);
+    return Array.from(exerciseSet); // Now this will be inferred as string[]
   };
 
   const hasExercises = workoutDays.some((day) => day.exercises.length > 0);

@@ -6,7 +6,7 @@ import { Features } from "@/components/Landing/Features";
 import { Faqs } from "@/components/Faqs";
 import Icon from "@/assets/MuscleMetricIcon.png";
 import Dashboard from "@/assets/FitnessDashboard.png";
-import HeaderBg from "@/assets/Header.png"; 
+import HeaderBg from "@/assets/Header.png";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -41,6 +41,28 @@ const Index = () => {
 
   const perspectiveY = useTransform(scrollXProgress, [0, 1], [0, -100]);
 
+  // Check for session and navigate accordingly
+  const handleLoginClick = () => {
+    const session = localStorage.getItem("session");
+
+    if (session) {
+      const sessionData = JSON.parse(session);
+      const currentTime = Date.now();
+      const sessionExpiryTime = 60 * 60 * 1000; // 1 hour in milliseconds
+      const isSessionValid =
+        currentTime - sessionData.timestamp <= sessionExpiryTime;
+
+      if (isSessionValid) {
+        navigate("/dashboard"); // Redirect to dashboard if session is valid
+      } else {
+        localStorage.removeItem("session"); // Remove expired session from localStorage
+        navigate("/verify", { state: { type: "login" } }); // Redirect to verify page
+      }
+    } else {
+      navigate("/verify", { state: { type: "login" } }); // Redirect to verify page if no session
+    }
+  };
+
   return (
     <div
       ref={containerRef}
@@ -65,8 +87,15 @@ const Index = () => {
         className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center px-4"
       >
         {/* Background effect */}
-        <motion.div className="absolute inset-0 opacity-20" style={{ y: perspectiveY }}>
-          <img src={HeaderBg} alt="Header Background" className="absolute inset-0 w-full h-full object-cover" />
+        <motion.div
+          className="absolute inset-0 opacity-20"
+          style={{ y: perspectiveY }}
+        >
+          <img
+            src={HeaderBg}
+            alt="Header Background"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
         </motion.div>
 
         {/* Container */}
@@ -116,7 +145,7 @@ const Index = () => {
             className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-20"
           >
             <Button
-              onClick={() => navigate("/verify", { state: { type: "login" } })}
+              onClick={handleLoginClick} // Updated to use the handleLoginClick function
               variant="outline"
               className="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-sm transition-all duration-300"
             >
