@@ -168,6 +168,14 @@ const Plans = () => {
 
   const handleActivatePlan = async (planId: string) => {
     try {
+      const sessionData = localStorage.getItem("session");
+      if (!sessionData) {
+        throw new Error("Session not found in local storage.");
+      }
+
+      const session = JSON.parse(sessionData);
+      const USER_ID = session.userId;
+
       const response = await fetch(
         "https://hc920.brighton.domains/muscleMetric/php/plans/update/activePlan.php",
         {
@@ -176,7 +184,7 @@ const Plans = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            userId: "2", // Replace this with dynamic user ID if available
+            userId: USER_ID, // Replace this with dynamic user ID if available
             planId: planId,
           }),
         }
@@ -186,6 +194,7 @@ const Plans = () => {
 
       if (data.success) {
         setActivePlanId(planId);
+        console.log(activePlanId);
         toast({
           title: "Plan Activated",
           description: "Your active plan has been updated successfully.",
@@ -209,7 +218,7 @@ const Plans = () => {
   };
 
   const activePlan = plans.find((plan) => plan.isDefault);
-  const inactivePlans = plans.filter((plan) => plan.id !== activePlanId);
+  const inactivePlans = plans.filter((plan) => plan.id !== activePlan?.id);
 
   const nextPlan = () => {
     setCurrentPlanIndex((prev) =>
@@ -226,7 +235,14 @@ const Plans = () => {
   useEffect(() => {
     const fetchTodaysWorkout = async () => {
       try {
-        let UserID = 2;
+        const sessionData = localStorage.getItem("session");
+        if (!sessionData) {
+          throw new Error("Session not found in local storage.");
+        }
+
+        const session = JSON.parse(sessionData);
+        const UserID = session.userId;
+
         const res = await fetch(
           `https://hc920.brighton.domains/muscleMetric/php/plans/workoutData.php?user_id=${UserID}`
         );
@@ -317,46 +333,54 @@ const Plans = () => {
               </div>
             )}
 
-            {inactivePlans.length > 1 && (
+            {inactivePlans.length > 0 && (
               <div className="relative">
                 <h2 className="text-xl font-semibold mb-4">Other Plans</h2>
-                <div className="relative">
-                  <AnimatePresence mode="wait">
-                    <motion.div
-                      key={currentPlanIndex}
-                      initial={{ opacity: 0, x: 100 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -100 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <PlanCard
-                        {...inactivePlans[currentPlanIndex]}
-                        isActive={false}
-                        onActivate={handleActivatePlan}
-                      />
-                    </motion.div>
-                  </AnimatePresence>
-                  <div className="absolute top-1/2 -left-4 transform -translate-y-1/2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={previousPlan}
-                      className="rounded-full bg-background/80 backdrop-blur"
-                    >
-                      <ArrowLeft className="h-4 w-4" />
-                    </Button>
+                {inactivePlans.length === 1 ? (
+                  <PlanCard
+                    {...inactivePlans[0]}
+                    isActive={false}
+                    onActivate={handleActivatePlan}
+                  />
+                ) : (
+                  <div className="relative">
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={currentPlanIndex}
+                        initial={{ opacity: 0, x: 100 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -100 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <PlanCard
+                          {...inactivePlans[currentPlanIndex]}
+                          isActive={false}
+                          onActivate={handleActivatePlan}
+                        />
+                      </motion.div>
+                    </AnimatePresence>
+                    <div className="absolute top-1/2 -left-4 transform -translate-y-1/2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={previousPlan}
+                        className="rounded-full bg-background/80 backdrop-blur"
+                      >
+                        <ArrowLeft className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <div className="absolute top-1/2 -right-4 transform -translate-y-1/2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={nextPlan}
+                        className="rounded-full bg-background/80 backdrop-blur"
+                      >
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                  <div className="absolute top-1/2 -right-4 transform -translate-y-1/2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={nextPlan}
-                      className="rounded-full bg-background/80 backdrop-blur"
-                    >
-                      <ArrowRight className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
+                )}
               </div>
             )}
           </div>
