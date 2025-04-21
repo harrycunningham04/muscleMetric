@@ -89,14 +89,6 @@ const AppContent = () => {
             }
           />
           <Route
-            path="/plans/:planid/edit"
-            element={
-              <PrivateRoute>
-                <PlanEditor />
-              </PrivateRoute>
-            }
-          />
-          <Route
             path="/plans/:planid"
             element={
               <PrivateRoute>

@@ -9,34 +9,31 @@ const Main = () => {
   const [exercises, setExercises] = useState<{ id: number; name: string }[]>(
     []
   );
+  const [userId, setUserId] = useState<number>(0);
 
   useEffect(() => {
+    const sessionData = localStorage.getItem("session");
+    if (sessionData) {
+      const session = JSON.parse(sessionData);
+      setUserId(session.userId); // Only set state here
+    }
+  }, []);
+  
+  useEffect(() => {
+    if (!userId) return; // Don't run if userId is still null/0
+
     const fetchExercises = async () => {
       try {
-        const sessionData = localStorage.getItem("session");
-        if (sessionData) {
-          const session = JSON.parse(sessionData); // Parse the string into an object
-          const userId = session.userId;
-          console.log("User ID:", userId);
+        console.log("Fetching exercises with userId:", userId); // Should now be correct
+        const response = await fetch(
+          `https://hc920.brighton.domains/muscleMetric/php/dashboard/exercises.php?user_id=${userId}`
+        );
+        const data = await response.json();
 
-          const response = await fetch(
-            `https://hc920.brighton.domains/muscleMetric/php/dashboard/exercises.php?user_id=${userId}`
-          );
-
-          const data = await response.json();
-
-          if (response.ok && data.exercises) {
-            setExercises(
-              data.exercises.map((exercise: { id: number; name: string }) => ({
-                id: exercise.id,
-                name: exercise.name,
-              }))
-            );
-          } else {
-            console.error("Error fetching exercises:", data.message);
-          }
+        if (response.ok && data.exercises) {
+          setExercises(data.exercises);
         } else {
-          console.log("Session not found in local storage.");
+          console.error("Error fetching exercises:", data.message);
         }
       } catch (error) {
         console.error("Error fetching exercises:", error);
@@ -44,7 +41,7 @@ const Main = () => {
     };
 
     fetchExercises();
-  }, []);
+  }, [userId]);
 
   return (
     <div className="container py-8 bg-background text-foreground min-h-screen">
@@ -92,10 +89,10 @@ const Main = () => {
               {/* Exercise Progress Graph */}
               <div className="md:col-span-9">
                 <div className="h-full">
-                  {selectedExercise ? (
+                  {selectedExercise && userId ? (
                     <ExerciseProgressGraph
                       exerciseId={selectedExercise}
-                      userId={2}
+                      userId={userId}
                     />
                   ) : (
                     <div className="text-center text-muted-foreground py-12">

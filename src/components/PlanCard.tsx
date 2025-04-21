@@ -104,15 +104,6 @@ const PlanCard = ({
           >
             View Details
           </Button>
-          <Button 
-            className="flex-1"
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate(`/plans/${id}/edit`);
-            }}
-          >
-            Edit Plan
-          </Button>
         </div>
       </Card>
 

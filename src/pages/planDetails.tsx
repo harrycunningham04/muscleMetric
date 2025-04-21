@@ -1,106 +1,87 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { CalendarDays, Dumbbell, ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
+import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 
-// Mock data - replace with actual data fetching
-const mockPlan = {
-  id: "1",
-  title: "8-Week Strength Program",
-  duration: "8 weeks",
-  workoutDays: 4,
-  goals: ["Bench Press: 225 lbs", "Squat: 315 lbs", "Deadlift: 405 lbs"],
-  schedule: [
-    {
-      day: "Monday",
-      exercises: [
-        {
-          name: "Bench Press",
-          sets: 3,
-          reps: 8,
-          lastWeight: "185 lbs",
-        },
-        {
-          name: "Overhead Press",
-          sets: 3,
-          reps: 12,
-          lastWeight: "135 lbs",
-        },
-        {
-          name: "Incline Dumbbell Press",
-          sets: 3,
-          reps: 10,
-          lastWeight: "65 lbs each",
-        },
-      ],
-    },
-    {
-      day: "Wednesday",
-      exercises: [
-        {
-          name: "Squat",
-          sets: 4,
-          reps: 8,
-          lastWeight: "275 lbs",
-        },
-        {
-          name: "Romanian Deadlift",
-          sets: 3,
-          reps: 12,
-          lastWeight: "225 lbs",
-        },
-        {
-          name: "Leg Press",
-          sets: 3,
-          reps: 15,
-          lastWeight: "400 lbs",
-        },
-      ],
-    },
-    {
-      day: "Friday",
-      exercises: [
-        {
-          name: "Deadlift",
-          sets: 3,
-          reps: 5,
-          lastWeight: "315 lbs",
-        },
-        {
-          name: "Barbell Row",
-          sets: 3,
-          reps: 10,
-          lastWeight: "185 lbs",
-        },
-        {
-          name: "Pull-ups",
-          sets: 3,
-          reps: 8,
-          lastWeight: "Bodyweight",
-        },
-      ],
-    },
-  ],
+type Exercise = {
+  name: string;
+  sets: number;
+  reps: number;
+  lastWeight: string;
+};
+
+type Day = {
+  day: string;
+  exercises: Exercise[];
+};
+
+type Plan = {
+  title: string;
+  duration: string;
+  workoutDays: number;
+  schedule: Day[];
+  goals: string[];
 };
 
 const PlanDetails = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [isDefault, setIsDefault] = useState(false);
+  const { planid } = useParams();
+  const [plan, setPlan] = useState<Plan | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const handleDefaultToggle = (checked: boolean) => {
-    setIsDefault(checked);
-    toast({
-      title: checked ? "Default Plan Set" : "Default Plan Removed",
-      description: checked
-        ? "This plan is now your default workout plan"
-        : "This plan is no longer your default workout plan",
-    });
-  };
+  useEffect(() => {
+    const fetchPlan = async () => {
+      try {
+        console.log("🔄 Fetching plan details...");
+
+        const sessionData = localStorage.getItem("session");
+        console.log("📦 Session from localStorage:", sessionData);
+        if (!sessionData) {
+          throw new Error("❌ Session not found in local storage.");
+        }
+
+        const session = JSON.parse(sessionData);
+        const userId = session.userId;
+        console.log("👤 Extracted userId:", userId);
+        console.log("📌 planId from URL:", planid);
+
+        const response = await fetch(
+          "https://hc920.brighton.domains/muscleMetric/php/plans/planDetails.php",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              planid,
+              userId,
+            }),
+          }
+        );
+
+        console.log("📥 Raw fetch response:", response);
+
+        const data = await response.json();
+        console.log("✅ Parsed response data:", data);
+
+        if (!data || Object.keys(data).length === 0) {
+          console.warn("⚠️ Data is empty or null");
+        }
+
+        setPlan(data);
+      } catch (error) {
+        console.error("🔥 Error fetching plan details:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPlan();
+  }, [planid]);
+
+  if (loading) return <div className="container py-8">Loading...</div>;
+  if (!plan) return <div className="container py-8">Plan not found.</div>;
 
   return (
     <div className="container py-8">
@@ -118,25 +99,17 @@ const PlanDetails = () => {
           <Card className="p-6 mb-6">
             <div className="flex justify-between items-start">
               <div>
-                <h1 className="text-3xl font-bold mb-4">{mockPlan.title}</h1>
+                <h1 className="text-3xl font-bold mb-4">{plan.title}</h1>
                 <div className="flex space-x-6 text-muted-foreground">
                   <div className="flex items-center">
                     <CalendarDays className="w-4 h-4 mr-2" />
-                    <span>{mockPlan.duration}</span>
+                    <span>{plan.duration} weeks</span>
                   </div>
                   <div className="flex items-center">
                     <Dumbbell className="w-4 h-4 mr-2" />
-                    <span>{mockPlan.workoutDays} days/week</span>
+                    <span>{plan.workoutDays} days per week</span>
                   </div>
                 </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="default-plan"
-                  checked={isDefault}
-                  onCheckedChange={handleDefaultToggle}
-                />
-                <Label htmlFor="default-plan">Set as Default Plan</Label>
               </div>
             </div>
           </Card>
@@ -144,7 +117,7 @@ const PlanDetails = () => {
           <Card className="p-6">
             <h2 className="text-xl font-semibold mb-6">Weekly Schedule</h2>
             <div className="space-y-8">
-              {mockPlan.schedule.map((day) => (
+              {plan.schedule.map((day) => (
                 <div
                   key={day.day}
                   className="border-b pb-6 last:border-0 last:pb-0"
@@ -181,9 +154,9 @@ const PlanDetails = () => {
           <Card className="p-6">
             <h2 className="text-xl font-semibold mb-4">Goals</h2>
             <ul className="space-y-3">
-              {mockPlan.goals.map((goal) => (
+              {plan.goals.map((goal, idx) => (
                 <li
-                  key={goal}
+                  key={idx}
                   className="flex items-center text-muted-foreground"
                 >
                   <span className="w-2 h-2 bg-primary rounded-full mr-2" />

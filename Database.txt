@@ -65,3 +65,9 @@ active plan in other plans section
 ui issue on workout active  ✅
 faq box too light
 male and female icons
+
+
+
+to do:
+- facts, when a user is created create a row in the facts table for them as well done
+- plan Details, maybe get rid of edit plan 
