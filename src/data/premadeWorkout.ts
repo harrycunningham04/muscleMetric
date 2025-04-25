@@ -96,7 +96,7 @@ const getExerciseCountsForDuration = (
     case "90":
       return { compound: 4, isolation: 5 };
     default:
-      return { compound: 3, isolation: 3 }; // Default to 45 min
+      return { compound: 3, isolation: 3 }; 
   }
 };
 

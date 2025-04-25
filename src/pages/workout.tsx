@@ -82,7 +82,7 @@ export const Workout = () => {
 
       <div className="container max-w-2xl mx-auto py-8 relative z-10">
         <div className="bg-card/80 backdrop-blur-sm rounded-xl p-6 shadow-sm mb-6 border text-center">
-          <h1 className="text-2xl font-bold mb-2 text-foreground">Today's Workouts</h1>
+          <h1 className="text-2xl font-bold mb-2 text-foreground">This Week's Workouts</h1>
           <p className="text-muted-foreground">Select your workout to begin</p>
         </div>
 

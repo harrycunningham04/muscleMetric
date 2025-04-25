@@ -33,6 +33,7 @@ interface WorkoutState {
   completedExercises: string[];
   startedExercises: string[];
   activeExerciseId: string | null;
+  startTime?: string;
 }
 
 interface APIExercise {
@@ -129,11 +130,17 @@ const Workout = () => {
   useEffect(() => {
     let interval: NodeJS.Timeout | undefined;
 
-    if (workout?.isTimerRunning) {
+    if (workout?.isTimerRunning && workout.startTime) {
+      const start = new Date(workout.startTime);
       interval = setInterval(() => {
+        const now = new Date();
+        const secondsElapsed = Math.floor(
+          (now.getTime() - start.getTime()) / 1000
+        );
+
         setWorkout((prev) => ({
           ...prev!,
-          timerSeconds: prev!.timerSeconds + 1,
+          timerSeconds: secondsElapsed,
         }));
       }, 1000);
     }
@@ -141,7 +148,7 @@ const Workout = () => {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [workout?.isTimerRunning]);
+  }, [workout?.isTimerRunning, workout?.startTime]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -152,10 +159,12 @@ const Workout = () => {
   };
 
   const startWorkout = () => {
+    const now = new Date().toISOString();
     setWorkout((prev) => ({
       ...prev!,
       isWorkoutStarted: true,
       isTimerRunning: true,
+      startTime: now,
     }));
     toast({
       title: "Workout Started",
