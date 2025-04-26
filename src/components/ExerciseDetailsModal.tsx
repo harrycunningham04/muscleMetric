@@ -13,7 +13,7 @@ interface ExerciseDetailsModalProps {
     id: string;
     name: string;
     sets: number;
-    reps: number;
+    reps: number[];
     weights: number[];
     previousWeight: string;
     bodyPart: string;

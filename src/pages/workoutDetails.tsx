@@ -7,12 +7,13 @@ import { ExerciseCard } from "@/components/ExerciseCard";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useParams } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 interface Exercise {
   id: string;
   name: string;
   sets: number;
-  reps: number;
+  reps: number[];
   weights: number[];
   previousWeight: string;
   bodyPart: string;
@@ -58,6 +59,7 @@ const Workout = () => {
   const [workout, setWorkout] = useState<WorkoutState | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isFinishing, setIsFinishing] = useState(false);
 
   useEffect(() => {
     if (!workoutid) {
@@ -218,24 +220,24 @@ const Workout = () => {
 
   const handleCompletedExercise = (
     exerciseId: string,
-    sets: { weight: number; reps: number }[] // reps as a single number now
+    sets: { weight: number; reps: number }[] // Array of sets with weight and reps
   ) => {
     console.log("Received sets for", exerciseId, sets);
-
+  
     setWorkout((prev) => {
       if (!prev) return prev;
-
+  
       const updatedExercises = prev.exercises.map((ex) =>
         ex.id === exerciseId
           ? {
               ...ex,
-              sets: sets.length, // Keep this as the number of sets
-              weights: sets.map((set) => set.weight), // Array of weights
-              reps: sets[sets.length - 1].reps,
+              sets: sets.length, // Store the number of sets completed
+              weights: sets.map((set) => set.weight), // Store an array of weights for each set
+              reps: sets.map((set) => set.reps), // Store an array of reps for each set
             }
           : ex
       );
-
+  
       return {
         ...prev,
         completedExercises: [
@@ -260,7 +262,7 @@ const Workout = () => {
         ex.weights.map((weight, index) => ({
           ExerciseId: ex.id,
           SetNumber: index + 1,
-          Reps: ex.reps,
+          Reps: ex.reps[index],
           Weight: weight,
         }))
       );
@@ -291,6 +293,9 @@ const Workout = () => {
   }
 
   const handleFinishWorkout = async () => {
+    if (isFinishing) return; // Prevent double submission
+    setIsFinishing(true);
+
     const sessionData = localStorage.getItem("session");
     if (!sessionData) {
       throw new Error("Session not found in local storage.");
@@ -557,6 +562,8 @@ const Workout = () => {
         description: "Something went wrong while saving your workout.",
         variant: "destructive",
       });
+    } finally {
+      setIsFinishing(false);
     }
   };
 
@@ -657,7 +664,14 @@ const Workout = () => {
               {workout?.exercises?.map((exercise) => (
                 <Card
                   key={exercise.id}
-                  className="overflow-hidden transition-all duration-200 backdrop-blur-sm bg-card/95 dark:bg-card/90 border border-border/50 dark:border-border/30 shadow-sm hover:shadow-md dark:hover:shadow-primary/10"
+                  className={cn(
+                    "overflow-hidden transition-all duration-200 backdrop-blur-sm border shadow-sm hover:shadow-md",
+                    workout.completedExercises.includes(exercise.id)
+                      ? "bg-red-100 dark:bg-red-900 border-red-300 dark:border-red-700"
+                      : workout.startedExercises.includes(exercise.id)
+                      ? "bg-card/95 dark:bg-card/90 border-border/50 dark:border-border/30"
+                      : "bg-green-100 dark:bg-green-900 border-green-300 dark:border-green-700"
+                  )}
                 >
                   <div className="p-4">
                     <ExerciseCard
@@ -682,10 +696,18 @@ const Workout = () => {
               <div className="mt-8 text-center pt-4">
                 <Button
                   onClick={handleFinishWorkout}
-                  className="w-full md:w-2/3 mx-auto transition-all duration-200 hover:scale-105 shadow-sm hover:shadow-md focus:ring-2 focus:ring-primary/40 focus:ring-offset-2 focus:ring-offset-background"
+                  disabled={isFinishing}
+                  className="w-full md:w-2/3 mx-auto transition-all duration-200 hover:scale-105 shadow-sm hover:shadow-md focus:ring-2 focus:ring-primary/40 focus:ring-offset-2 focus:ring-offset-background disabled:opacity-50 disabled:cursor-not-allowed"
                   size="lg"
                 >
-                  Complete Workout
+                  {isFinishing ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="h-5 w-5 border-2 border-t-2 border-muted rounded-full animate-spin"></div>
+                      Finishing...
+                    </div>
+                  ) : (
+                    "Complete Workout"
+                  )}
                 </Button>
               </div>
             </div>

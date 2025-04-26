@@ -10,7 +10,7 @@ interface ExerciseCardProps {
     id: string;
     name: string;
     sets: number;
-    reps: number;
+    reps: number[];
     weights: number[];
     previousWeight?: string;
     bodyPart: string;
@@ -45,7 +45,7 @@ export const ExerciseCard = ({
   const [sets, setSets] = useState(
     Array.from({ length: exercise.sets }, (_, index) => ({
       weight: exercise.weights[index] ?? 0,
-      reps: exercise.reps,
+      reps: exercise.reps[index] ?? 0,
     }))
   );
   const [currentSet, setCurrentSet] = useState(0);
@@ -73,7 +73,7 @@ export const ExerciseCard = ({
   }, [currentSet]);
 
   const addSet = () => {
-    setSets([...sets, { weight: 0, reps: exercise.reps }]);
+    setSets([...sets, { weight: 0, reps: exercise.reps[0] }]); // Use the first element of exercise.reps
   };
 
   const removeSet = () => {
@@ -88,19 +88,32 @@ export const ExerciseCard = ({
   const updateSet = (
     index: number,
     field: "weight" | "reps",
-    value: number
+    value: number | number[]
   ) => {
     setSets(
-      sets.map((set, i) => (i === index ? { ...set, [field]: value } : set))
+      sets.map((set, i) => {
+        if (i === index) {
+          return { ...set, [field]: field === "reps" ? value : value }; // Update correctly based on field
+        }
+        return set;
+      })
     );
   };
 
-  const isSetComplete = (set: { weight: number; reps: number }) => {
-    return set.weight > 0 && set.reps > 0;
+  const isSetComplete = (set: { weight: number; reps: number | number[] }) => {
+    if (Array.isArray(set.reps)) {
+      return set.reps.every((rep) => rep > 0);
+    } else {
+      return set.reps > 0;
+    }
   };
 
   const areAllSetsComplete = () => {
-    return sets.every(isSetComplete);
+    const normalizedSets = sets.map((set) => ({
+      ...set,
+      reps: Array.isArray(set.reps) ? set.reps[0] : set.reps,
+    }));
+    return normalizedSets.every(isSetComplete);
   };
 
   const handleCompleteSet = () => {
@@ -221,20 +234,30 @@ export const ExerciseCard = ({
       <div className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
-            type="number"
-            value={sets[currentSet]?.reps || ""}
-            onChange={(e) =>
-              updateSet(currentSet, "reps", Number(e.target.value))
+            type="text" // Allow for comma-separated reps input
+            value={
+              Array.isArray(sets[currentSet]?.reps)
+                ? sets[currentSet]?.reps.join(", ") // Join array for display
+                : sets[currentSet]?.reps || "" // If it's not an array, just display the reps value
             }
+            onChange={(e) => {
+              // Handle input change for reps
+              const reps = e.target.value
+                .split(",")
+                .map((rep) => Number(rep.trim())) // Convert each value to number
+                .filter((rep) => !isNaN(rep)); // Remove any invalid entries
+              updateSet(currentSet, "reps", reps);
+            }}
             className="bg-background text-foreground border border-border"
             placeholder={`Previous: ${exercise.reps} reps`}
           />
+
           <Input
             type="number"
             value={sets[currentSet]?.weight || ""}
-            onChange={(e) =>
-              updateSet(currentSet, "weight", Number(e.target.value))
-            }
+            onChange={(e) => {
+              updateSet(currentSet, "weight", Number(e.target.value)); // Update weight for current set
+            }}
             className="bg-background text-foreground border border-border"
             placeholder={`Previous: ${
               exercise.weights[currentSet] ?? 0
