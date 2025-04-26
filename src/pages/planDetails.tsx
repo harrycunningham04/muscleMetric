@@ -3,12 +3,14 @@ import { Card } from "@/components/ui/card";
 import { CalendarDays, Dumbbell, ArrowLeft } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import MusclePieChart from "@/components/MusclePieChart";
 
 type Exercise = {
   name: string;
   sets: number;
   reps: number;
   lastWeight: string;
+  BodyPart: string; // Add BodyPart to Exercise type
 };
 
 type Day = {
@@ -29,6 +31,7 @@ const PlanDetails = () => {
   const { planid } = useParams();
   const [plan, setPlan] = useState<Plan | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchPlan = async () => {
@@ -36,15 +39,12 @@ const PlanDetails = () => {
         console.log("🔄 Fetching plan details...");
 
         const sessionData = localStorage.getItem("session");
-        console.log("📦 Session from localStorage:", sessionData);
         if (!sessionData) {
           throw new Error("❌ Session not found in local storage.");
         }
 
         const session = JSON.parse(sessionData);
         const userId = session.userId;
-        console.log("👤 Extracted userId:", userId);
-        console.log("📌 planId from URL:", planid);
 
         const response = await fetch(
           "https://hc920.brighton.domains/muscleMetric/php/plans/planDetails.php",
@@ -60,18 +60,21 @@ const PlanDetails = () => {
           }
         );
 
-        console.log("📥 Raw fetch response:", response);
+        // Log the raw response to check what is returned
+        const responseText = await response.text();
+        console.log("📥 Raw Response Text:", responseText);
 
-        const data = await response.json();
+        // Try to parse as JSON if the response is valid JSON
+        const data = JSON.parse(responseText);
         console.log("✅ Parsed response data:", data);
 
         if (!data || Object.keys(data).length === 0) {
-          console.warn("⚠️ Data is empty or null");
+          throw new Error("❌ No data found for this plan.");
         }
 
         setPlan(data);
-      } catch (error) {
-        console.error("🔥 Error fetching plan details:", error);
+      } catch (error: any) {
+        setError(error.message || "Something went wrong.");
       } finally {
         setLoading(false);
       }
@@ -81,6 +84,7 @@ const PlanDetails = () => {
   }, [planid]);
 
   if (loading) return <div className="container py-8">Loading...</div>;
+  if (error) return <div className="container py-8 text-red-600">{error}</div>;
   if (!plan) return <div className="container py-8">Plan not found.</div>;
 
   return (
@@ -164,6 +168,15 @@ const PlanDetails = () => {
                 </li>
               ))}
             </ul>
+          </Card>
+
+          <Card className="p-6 mt-6">
+            <h2 className="text-xl font-semibold mb-6">
+              Muscle Group Breakdown
+            </h2>
+            <div className="flex justify-center items-center">
+              <MusclePieChart plan={plan} />
+            </div>
           </Card>
         </div>
       </div>
