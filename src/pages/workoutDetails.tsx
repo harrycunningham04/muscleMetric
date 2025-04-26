@@ -271,10 +271,9 @@ const Workout = () => {
     workoutCount: number,
     newWorkoutSeconds: number
   ): string {
-    // Check if oldTime is valid
     if (!oldTime || oldTime === "00:00:00") {
       console.log("🟡 Invalid or default oldTime, using fallback.");
-      oldTime = "00:00:00"; // Set a default value if oldTime is invalid
+      oldTime = "00:00:00";
     }
 
     const [hours, minutes, seconds] = oldTime.split(":").map(Number);
@@ -463,6 +462,74 @@ const Workout = () => {
       }
 
       console.log("Section 5 data saved");
+
+      console.log("Section 6 starting");
+
+      console.log("🔎 completedExercises:", workout.completedExercises);
+
+      const completedExercisesData = workout.completedExercises.map(
+        (exerciseIdStr) => {
+          const exerciseId = exerciseIdStr;
+
+          const setsForExercise = historySetsData.filter(
+            (set) => set.ExerciseId === exerciseId
+          );
+
+          const totalSets = setsForExercise.length;
+          const avgReps =
+            totalSets > 0
+              ? Math.round(
+                  setsForExercise.reduce((sum, set) => sum + set.Reps, 0) /
+                    totalSets
+                )
+              : 0;
+          const avgWeight =
+            totalSets > 0
+              ? Math.round(
+                  setsForExercise.reduce((sum, set) => sum + set.Weight, 0) /
+                    totalSets
+                )
+              : 0;
+
+          return {
+            ExerciseId: exerciseId,
+            Sets: totalSets,
+            Reps: avgReps,
+            Weight: avgWeight,
+          };
+        }
+      );
+
+      const section6Payload = {
+        WorkoutId: workoutid,
+        Exercises: completedExercisesData,
+      };
+
+      //section 6, updating Workouts table
+      console.log("📦 Section 6 payload:", {
+        WorkoutId: workoutid,
+        Exercises: completedExercisesData,
+      });
+
+      const section6Res = await fetch(
+        "https://hc920.brighton.domains/muscleMetric/php/workout/write/section6.php",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(section6Payload),
+        }
+      );
+
+      const section6Result = await section6Res.json();
+      console.log("Section 6 response:", section6Result);
+
+      if (!section6Result.success) {
+        throw new Error("❌ Failed to save section 6 data");
+      }
+
+      console.log("Section 6 data saved");
 
       // 🎉 Final toast/redirect
       if (workout.completedExercises.length === workout.exercises.length) {

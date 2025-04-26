@@ -15,16 +15,16 @@ const Main = () => {
     const sessionData = localStorage.getItem("session");
     if (sessionData) {
       const session = JSON.parse(sessionData);
-      setUserId(session.userId); // Only set state here
+      setUserId(session.userId); 
     }
   }, []);
   
   useEffect(() => {
-    if (!userId) return; // Don't run if userId is still null/0
+    if (!userId) return; 
 
     const fetchExercises = async () => {
       try {
-        console.log("Fetching exercises with userId:", userId); // Should now be correct
+        console.log("Fetching exercises with userId:", userId); 
         const response = await fetch(
           `https://hc920.brighton.domains/muscleMetric/php/dashboard/exercises.php?user_id=${userId}`
         );
