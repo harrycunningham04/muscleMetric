@@ -18,6 +18,14 @@ interface ExerciseProgressGraphProps {
   userId: number;
 }
 
+type MergedEntry = {
+  date: string;
+  goal?: number;
+  goalDisplay?: number;
+  actual?: number;
+  actualDisplay?: number;
+};
+
 export const ExerciseProgressGraph = ({
   exerciseId,
   userId,
@@ -32,35 +40,6 @@ export const ExerciseProgressGraph = ({
   const [isGoalExercise, setIsGoalExercise] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await axios.post(
-          "https://hc920.brighton.domains/muscleMetric/php/dashboard/graph/graphData.php",
-          {
-            exercise_id: exerciseId,
-            user_id: userId,
-          }
-        );
-
-        const processed = res.data
-          .map((entry: any) => {
-            if (!entry.sets || entry.sets.length === 0) return null;
-
-            const maxWeight = Math.max(...entry.sets.map((s: any) => s.weight));
-            return {
-              date: format(new Date(entry.date), "MMM dd"),
-              actual: maxWeight,
-              actualDisplay: convertWeight(maxWeight),
-            };
-          })
-          .filter(Boolean);
-
-        setData(processed);
-      } catch (err) {
-        console.error("Error fetching graph data", err);
-      }
-    };
-
     const fetchGoalData = async () => {
       try {
         const res = await axios.post(
@@ -73,6 +52,7 @@ export const ExerciseProgressGraph = ({
 
         if (res.data.message === "Not a goal exercise") {
           setIsGoalExercise(false);
+          setGoalData([]);
           return;
         }
 
@@ -94,10 +74,10 @@ export const ExerciseProgressGraph = ({
 
         const weeklyGoals = Array.from({ length: duration }, (_, i) => {
           const date = new Date(startDate);
-          date.setDate(date.getDate() + i * 7);
+          date.setDate(startDate.getDate() + i * 7);
           const weight = startingWeight + weightIncrement * i;
           return {
-            date: format(date, "MMM dd"),
+            date: format(date, "yyyy-MM-dd"),
             goal: weight,
             goalDisplay: convertWeight(weight),
             label: `Week ${i + 1}`,
@@ -110,8 +90,43 @@ export const ExerciseProgressGraph = ({
       }
     };
 
-    fetchData();
-    fetchGoalData();
+    const fetchData = async () => {
+      try {
+        const res = await axios.post(
+          "https://hc920.brighton.domains/muscleMetric/php/dashboard/graph/graphData.php",
+          {
+            exercise_id: exerciseId,
+            user_id: userId,
+          }
+        );
+
+        const processed = res.data
+          .map((entry: any) => {
+            if (!entry.sets || entry.sets.length === 0) return null;
+
+            const workoutDate = new Date(entry.date);
+            const maxWeight = Math.max(...entry.sets.map((s: any) => s.weight));
+
+            return {
+              date: format(workoutDate, "yyyy-MM-dd"), // Keep true workout date
+              actual: maxWeight,
+              actualDisplay: convertWeight(maxWeight),
+            };
+          })
+          .filter(Boolean);
+
+        setData(processed);
+      } catch (err) {
+        console.error("Error fetching graph data", err);
+      }
+    };
+
+    const loadAll = async () => {
+      await fetchGoalData();
+      await fetchData();
+    };
+
+    loadAll();
   }, [exerciseId, userId]);
 
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -146,6 +161,17 @@ export const ExerciseProgressGraph = ({
     return null;
   };
 
+  const merged = [...goalData, ...data].reduce((acc: MergedEntry[], curr) => {
+    const existing = acc.find((item) => item.date === curr.date);
+    if (existing) {
+      Object.assign(existing, curr);
+    } else {
+      acc.push({ ...curr });
+    }
+    return acc;
+  }, []);
+  merged.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -160,7 +186,7 @@ export const ExerciseProgressGraph = ({
       <div className="w-full h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
-            data={data}
+            data={merged}
             margin={{ top: 5, right: 10, left: 10, bottom: 5 }}
           >
             <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
@@ -192,7 +218,6 @@ export const ExerciseProgressGraph = ({
                 type="monotone"
                 dataKey="goalDisplay"
                 name="Goal"
-                data={goalData}
                 stroke="#22C55E"
                 strokeWidth={2}
                 strokeDasharray="5 5"

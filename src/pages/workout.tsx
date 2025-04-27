@@ -30,11 +30,13 @@ export const Workout = () => {
         if (!sessionData) {
           throw new Error("Session not found in local storage.");
         }
-      
+
         const session = JSON.parse(sessionData);
         const USER_ID = session.userId;
         setLoading(true);
-        const response = await fetch(`https://hc920.brighton.domains/muscleMetric/php/workout/workout.php?user_id=${USER_ID}`);
+        const response = await fetch(
+          `https://hc920.brighton.domains/muscleMetric/php/workout/workout.php?user_id=${USER_ID}`
+        );
         const data = await response.json();
 
         if (data.error) {
@@ -45,14 +47,17 @@ export const Workout = () => {
         const transformedWorkouts = data.workouts.map((workout: any) => ({
           id: workout.id,
           name: workout.Name,
-          completed: workout.Completed === 1, 
+          completed: workout.Completed === 1,
           exercises: data.exercises
             .filter((exercise: Exercise) => exercise.WorkoutId === workout.id)
             .map((exercise: Exercise) => exercise.Name),
         }));
 
         // Sort workouts to put uncompleted ones at the top
-        transformedWorkouts.sort((a: { completed: any; }, b: { completed: any; }) => Number(a.completed) - Number(b.completed));
+        transformedWorkouts.sort(
+          (a: { completed: any }, b: { completed: any }) =>
+            Number(a.completed) - Number(b.completed)
+        );
 
         setWorkouts(transformedWorkouts);
       } catch (err: any) {
@@ -82,7 +87,9 @@ export const Workout = () => {
 
       <div className="container max-w-2xl mx-auto py-8 relative z-10">
         <div className="bg-card/80 backdrop-blur-sm rounded-xl p-6 shadow-sm mb-6 border text-center">
-          <h1 className="text-2xl font-bold mb-2 text-foreground">This Week's Workouts</h1>
+          <h1 className="text-2xl font-bold mb-2 text-foreground">
+            This Week's Workouts
+          </h1>
           <p className="text-muted-foreground">Select your workout to begin</p>
         </div>
 
@@ -92,14 +99,20 @@ export const Workout = () => {
               key={workout.id}
               className={`p-6 cursor-pointer transition-all duration-300 hover:shadow-lg ${
                 workout.completed
-                  ? "bg-emerald-500/10 dark:bg-emerald-500/20"
+                  ? "bg-emerald-500/10 dark:bg-emerald-500/20 cursor-default" // 👈 no pointer on completed
                   : "bg-card hover:bg-accent"
               }`}
-              onClick={() => navigate(`/workout/${workout.id}`)}
+              onClick={() => {
+                if (!workout.completed) {
+                  navigate(`/workout/${workout.id}`);
+                }
+              }}
             >
               <div className="flex items-center justify-between">
                 <div className="space-y-2 text-center mx-auto">
-                  <h3 className="text-xl font-semibold text-foreground">{workout.name}</h3>
+                  <h3 className="text-xl font-semibold text-foreground">
+                    {workout.name}
+                  </h3>
                   <p className="text-sm text-muted-foreground">
                     {workout.exercises.join(" • ")}
                   </p>
