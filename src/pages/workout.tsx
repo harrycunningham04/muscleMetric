@@ -99,7 +99,7 @@ export const Workout = () => {
               key={workout.id}
               className={`p-6 cursor-pointer transition-all duration-300 hover:shadow-lg ${
                 workout.completed
-                  ? "bg-emerald-500/10 dark:bg-emerald-500/20 cursor-default" // 👈 no pointer on completed
+                  ? "bg-emerald-500/10 dark:bg-emerald-500/20 cursor-default"
                   : "bg-card hover:bg-accent"
               }`}
               onClick={() => {

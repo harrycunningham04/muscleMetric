@@ -18,14 +18,6 @@ interface ExerciseProgressGraphProps {
   userId: number;
 }
 
-type MergedEntry = {
-  date: string;
-  goal?: number;
-  goalDisplay?: number;
-  actual?: number;
-  actualDisplay?: number;
-};
-
 export const ExerciseProgressGraph = ({
   exerciseId,
   userId,
@@ -151,7 +143,9 @@ export const ExerciseProgressGraph = ({
                 <span className="text-muted-foreground">{entry.name}:</span>
               )}
               <span className="font-medium">
-                {formatWeight(entry.payload.actual ?? entry.payload.goal)}
+                {formatWeight(
+                  entry.payload.actualWeight ?? entry.payload.goalWeight
+                )}
               </span>
             </div>
           ))}
@@ -161,17 +155,27 @@ export const ExerciseProgressGraph = ({
     return null;
   };
 
-  const merged = [...goalData, ...data].reduce((acc: MergedEntry[], curr) => {
-    const existing = acc.find((item) => item.date === curr.date);
-    if (existing) {
-      Object.assign(existing, curr);
-    } else {
-      acc.push({ ...curr });
-    }
-    return acc;
-  }, []);
-  merged.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-  
+  // First, get all dates from both goalData and data
+  const allDatesSet = new Set<string>([
+    ...goalData.map((g) => g.date),
+    ...data.map((d) => d.date),
+  ]);
+  const allDates = Array.from(allDatesSet).sort(
+    (a, b) => new Date(a).getTime() - new Date(b).getTime()
+  );
+
+  // Then, build the merged array
+  const mergedDates = allDates.map((date) => {
+    const goalEntry = goalData.find((g) => g.date === date);
+    const actualEntry = data.find((d) => d.date === date);
+
+    return {
+      date,
+      goalWeight: goalEntry ? goalEntry.goal : null,
+      actualWeight: actualEntry ? actualEntry.actual : null,
+    };
+  });
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -186,7 +190,7 @@ export const ExerciseProgressGraph = ({
       <div className="w-full h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
-            data={merged}
+            data={mergedDates}
             margin={{ top: 5, right: 10, left: 10, bottom: 5 }}
           >
             <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
@@ -207,21 +211,23 @@ export const ExerciseProgressGraph = ({
             <Tooltip content={CustomTooltip} />
             <Line
               type="monotone"
-              dataKey="actualDisplay"
+              dataKey="actualWeight"
               name="Your Weight"
               stroke="#0EA5E9"
               strokeWidth={2}
               dot={{ fill: "#0EA5E9", r: 3 }}
+              connectNulls={false}
             />
             {isGoalExercise && goalData.length > 0 && (
               <Line
                 type="monotone"
-                dataKey="goalDisplay"
+                dataKey="goalWeight"
                 name="Goal"
                 stroke="#22C55E"
                 strokeWidth={2}
                 strokeDasharray="5 5"
                 dot={{ fill: "#22C55E", r: 3 }}
+                connectNulls={true}
               />
             )}
             <Legend wrapperStyle={{ fontSize: "12px", marginTop: "10px" }} />
