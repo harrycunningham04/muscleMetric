@@ -18,7 +18,6 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useSettings } from "@/context/SettingsContext";
 
-// Motivational quotes array
 const quotes = [
   "The only bad workout is the one that didn't happen.",
   "Your body can stand almost anything. It's your mind you have to convince.",
