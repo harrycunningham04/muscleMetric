@@ -75,9 +75,32 @@ const Verify = () => {
         toast.error("Weight must be a number between 30 and 300 kg.");
         return;
       }
-
       if (!formData.dateOfBirth) {
         toast.error("Please provide your date of birth.");
+        return;
+      }
+
+      const today = new Date();
+      const dob = new Date(formData.dateOfBirth);
+      let age = today.getFullYear() - dob.getFullYear();
+      const month = today.getMonth();
+      const day = today.getDate();
+
+      // Adjust age if the birthday hasn't occurred yet this year
+      if (
+        month < dob.getMonth() ||
+        (month === dob.getMonth() && day < dob.getDate())
+      ) {
+        age--;
+      }
+
+      if (age < 13) {
+        toast.error("You must be at least 13 years old.");
+        return;
+      }
+
+      if (age > 110) {
+        toast.error("Age cannot be greater than 110 years.");
         return;
       }
 
@@ -85,7 +108,6 @@ const Verify = () => {
         toast.error("Please select a gender.");
         return;
       }
-      
     } else {
       // Login validations
       if (!validateEmail(formData.email)) {

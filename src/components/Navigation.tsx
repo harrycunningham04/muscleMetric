@@ -50,16 +50,30 @@ const Navigation = () => {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-all duration-300 ${
-        shrink ? "h-16" : "h-24"
-      }`}
+      className={`sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 
+  transition-height duration-300 ease-in-out overflow-hidden ${
+    shrink ? "h-16" : "h-24"
+  }`}
     >
       <div className="container flex items-center justify-between h-full">
         <div className="mr-4 hidden md:flex">
-          <Link to="/" className="text-4xl font-bold">
+          <Link
+            to={(() => {
+              try {
+                const session = JSON.parse(
+                  localStorage.getItem("session") || "{}"
+                );
+                return session.userId ? "/dashboard" : "/";
+              } catch {
+                return "/";
+              }
+            })()}
+            className="text-4xl font-bold"
+          >
             <img
               src={Icon}
-              className={`rounded-xl transition-all duration-300 ${
+              alt="MuscleMetric Logo"
+              className={`rounded-xl transition-[width,height] duration-300 ease-in-out ${
                 shrink ? "h-10 w-10" : "h-16 w-16"
               }`}
             />

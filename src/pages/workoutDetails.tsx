@@ -223,10 +223,10 @@ const Workout = () => {
     sets: { weight: number; reps: number }[] // Array of sets with weight and reps
   ) => {
     console.log("Received sets for", exerciseId, sets);
-  
+
     setWorkout((prev) => {
       if (!prev) return prev;
-  
+
       const updatedExercises = prev.exercises.map((ex) =>
         ex.id === exerciseId
           ? {
@@ -237,7 +237,7 @@ const Workout = () => {
             }
           : ex
       );
-  
+
       return {
         ...prev,
         completedExercises: [
@@ -667,10 +667,10 @@ const Workout = () => {
                   className={cn(
                     "overflow-hidden transition-all duration-200 backdrop-blur-sm border shadow-sm hover:shadow-md",
                     workout.completedExercises.includes(exercise.id)
-                      ? "bg-red-100 dark:bg-red-900 border-red-300 dark:border-red-700"
+                      ? "bg-green-100 dark:bg-green-900 border-green-300 dark:border-green-700"
                       : workout.startedExercises.includes(exercise.id)
                       ? "bg-card/95 dark:bg-card/90 border-border/50 dark:border-border/30"
-                      : "bg-green-100 dark:bg-green-900 border-green-300 dark:border-green-700"
+                      : "bg-gray-400 dark:bg-gray-600 border-gray-500 dark:border-gray-800"
                   )}
                 >
                   <div className="p-4">
