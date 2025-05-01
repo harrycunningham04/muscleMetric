@@ -510,15 +510,15 @@ const PlanEditor = () => {
   }, [workoutDays, goals]);
 
   const getPlanExercises = () => {
-    const exerciseSet = new Set<string>(); // Explicitly declare the type as string
+    const exerciseSet = new Set<string>(); 
 
     workoutDays.forEach((day) => {
       day.exercises.forEach((exercise) => {
-        exerciseSet.add(exercise.name); // Ensure uniqueness
+        exerciseSet.add(exercise.name); 
       });
     });
 
-    return Array.from(exerciseSet); // Now this will be inferred as string[]
+    return Array.from(exerciseSet); 
   };
 
   const hasExercises = workoutDays.some((day) => day.exercises.length > 0);
