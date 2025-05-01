@@ -15,9 +15,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $isDefault = isset($_POST['isDefault']) ? $_POST['isDefault'] : null;
     $userId = isset($_POST['userId']) ? $_POST['userId'] : null;
 
+    $isDefaultRaw = isset($_POST['isDefault']) ? strtolower(trim($_POST['isDefault'])) : null;
+
+    if ($isDefaultRaw === 'true') {
+        $isDefault = 1;
+    } elseif ($isDefaultRaw === 'false') {
+        $isDefault = 0;
+    } else {
+        $isDefault = null;
+    }
+    
+
     // Validate inputs (this is a basic validation, you can add more checks as needed)
     if ($title && $duration && $daysPerWeek && $isDefault !== null && $userId) {
-        
+
         // Prepare the SQL query
         $stmt = $conn->prepare("INSERT INTO Plans (Title, Duration, DaysPerWeek, isDefault, UserID) VALUES (?, ?, ?, ?, ?)");
         $stmt->bind_param("ssiii", $title, $duration, $daysPerWeek, $isDefault, $userId);
